@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "design-engineer": {
+      "source": "darasoba/design-engineer-plugin",
+      "sourceType": "github",
+      "computedHash": "9af9a91f5469cae4162e05df312af0a9641d63cdfd174a696ccfd757a18ad481"
+    }
+  }
+}

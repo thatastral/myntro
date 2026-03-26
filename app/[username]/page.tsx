@@ -127,10 +127,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { user, links, achievements, affiliations, wallet, blocks, sections } = data
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-[100dvh] bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
       <div className="mx-auto max-w-lg px-4 py-12">
         <div className="flex flex-col gap-8">
-          {/* Profile header (affiliations shown inline beside name) */}
+          {/* Profile header */}
           <ProfileHeader user={user} walletAddress={wallet?.wallet_address ?? null} affiliations={affiliations} />
 
           {/* Links */}
@@ -144,10 +144,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           )}
 
           {/* Footer */}
-          <div className="pt-4 text-center">
+          <div className="pb-4 pt-2 text-center">
             <a
               href="/"
-              className="text-xs text-gray-300 transition-colors hover:text-gray-500 dark:text-gray-700 dark:hover:text-gray-500"
+              className="text-xs text-[#D0D0D0] transition-colors hover:text-[#909090]"
             >
               Powered by Myntro
             </a>

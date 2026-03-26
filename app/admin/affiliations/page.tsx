@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { CheckCircle, XCircle, Clock, Loader2, ExternalLink, RefreshCw } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, CircleNotch, ArrowSquareOut, ArrowClockwise, ArrowLeft } from '@phosphor-icons/react'
+import Link from 'next/link'
 
 interface AffiliationRow {
   id: string
@@ -60,8 +61,8 @@ export default function AdminAffiliationsPage() {
 
   if (forbidden) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Access denied.</p>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
+        <p className="text-sm text-[#909090]">Access denied.</p>
       </div>
     )
   }
@@ -71,26 +72,38 @@ export default function AdminAffiliationsPage() {
   const displayed = filter === 'pending' ? pending : affiliations
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-[100dvh] bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
       <div className="mx-auto max-w-3xl px-4 py-12">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">Affiliation Review</h1>
-            <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+            <Link
+              href="/"
+              className="mb-3 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Home
+            </Link>
+            <h1
+              className="text-xl font-bold text-[#182403]"
+              style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+            >
+              Affiliation Review
+            </h1>
+            <p className="mt-0.5 text-sm text-[#909090]">
               {pending.length} pending · {approved.length} approved
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex rounded-xl border border-gray-200 bg-white p-0.5 text-xs font-medium dark:border-gray-800 dark:bg-gray-900">
+            <div className="flex rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] p-0.5 text-xs font-medium">
               {(['pending', 'all'] as Filter[]).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`rounded-lg px-3 py-1.5 capitalize transition-colors ${
                     filter === f
-                      ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                      ? 'bg-[#182403] text-white'
+                      : 'text-[#909090] hover:text-[#182403]'
                   }`}
                 >
                   {f}
@@ -99,21 +112,21 @@ export default function AdminAffiliationsPage() {
             </div>
             <button
               onClick={() => load(filter)}
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
             >
-              <RefreshCw className="h-3.5 w-3.5" />
+              <ArrowClockwise className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
         {loading ? (
           <div className="flex justify-center py-24">
-            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+            <CircleNotch className="h-5 w-5 animate-spin text-[#C0C0C0]" />
           </div>
         ) : displayed.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center dark:border-gray-800">
-            <CheckCircle className="mx-auto mb-2 h-8 w-8 text-gray-300 dark:text-gray-700" />
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+          <div className="rounded-2xl border border-dashed border-[#E8E8E8] py-16 text-center">
+            <CheckCircle className="mx-auto mb-2 h-8 w-8 text-[#E0E0E0]" />
+            <p className="text-sm text-[#909090]">
               {filter === 'pending' ? 'No pending affiliations.' : 'No affiliations yet.'}
             </p>
           </div>
@@ -125,15 +138,15 @@ export default function AdminAffiliationsPage() {
               return (
                 <div
                   key={a.id}
-                  className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                  className="flex items-start gap-4 rounded-2xl border border-[#EBEBEB] bg-white p-4 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
                 >
                   {/* Affiliation logo */}
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-gray-100 dark:border-gray-800 dark:bg-gray-800">
+                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-[#F0F0F0] bg-[#F5F5F5]">
                     {a.logo_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={a.logo_url} alt={a.community_name} className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-lg font-bold text-gray-400 dark:text-gray-500">
+                      <div className="flex h-full w-full items-center justify-center text-lg font-bold text-[#C0C0C0]">
                         {a.community_name.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -142,43 +155,38 @@ export default function AdminAffiliationsPage() {
                   {/* Details */}
                   <div className="flex flex-1 flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-gray-900 dark:text-gray-50">
-                        {a.community_name}
-                      </span>
+                      <span className="font-semibold text-[#182403]">{a.community_name}</span>
                       {a.verified ? (
-                        <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-950/30 dark:text-green-400">
+                        <span className="flex items-center gap-1 rounded-full bg-[#F0FBE0] px-2 py-0.5 text-[10px] font-semibold text-[#4A7A00]">
                           <CheckCircle className="h-3 w-3" />
                           Approved
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                        <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                           <Clock className="h-3 w-3" />
                           Pending
                         </span>
                       )}
                     </div>
 
-                    {a.role && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{a.role}</p>
-                    )}
+                    {a.role && <p className="text-xs text-[#909090]">{a.role}</p>}
 
-                    {/* Submitted by */}
                     {user && (
                       <button
                         onClick={() => router.push(`/${user.username}`)}
-                        className="mt-0.5 flex items-center gap-1.5 w-fit text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="mt-0.5 flex items-center gap-1.5 w-fit text-xs text-[#909090] transition-colors hover:text-[#182403]"
                       >
-                        <div className="h-4 w-4 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+                        <div className="h-4 w-4 overflow-hidden rounded-full bg-[#E8E8E8] flex-shrink-0">
                           {user.avatar_url ? (
                             <Image src={user.avatar_url} alt={user.username} width={16} height={16} className="object-cover" unoptimized />
                           ) : (
-                            <div className="flex h-full w-full items-center justify-center text-[8px] font-bold text-gray-400">
+                            <div className="flex h-full w-full items-center justify-center text-[8px] font-bold text-[#C0C0C0]">
                               {(user.name || user.username).charAt(0).toUpperCase()}
                             </div>
                           )}
                         </div>
                         @{user.username}
-                        {user.name && <span className="text-gray-300 dark:text-gray-600">·</span>}
+                        {user.name && <span className="text-[#D0D0D0]">·</span>}
                         {user.name && <span>{user.name}</span>}
                       </button>
                     )}
@@ -191,27 +199,23 @@ export default function AdminAffiliationsPage() {
                           {isImage && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <a href={a.proof_link} target="_blank" rel="noopener noreferrer">
-                              <img
-                                src={a.proof_link}
-                                alt="Proof"
-                                className="h-24 w-auto rounded-lg border border-gray-200 object-cover dark:border-gray-700"
-                              />
+                              <img src={a.proof_link} alt="Proof" className="h-24 w-auto rounded-lg border border-[#EBEBEB] object-cover" />
                             </a>
                           )}
                           <a
                             href={a.proof_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 w-fit text-xs text-violet-500 hover:text-violet-700 dark:hover:text-violet-400"
+                            className="flex items-center gap-1 w-fit text-xs text-[#909090] underline-offset-2 hover:text-[#182403] hover:underline transition-colors"
                           >
-                            <ExternalLink className="h-3 w-3" />
+                            <ArrowSquareOut className="h-3 w-3" />
                             {isPdf ? 'View PDF' : isImage ? 'Open full image' : 'View proof'}
                           </a>
                         </div>
                       )
                     })()}
 
-                    <p className="text-[10px] text-gray-300 dark:text-gray-600">
+                    <p className="text-[10px] text-[#C0C0C0]">
                       Submitted {new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   </div>
@@ -222,9 +226,9 @@ export default function AdminAffiliationsPage() {
                       <button
                         onClick={() => setVerified(a.id, true)}
                         disabled={isActing}
-                        className="flex items-center gap-1.5 rounded-xl bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+                        className="flex items-center gap-1.5 rounded-xl bg-[#182403] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-50"
                       >
-                        {isActing ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
+                        {isActing ? <CircleNotch className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
                         Approve
                       </button>
                     )}
@@ -232,9 +236,9 @@ export default function AdminAffiliationsPage() {
                       <button
                         onClick={() => setVerified(a.id, false)}
                         disabled={isActing}
-                        className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                        className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-semibold text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-red-600 disabled:opacity-50"
                       >
-                        {isActing ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
+                        {isActing ? <CircleNotch className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
                         Revoke
                       </button>
                     )}

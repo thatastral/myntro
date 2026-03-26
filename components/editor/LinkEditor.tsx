@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { GripVertical, Pencil, Trash2, Plus, Check, X, Loader2, ExternalLink } from 'lucide-react'
+import { DotsSixVertical, PencilSimple, Trash, Plus, Check, X, CircleNotch, ArrowSquareOut } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import type { Link } from '@/types'
 
@@ -184,7 +184,7 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
                     className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
                   >
                     {editLoading ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <CircleNotch className="h-3.5 w-3.5 animate-spin" />
                     ) : (
                       <Check className="h-3.5 w-3.5" />
                     )}
@@ -193,7 +193,7 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
               </form>
             ) : (
               <div className="flex items-center gap-2 px-3 py-3">
-                <GripVertical className="h-4 w-4 flex-shrink-0 cursor-grab text-gray-300 active:cursor-grabbing dark:text-gray-600" />
+                <DotsSixVertical className="h-4 w-4 flex-shrink-0 cursor-grab text-gray-300 active:cursor-grabbing dark:text-gray-600" />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
                     {link.title}
@@ -208,13 +208,13 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
                   rel="noopener noreferrer"
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-800"
                 >
-                  <ExternalLink className="h-3.5 w-3.5" />
+                  <ArrowSquareOut className="h-3.5 w-3.5" />
                 </a>
                 <button
                   onClick={() => startEdit(link)}
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-800"
                 >
-                  <Pencil className="h-3.5 w-3.5" />
+                  <PencilSimple className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => handleDelete(link.id)}
@@ -222,9 +222,9 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
                   className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:hover:bg-red-950/30"
                 >
                   {deletingId === link.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <CircleNotch className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash className="h-3.5 w-3.5" />
                   )}
                 </button>
               </div>
@@ -286,7 +286,7 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
               disabled={addLoading || !addForm.title.trim() || !addForm.url.trim()}
               className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
             >
-              {addLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+              {addLoading ? <CircleNotch className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
               Add link
             </button>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback, type DragEvent, type ChangeEvent } from 'react'
-import { Upload, FileText, CheckCircle, XCircle, Loader2, X, Link as LinkIcon } from 'lucide-react'
+import { UploadSimple, FileText, CheckCircle, XCircle, CircleNotch, X, Link as LinkIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 type UploadState = 'idle' | 'dragging' | 'uploading' | 'success' | 'error'
@@ -97,10 +97,10 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
           try {
             const data = JSON.parse(xhr.responseText)
             setState('error')
-            setError(data.error ?? 'Upload failed.')
+            setError(data.error ?? 'UploadSimple failed.')
           } catch {
             setState('error')
-            setError('Upload failed. Please try again.')
+            setError('UploadSimple failed. Please try again.')
           }
         }
         resolve()
@@ -147,7 +147,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
   const handleDragLeave = () => { if (state === 'dragging') setState('idle') }
   const handleDrop = (e: DragEvent) => { e.preventDefault(); if (state === 'uploading') return; const file = e.dataTransfer.files[0]; if (file) uploadFile(file) }
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => { const file = e.target.files?.[0]; if (file) uploadFile(file) }
-  const cancelUpload = () => xhrRef.current?.abort()
+  const cancelUploadSimple = () => xhrRef.current?.abort()
 
   return (
     <div className="flex flex-col gap-3">
@@ -167,8 +167,8 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
                 : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
             )}
           >
-            <Upload className="h-3 w-3" />
-            Upload file
+            <UploadSimple className="h-3 w-3" />
+            UploadSimple file
           </button>
           <button
             onClick={() => setMode('url')}
@@ -205,7 +205,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
           {state === 'idle' && (
             <>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800">
-                <Upload className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                <UploadSimple className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -219,7 +219,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
           {state === 'dragging' && (
             <>
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30">
-                <Upload className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <UploadSimple className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Drop to upload</p>
             </>
@@ -240,10 +240,10 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <CircleNotch className="h-4 w-4 animate-spin" />
                 Extracting and indexing…
               </div>
-              <button onClick={(e) => { e.stopPropagation(); cancelUpload() }} className="text-xs text-gray-400 underline-offset-2 hover:underline">Cancel</button>
+              <button onClick={(e) => { e.stopPropagation(); cancelUploadSimple() }} className="text-xs text-gray-400 underline-offset-2 hover:underline">Cancel</button>
             </div>
           )}
 
@@ -256,7 +256,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
               </div>
               <button onClick={(e) => { e.stopPropagation(); reset() }} className="mt-1 flex items-center gap-1 text-xs text-gray-400 underline-offset-2 hover:underline">
                 <X className="h-3 w-3" />
-                Upload a different file
+                UploadSimple a different file
               </button>
             </div>
           )}
@@ -265,7 +265,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
             <div className="flex flex-col items-center gap-2">
               <XCircle className="h-10 w-10 text-red-500" />
               <div>
-                <p className="text-sm font-medium text-red-700 dark:text-red-300">Upload failed</p>
+                <p className="text-sm font-medium text-red-700 dark:text-red-300">UploadSimple failed</p>
                 {error && <p className="mt-0.5 text-xs text-red-600 dark:text-red-400">{error}</p>}
               </div>
               <button onClick={(e) => { e.stopPropagation(); reset() }} className="mt-1 text-xs text-gray-400 underline-offset-2 hover:underline">Try again</button>
@@ -290,7 +290,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
               disabled={urlLoading || !urlValue.trim()}
               className="flex items-center gap-1.5 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
             >
-              {urlLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4" />}
+              {urlLoading ? <CircleNotch className="h-4 w-4 animate-spin" /> : <LinkIcon className="h-4 w-4" />}
               {urlLoading ? 'Importing…' : 'Import'}
             </button>
           </div>

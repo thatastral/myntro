@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
 import type { Block } from '@/types'
 
 export function LinkBlock({ block }: { block: Block }) {
@@ -17,10 +17,10 @@ export function LinkBlock({ block }: { block: Block }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-colors hover:border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-all hover:border-[#D5D5D5] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)]"
     >
       {/* Preview image */}
-      <div className="relative w-full bg-gray-100 dark:bg-gray-800" style={{ paddingBottom: '52%' }}>
+      <div className="relative w-full bg-[#F5F5F5]" style={{ paddingBottom: '52%' }}>
         {previewImage ? (
           <Image
             src={previewImage}
@@ -41,16 +41,16 @@ export function LinkBlock({ block }: { block: Block }) {
       {/* Content */}
       <div className="flex flex-1 flex-col justify-between p-3">
         <div>
-          <p className="text-sm font-semibold text-gray-900 line-clamp-2 dark:text-gray-50">
+          <p className="text-sm font-semibold text-[#182403] line-clamp-2">
             {title || hostname}
           </p>
           {description && (
-            <p className="mt-0.5 text-xs text-gray-500 line-clamp-1 dark:text-gray-400">{description}</p>
+            <p className="mt-0.5 text-xs text-[#909090] line-clamp-1">{description}</p>
           )}
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-gray-400">{hostname}</span>
-          <ArrowUpRight className="h-3.5 w-3.5 text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          <span className="text-xs text-[#C0C0C0]">{hostname}</span>
+          <ArrowSquareOut className="h-3.5 w-3.5 text-[#909090] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </div>
       </div>
     </a>

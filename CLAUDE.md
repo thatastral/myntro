@@ -30,6 +30,8 @@ Browser → proxy.ts → App Router page or API route → Supabase
 - `/`, `/login`, `/signup` — redirect authenticated users to `/{username}/edit` (queries `users` table for username, falls back to `/onboarding`)
 - `/admin/*` — restricted to emails listed in `ADMIN_EMAILS` env var; non-admins redirected to `/`
 
+**Critical:** `getUserProfilePath` in `proxy.ts` uses the **service role key** (not the anon key) to query the `users` table. The anon key respects RLS and can fail to see user rows when called from middleware, causing authenticated users to be wrongly redirected to `/onboarding`. Always use `createSupabaseClient(URL, SERVICE_ROLE_KEY)` for this lookup.
+
 ### Auth
 
 Supabase Auth with Google OAuth + email/password. Two client factories in `lib/supabase/`:
@@ -47,13 +49,17 @@ After OAuth the browser hits `/api/auth/callback` → checks if user has a profi
 
 All data lives in Supabase Postgres. Schema in `supabase/migrations/`. Always apply new migrations via the **Supabase dashboard SQL editor** — the Management API token has been unreliable.
 
-Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`.
+Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`, `waitlist`.
 
 Key columns:
 - `users.featured_affiliation_id UUID` references `affiliations(id) ON DELETE SET NULL` — controls which verified affiliation badge shows publicly. Migration: `supabase/migrations/003_featured_affiliation.sql`.
 - `users.avatar_position JSONB` — stores avatar image position ({x, y} percentages). Migration: `supabase/migrations/006_avatar_position.sql`.
 
 Storage buckets: `avatars` (public), `documents` (public). All storage uploads must use `createAdminClient()` — RLS blocks the anon/user client from inserting into `storage.objects`.
+
+**Username upsert pattern** (`app/api/username/route.ts`): Always use `createAdminClient()` with `onConflict: 'id'` for upserting into `users`. Before upserting, delete any orphaned rows with the same email but a different `id` — these arise from test sessions and cause unique constraint violations (error code `23505`) even when the count check returns 0.
+
+**`'use client'` requirement**: Any component that imports from `@phosphor-icons/react` (or other client-only packages) and is directly imported by a Server Component **must** have `'use client'` at the top. Missing this causes `createContext is not a function` at runtime. Affected: `LinksSection.tsx`, `AIChatWidget.tsx`, etc.
 
 ### Affiliation verification flow
 
@@ -71,6 +77,8 @@ Two ingestion paths, both store to `documents` table with `parsed_text` for AI c
 ### AI chat
 
 `/api/ai/chat` builds context from the DB and the most recent `documents.parsed_text`, then streams from **Groq** via the OpenAI-compatible SDK (`lib/ai/deepseek.ts`, model `llama-3.3-70b-versatile`). Requires `GROQ_API_KEY`. `generateEmbedding()` always returns `null` (no embedding model) — vector search is skipped and CV text is included directly in the system prompt instead.
+
+**AI chat sidebar** (`components/profile/AIChatWidget.tsx`): Floating panel, fixed 16px gap from top/right/bottom (`top:16, right:16, bottom:16`), `borderRadius:20`, slide-in from right. Contains `MyntroMark` (inline SVG logo mark) and `MyntroAvatar` (self-contained: dark green `#182403` bg + `MyntroMark`). Uses `useId()` for unique SVG gradient/clip IDs so multiple avatars can render on the same page without ID collisions. Send button uses the brand green gradient. Any update to this component must keep `MyntroMark` and `MyntroAvatar` self-contained within the file.
 
 ### Analytics
 
@@ -95,9 +103,20 @@ The "Me" tab on the edit page is a bento grid of content blocks. Each block has 
 - Link blocks fetch OG image at save time (`fetchOgImage()` in `/api/blocks`). Fallback on the client: Google Favicon API.
 - `follower_count` on `links` is not auto-fetched (feature removed). The column exists in the schema but is not populated.
 
+### Waitlist
+
+Pre-launch username reservation at `app/waitlist/page.tsx`:
+- Debounced real-time username availability check via `HEAD /api/waitlist?username=foo` (200 = available, 409 = taken)
+- `GET /api/waitlist` returns `{ count }` of signups
+- `POST /api/waitlist` validates email + username, checks both `users` and `waitlist` tables, inserts; handles `23505` duplicate gracefully
+- Migration: `supabase/migrations/007_waitlist.sql` — must be run manually in the Supabase dashboard SQL editor
+- Table has RLS enabled; policy allows public inserts, no public reads (admin client used in API routes)
+
 ### Onboarding flow
 
 `app/(onboarding)/onboarding/page.tsx` guides new users through profile setup:
+
+**Back to login from Step 1**: Calls `supabase.auth.signOut()` before `router.push('/login')` — navigating to `/login` while authenticated causes an infinite redirect loop (proxy redirects authenticated users away from `/login`).
 
 **Step 1 - Username**: Choose a unique username (validated: 3-30 chars, lowercase alphanumeric + underscores, checked against DB)
 
@@ -151,6 +170,14 @@ Note blocks in the bento grid have enhanced styling and are editable:
   - Tab content: BlocksEditor, Affiliations, CV/Resume, Wallet sections
   - Floating stats bar at bottom
 - `/admin/affiliations` (client) — admin-only review page; fetches via `/api/admin/affiliations` which uses `users!affiliations_user_id_fkey` join hint to resolve the ambiguous FK
+
+### Homepage features section
+
+`app/page.tsx` contains a `FeaturesSection` component with a `useInView` hook (IntersectionObserver, fires once) for scroll-triggered fade-up animations staggered per card. Four inline SVG illustration components (`IllustrationIdentity`, `IllustrationTipping`, `IllustrationAI`, `IllustrationBadges`) with CSS `@keyframes` animations embedded in `<style>` tags inside the SVG. The features section uses a light `#F7F7F5` background — keep it light-themed.
+
+### Design system tokens
+
+Colors: `#182403` (dark green/text), `#909090` (muted), `#C0C0C0` (placeholder/subtle), `#EBEBEB` (border), `#FAFAFA` (surface), `#8EE600` (brand accent), `#4A7A00` (darker green). Avoid Tailwind `gray-*`, `amber-*`, or one-off hex values not in this set. Primary CTA button style: `linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)` with `boxShadow: '0 3px 16px rgba(142,230,0,0.35)'`.
 
 ### Key conventions
 

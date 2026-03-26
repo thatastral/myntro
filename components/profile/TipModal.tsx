@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { X, Zap, Copy, Check, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { X, Lightning, Copy, Check, CircleNotch, Warning, CheckCircle } from '@phosphor-icons/react'
 import {
   ConnectionProvider,
   WalletProvider,
@@ -148,7 +148,7 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
       {txSig ? (
         /* Success state */
         <div className="flex flex-col items-center gap-3 py-4">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
+          <CheckCircle className="h-10 w-10 text-green-500" />
           <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
             Tip sent!
           </p>
@@ -236,7 +236,7 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
 
           {error && (
             <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900 dark:bg-red-950/20">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-500" />
+              <Warning className="h-4 w-4 flex-shrink-0 text-red-500" />
               <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
@@ -247,9 +247,9 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
             className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
           >
             {sending ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Sending…</>
+              <><CircleNotch className="h-4 w-4 animate-spin" />Sending…</>
             ) : (
-              <><Zap className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>
+              <><Lightning className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>
             )}
           </button>
         </div>
@@ -279,7 +279,7 @@ export function TipModal({ open, onClose, ownerName, walletAddress }: TipModalPr
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30">
-              <Zap className="h-4 w-4 text-amber-500" />
+              <Lightning className="h-4 w-4 text-amber-500" />
             </div>
             <div>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">Tip {ownerName}</p>

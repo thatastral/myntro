@@ -3,7 +3,8 @@
 import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Settings, Eye, EyeOff, ArrowUpRight, Loader2, BarChart2, Sun, Moon, Camera, Zap, TrendingUp, TrendingDown, Plus, X, Globe, RefreshCw, MapPin } from 'lucide-react'
+import { Gear, Eye, EyeSlash, ArrowSquareOut, CircleNotch, ChartBar, Camera, Lightning, TrendUp, TrendDown, Plus, X, Globe, ArrowClockwise, MapPin, ArrowLeft } from '@phosphor-icons/react'
+import Link from 'next/link'
 import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
 import { InlineEditor } from '@/components/editor/InlineEditor'
@@ -17,12 +18,11 @@ import { AffiliationEditor } from '@/components/editor/AffiliationEditor'
 import { BlocksEditor } from '@/components/blocks/BentoGrid'
 import { CVUpload } from '@/components/editor/CVUpload'
 import { SettingsModal } from '@/components/modals/SettingsModal'
-import { useTheme } from '@/components/ThemeProvider'
 import dynamic from 'next/dynamic'
 
 const WalletConnectSection = dynamic(
   () => import('@/components/editor/WalletConnectSection').then((m) => m.WalletConnectSection),
-  { ssr: false, loading: () => <div className="h-16 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800" /> },
+  { ssr: false, loading: () => <div className="h-16 animate-pulse rounded-xl bg-[#F0F0F0]" /> },
 )
 
 interface EditPageProps {
@@ -58,8 +58,6 @@ export default function EditPage({ params }: EditPageProps) {
     reorderSections,
     refetch,
   } = useProfile(username)
-  const { resolvedTheme, toggleTheme } = useTheme()
-
   // All hooks must be at the top — no hooks after conditional returns
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
@@ -153,8 +151,8 @@ export default function EditPage({ params }: EditPageProps) {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
+        <CircleNotch className="h-5 w-5 animate-spin text-[#C0C0C0]" />
       </div>
     )
   }
@@ -163,13 +161,13 @@ export default function EditPage({ params }: EditPageProps) {
 
   if (error || !profile) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-950">
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-3 bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
+        <p className="text-sm text-[#909090]">
           {error ?? 'Profile not found.'}
         </p>
         <button
           onClick={() => router.push('/')}
-          className="text-sm font-medium text-gray-700 underline-offset-2 hover:underline dark:text-gray-300"
+          className="text-sm font-semibold text-[#182403] underline-offset-2 hover:underline"
         >
           Go home
         </button>
@@ -212,43 +210,46 @@ export default function EditPage({ params }: EditPageProps) {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-[100dvh] bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
         <div className="mx-auto max-w-lg px-4 py-12">
           {/* Toolbar */}
           <div className="mb-8 flex items-center justify-between">
-            <div className="rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
-              Editing mode
+            <div className="flex items-center gap-3">
+              <Link
+                href={`/${username}`}
+                className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Profile
+              </Link>
+              <div className="h-3.5 w-px bg-[#EBEBEB]" />
+              <div className="text-xs font-medium text-[#C0C0C0]">
+                Editing
+              </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={toggleTheme}
-                aria-label="Toggle theme"
-                className="flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
-              >
-                {resolvedTheme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-              </button>
               <a
                 href={`/${username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
               >
                 <Eye className="h-3.5 w-3.5" />
                 Preview
-                <ArrowUpRight className="h-3 w-3 text-gray-400" />
+                <ArrowSquareOut className="h-3 w-3 text-[#C0C0C0]" />
               </a>
               <a
                 href={`/${username}/analytics`}
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
               >
-                <BarChart2 className="h-3.5 w-3.5" />
+                <ChartBar className="h-3.5 w-3.5" />
                 Analytics
               </a>
               <button
                 onClick={() => setSettingsOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
               >
-                <Settings className="h-3.5 w-3.5" />
+                <Gear className="h-3.5 w-3.5" />
                 Settings
               </button>
             </div>
@@ -259,20 +260,19 @@ export default function EditPage({ params }: EditPageProps) {
             <div className="flex items-start justify-between">
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-gray-100 dark:bg-gray-800"
+                className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-[#F0F0F0]"
                 title="Change profile photo"
               >
                 {avatarUrl ? (
                   <Image src={avatarUrl} alt={user.name || user.username} fill className="object-cover" sizes="80px" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400 dark:text-gray-500">
+                  <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#C0C0C0]">
                     {(user.name || user.username).charAt(0).toUpperCase()}
                   </div>
                 )}
-                {/* Hover overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
                   {avatarUploading
-                    ? <Loader2 className="h-5 w-5 animate-spin text-white" />
+                    ? <CircleNotch className="h-5 w-5 animate-spin text-white" />
                     : <Camera className="h-5 w-5 text-white" />}
                 </div>
                 <input
@@ -285,10 +285,10 @@ export default function EditPage({ params }: EditPageProps) {
               </button>
               <button
                 onClick={refetch}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-500 transition-all hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-all hover:bg-[#FAFAFA] hover:text-[#182403]"
                 title="Refresh profile"
               >
-                <RefreshCw className="h-4 w-4" />
+                <ArrowClockwise className="h-4 w-4" />
               </button>
             </div>
 
@@ -301,7 +301,7 @@ export default function EditPage({ params }: EditPageProps) {
                   placeholder="Your name"
                   as="h1"
                   maxLength={80}
-                  className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50"
+                  className="text-2xl font-bold tracking-tight text-[#182403]"
                 />
 
                 {/* Affiliation visibility picker — only verified ones can be featured */}
@@ -329,29 +329,28 @@ export default function EditPage({ params }: EditPageProps) {
                           {/* Logo */}
                           <div className={`h-full w-full overflow-hidden rounded-lg border transition-all ${
                             isPending
-                              ? 'border-amber-200 opacity-40 dark:border-amber-800'
+                              ? 'border-amber-200 opacity-40'
                               : isOn
-                              ? 'border-gray-200 opacity-100 dark:border-gray-700'
-                              : 'border-gray-200 opacity-30 dark:border-gray-700'
+                              ? 'border-[#EBEBEB] opacity-100'
+                              : 'border-[#EBEBEB] opacity-30'
                           }`}>
                             {a.logo_url ? (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img src={a.logo_url} alt={a.community_name} className="h-full w-full object-cover" />
                             ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-gray-100 text-[9px] font-bold text-gray-400 dark:bg-gray-800">
+                              <div className="flex h-full w-full items-center justify-center bg-[#F5F5F5] text-[9px] font-bold text-[#C0C0C0]">
                                 {a.community_name.charAt(0).toUpperCase()}
                               </div>
                             )}
                           </div>
 
-                          {/* Overlay: pending dot or eye toggle */}
                           {isPending ? (
-                            <div className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber-400 ring-1 ring-white dark:ring-gray-950" />
+                            <div className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber-400 ring-1 ring-white" />
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50 opacity-0 transition-opacity group-hover/badge:opacity-100">
                               {isOn
                                 ? <Eye className="h-3.5 w-3.5 text-white" />
-                                : <EyeOff className="h-3.5 w-3.5 text-white/70" />
+                                : <EyeSlash className="h-3.5 w-3.5 text-white/70" />
                               }
                             </div>
                           )}
@@ -361,7 +360,7 @@ export default function EditPage({ params }: EditPageProps) {
                   </div>
                 )}
               </div>
-              <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500">@{user.username}</p>
+              <p className="mt-0.5 text-sm text-[#909090]">@{user.username}</p>
             </div>
 
             {/* Bio */}
@@ -372,13 +371,13 @@ export default function EditPage({ params }: EditPageProps) {
               as="p"
               multiline
               maxLength={300}
-              className="max-w-sm text-sm leading-relaxed text-gray-600 dark:text-gray-400"
+              className="max-w-sm text-sm leading-relaxed text-[#555]"
             />
 
             {/* Location + social link icons */}
             <div className="flex items-start gap-2">
               {user.location && (
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                <div className="flex items-center gap-1.5 text-xs text-[#909090]">
                   <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
                   <span>{user.location}</span>
                 </div>
@@ -397,17 +396,17 @@ export default function EditPage({ params }: EditPageProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             title={link.title}
-                            className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                            className="flex h-6 w-6 items-center justify-center rounded-md text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#182403]"
                           >
                             <PlatformIcon id={link.icon} />
                           </a>
                           {fmtCount && (
-                            <span className="text-[10px] text-gray-400 leading-none dark:text-gray-500">{fmtCount}</span>
+                            <span className="text-[10px] text-[#C0C0C0] leading-none">{fmtCount}</span>
                           )}
                           <button
                             onClick={() => deleteLink(link.id)}
                             title="Remove link"
-                            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-600 group-hover/link:flex dark:bg-gray-700 dark:text-gray-400"
+                            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-[#E8E8E8] text-[#909090] hover:bg-red-100 hover:text-red-600 group-hover/link:flex"
                           >
                             <X className="h-2 w-2" />
                           </button>
@@ -417,41 +416,41 @@ export default function EditPage({ params }: EditPageProps) {
                     <button
                       onClick={() => setAddingLink(v => !v)}
                       title="Add link"
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#182403]"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
 
                 {addingLink && (
-                  <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
+                  <div className="flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2">
                     <select
                       value={newLinkPlatform}
                       onChange={e => setNewLinkPlatform(e.target.value)}
-                      className="bg-transparent text-xs text-gray-600 outline-none dark:text-gray-300"
+                      className="bg-transparent text-xs text-[#909090] outline-none"
                     >
                       <option value="">Platform</option>
                       {LINK_PLATFORMS.map(p => (
                         <option key={p.id} value={p.id}>{p.label}</option>
                       ))}
                     </select>
-                    <div className="h-3 w-px bg-gray-200 dark:bg-gray-700" />
+                    <div className="h-3 w-px bg-[#EBEBEB]" />
                     <input
                       type="url"
                       value={newLinkUrl}
                       onChange={e => setNewLinkUrl(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleSaveLink()}
                       placeholder="https://..."
-                      className="flex-1 bg-transparent text-xs text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50"
+                      className="flex-1 bg-transparent text-xs text-[#182403] outline-none placeholder:text-[#C0C0C0]"
                     />
                     <button
                       onClick={handleSaveLink}
                       disabled={savingLink || !newLinkPlatform || !newLinkUrl.trim()}
-                      className="text-xs font-medium text-gray-900 disabled:opacity-40 dark:text-gray-50"
+                      className="text-xs font-semibold text-[#182403] disabled:opacity-40"
                     >
-                      {savingLink ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
+                      {savingLink ? <CircleNotch className="h-3 w-3 animate-spin" /> : 'Save'}
                     </button>
-                    <button onClick={() => setAddingLink(false)} className="text-gray-400 hover:text-gray-600">
+                    <button onClick={() => setAddingLink(false)} className="text-[#C0C0C0] hover:text-[#182403]">
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -461,15 +460,15 @@ export default function EditPage({ params }: EditPageProps) {
 
             {/* Tab switcher + content wrapper */}
             <div className="flex w-full max-w-full flex-col gap-4 overflow-hidden">
-            <div className="flex w-full items-center gap-1 self-start rounded-full border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
+            <div className="flex w-full items-center gap-1 self-start rounded-full border border-[#EBEBEB] bg-[#FAFAFA] p-1">
               {(['me', 'achievements'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
                     activeTab === tab
-                      ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                      ? 'bg-[#182403] text-white shadow-sm'
+                      : 'text-[#909090] hover:text-[#182403]'
                   }`}
                 >
                   {tab === 'me' ? 'Me' : 'Achievements'}
@@ -494,11 +493,11 @@ export default function EditPage({ params }: EditPageProps) {
                   onReorderSections={reorderSections}
                 />
 
-                <div className="h-px bg-gray-100 dark:bg-gray-800" />
+                <div className="h-px bg-[#F0F0F0]" />
 
                 {/* Affiliations */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
                     Affiliations
                   </h2>
                   <AffiliationEditor
@@ -509,21 +508,21 @@ export default function EditPage({ params }: EditPageProps) {
                   />
                 </div>
 
-                <div className="h-px bg-gray-100 dark:bg-gray-800" />
+                <div className="h-px bg-[#F0F0F0]" />
 
                 {/* CV / Resume */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
                     Resume / CV
                   </h2>
                   <CVUpload />
                 </div>
 
-                <div className="h-px bg-gray-100 dark:bg-gray-800" />
+                <div className="h-px bg-[#F0F0F0]" />
 
                 {/* Wallet */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
                     Wallet
                   </h2>
                   <WalletConnectSection
@@ -532,7 +531,7 @@ export default function EditPage({ params }: EditPageProps) {
                   />
                 </div>
 
-                <p className="pb-20 text-center text-xs text-gray-400 dark:text-gray-600">
+                <p className="pb-20 text-center text-xs text-[#C0C0C0]">
                   Changes save automatically as you edit.
                 </p>
               </>
@@ -553,70 +552,64 @@ export default function EditPage({ params }: EditPageProps) {
       </div>
 
       {/* Floating stats bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-gray-200 bg-white/90 px-6 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
-        {/* Tips — left */}
-        <a
-          href={`/${username}/analytics`}
-          className="flex items-center gap-2 group"
-        >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
-            <Zap className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
-              {quickStats ? quickStats.tips.toLocaleString() : '—'}
-            </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">Tips · 7d</span>
-          </div>
-          {quickStats && (() => {
-            const prev = quickStats.prevTips
-            const curr = quickStats.tips
-            if (prev === 0 && curr === 0) return null
-            const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
-            const up = pct >= 0
-            return (
-              <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-                   : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
-              }`}>
-                {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                {up ? '+' : ''}{pct}%
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
+          {/* Tips — left */}
+          <a href={`/${username}/analytics`} className="flex items-center gap-2 group">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5F5F5]">
+              <Lightning className="h-3.5 w-3.5 text-[#909090]" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold leading-none text-[#182403]">
+                {quickStats ? quickStats.tips.toLocaleString() : '—'}
               </span>
-            )
-          })()}
-        </a>
+              <span className="text-[10px] text-[#C0C0C0]">Tips · 7d</span>
+            </div>
+            {quickStats && (() => {
+              const prev = quickStats.prevTips
+              const curr = quickStats.tips
+              if (prev === 0 && curr === 0) return null
+              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
+              const up = pct >= 0
+              return (
+                <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  up ? 'bg-[#F0FBE0] text-[#4A7A00]' : 'bg-red-50 text-red-600'
+                }`}>
+                  {up ? <TrendUp className="h-2.5 w-2.5" /> : <TrendDown className="h-2.5 w-2.5" />}
+                  {up ? '+' : ''}{pct}%
+                </span>
+              )
+            })()}
+          </a>
 
-        {/* Views — right */}
-        <a
-          href={`/${username}/analytics`}
-          className="flex items-center gap-2 group"
-        >
-          {quickStats && (() => {
-            const prev = quickStats.prevViews
-            const curr = quickStats.views
-            if (prev === 0 && curr === 0) return null
-            const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
-            const up = pct >= 0
-            return (
-              <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-                   : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
-              }`}>
-                {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                {up ? '+' : ''}{pct}%
+          {/* Views — right */}
+          <a href={`/${username}/analytics`} className="flex items-center gap-2 group">
+            {quickStats && (() => {
+              const prev = quickStats.prevViews
+              const curr = quickStats.views
+              if (prev === 0 && curr === 0) return null
+              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
+              const up = pct >= 0
+              return (
+                <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  up ? 'bg-[#F0FBE0] text-[#4A7A00]' : 'bg-red-50 text-red-600'
+                }`}>
+                  {up ? <TrendUp className="h-2.5 w-2.5" /> : <TrendDown className="h-2.5 w-2.5" />}
+                  {up ? '+' : ''}{pct}%
+                </span>
+              )
+            })()}
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-bold leading-none text-[#182403]">
+                {quickStats ? quickStats.views.toLocaleString() : '—'}
               </span>
-            )
-          })()}
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
-              {quickStats ? quickStats.views.toLocaleString() : '—'}
-            </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">Views · 7d</span>
-          </div>
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
-            <Eye className="h-3.5 w-3.5 text-blue-500" />
-          </div>
-        </a>
+              <span className="text-[10px] text-[#C0C0C0]">Views · 7d</span>
+            </div>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5F5F5]">
+              <Eye className="h-3.5 w-3.5 text-[#909090]" />
+            </div>
+          </a>
+        </div>
       </div>
 
       <SettingsModal

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Geist_Mono } from 'next/font/google'
-import { Architects_Daughter } from 'next/font/google'
-import { Space_Grotesk } from 'next/font/google'
+import { Inter, Geist_Mono, Architects_Daughter, Space_Grotesk, Funnel_Display, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
@@ -26,6 +24,18 @@ const architectsDaughter = Architects_Daughter({
 
 const spaceGrotesk = Space_Grotesk({
   variable: '--font-clash-grotesk',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const funnelDisplay = Funnel_Display({
+  variable: '--font-funnel-display',
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -62,7 +72,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${geistMono.variable} ${architectsDaughter.variable} ${spaceGrotesk.variable} font-sans antialiased`}
+        className={`${inter.variable} ${geistMono.variable} ${architectsDaughter.variable} ${spaceGrotesk.variable} ${funnelDisplay.variable} ${dmSans.variable} font-sans antialiased`}
       >
         <ThemeProvider>{children}</ThemeProvider>
       </body>

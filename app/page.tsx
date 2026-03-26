@@ -1,25 +1,319 @@
+'use client'
+
+import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Zap, Globe, Shield, Brain } from 'lucide-react'
+import { ArrowRight } from '@phosphor-icons/react'
+import { MyntroLogo } from '@/components/MyntroLogo'
+
+// ── Scroll-triggered visibility hook ─────────────────────────────────────────
+function useInView(threshold = 0.12) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
+      { threshold },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return { ref, inView }
+}
+
+// ── Feature illustrations ─────────────────────────────────────────────────────
+
+function IllustrationIdentity() {
+  return (
+    <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+      {/* Card shadow */}
+      <rect x="30" y="28" width="140" height="92" rx="14" fill="rgba(24,36,3,0.03)" />
+      {/* Card body */}
+      <rect x="26" y="24" width="140" height="92" rx="14" fill="white" stroke="rgba(24,36,3,0.08)" strokeWidth="1" />
+      {/* Avatar */}
+      <circle cx="57" cy="52" r="16" fill="rgba(24,36,3,0.07)" />
+      <circle cx="57" cy="48" r="7" fill="rgba(24,36,3,0.18)" />
+      <circle cx="57" cy="62" r="10" fill="rgba(24,36,3,0.1)" />
+      {/* Name line */}
+      <rect x="81" y="44" width="56" height="7" rx="3.5" fill="rgba(24,36,3,0.35)" />
+      {/* Handle */}
+      <rect x="81" y="55" width="38" height="5" rx="2.5" fill="rgba(24,36,3,0.15)" />
+      {/* Divider */}
+      <line x1="40" y1="76" x2="152" y2="76" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+      {/* Bio lines */}
+      <rect x="40" y="83" width="112" height="5" rx="2.5" fill="rgba(24,36,3,0.1)" />
+      <rect x="40" y="92" width="80" height="5" rx="2.5" fill="rgba(24,36,3,0.07)" />
+      {/* Social pills */}
+      <rect x="40" y="104" width="26" height="8" rx="4" fill="rgba(24,36,3,0.07)" />
+      <rect x="70" y="104" width="26" height="8" rx="4" fill="rgba(24,36,3,0.07)" />
+      <rect x="100" y="104" width="26" height="8" rx="4" fill="rgba(24,36,3,0.07)" />
+      {/* Verified badge */}
+      <circle cx="144" cy="108" r="7" fill="rgba(24,36,3,0.1)" />
+      <path d="M141 108l2 2 4-4" stroke="rgba(24,36,3,0.55)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function IllustrationTipping() {
+  return (
+    <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+      <style>{`
+        @keyframes coinFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-6px); }
+        }
+        @keyframes trailFade {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.7; }
+        }
+        .coin-anim { animation: coinFloat 2.4s ease-in-out infinite; transform-origin: 100px 70px; }
+        .trail-anim { animation: trailFade 2.4s ease-in-out infinite; }
+      `}</style>
+      {/* Left wallet */}
+      <rect x="18" y="50" width="44" height="40" rx="10" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+      <rect x="26" y="62" width="28" height="5" rx="2.5" fill="rgba(24,36,3,0.2)" />
+      <rect x="26" y="71" width="18" height="4" rx="2" fill="rgba(24,36,3,0.1)" />
+      {/* Right wallet */}
+      <rect x="138" y="50" width="44" height="40" rx="10" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+      <rect x="146" y="62" width="28" height="5" rx="2.5" fill="rgba(24,36,3,0.2)" />
+      <rect x="146" y="71" width="18" height="4" rx="2" fill="rgba(24,36,3,0.1)" />
+      {/* Trail dots */}
+      <circle className="trail-anim" cx="80" cy="70" r="3" fill="rgba(24,36,3,0.15)" />
+      <circle className="trail-anim" cx="95" cy="68" r="2.5" fill="rgba(24,36,3,0.1)" style={{ animationDelay: '0.2s' }} />
+      <circle className="trail-anim" cx="110" cy="70" r="2" fill="rgba(24,36,3,0.07)" style={{ animationDelay: '0.4s' }} />
+      {/* Arrow */}
+      <path d="M68 70 Q100 52 132 70" stroke="rgba(24,36,3,0.08)" strokeWidth="1" strokeDasharray="4 3" />
+      {/* SOL coin */}
+      <g className="coin-anim">
+        <circle cx="100" cy="62" r="14" fill="rgba(24,36,3,0.07)" stroke="rgba(24,36,3,0.18)" strokeWidth="1" />
+        <text x="100" y="67" textAnchor="middle" fontSize="11" fill="rgba(24,36,3,0.55)" fontWeight="700">◎</text>
+      </g>
+      {/* Labels */}
+      <rect x="22" y="96" width="36" height="5" rx="2.5" fill="rgba(24,36,3,0.07)" />
+      <rect x="142" y="96" width="36" height="5" rx="2.5" fill="rgba(24,36,3,0.07)" />
+    </svg>
+  )
+}
+
+function IllustrationAI() {
+  return (
+    <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+      <style>{`
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes dotPop {
+          0%, 80%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+          40% { transform: scaleY(1); opacity: 1; }
+        }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        .dot1 { animation: dotPop 1.2s ease-in-out infinite; transform-origin: center; }
+        .dot2 { animation: dotPop 1.2s ease-in-out 0.2s infinite; transform-origin: center; }
+        .dot3 { animation: dotPop 1.2s ease-in-out 0.4s infinite; transform-origin: center; }
+      `}</style>
+      {/* User bubble (right) */}
+      <rect x="72" y="20" width="104" height="30" rx="12" fill="rgba(24,36,3,0.08)" stroke="rgba(24,36,3,0.06)" strokeWidth="1" />
+      <rect x="82" y="30" width="60" height="5" rx="2.5" fill="rgba(24,36,3,0.3)" />
+      <rect x="82" y="38" width="42" height="4" rx="2" fill="rgba(24,36,3,0.15)" />
+      {/* Bubble tail right */}
+      <path d="M170 50 L178 54 L170 50" fill="rgba(24,36,3,0.08)" />
+
+      {/* AI bubble (left) */}
+      <rect x="24" y="62" width="116" height="36" rx="12" fill="white" stroke="rgba(24,36,3,0.08)" strokeWidth="1" />
+      <rect x="34" y="72" width="76" height="5" rx="2.5" fill="rgba(24,36,3,0.22)" />
+      <rect x="34" y="81" width="56" height="4" rx="2" fill="rgba(24,36,3,0.12)" />
+      {/* Cursor */}
+      <rect className="cursor-blink" x="92" y="81" width="2" height="4" rx="1" fill="rgba(24,36,3,0.5)" />
+
+      {/* Thinking bubble */}
+      <rect x="24" y="108" width="56" height="22" rx="10" fill="rgba(24,36,3,0.04)" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+      <circle className="dot1" cx="40" cy="119" r="3" fill="rgba(24,36,3,0.3)" />
+      <circle className="dot2" cx="52" cy="119" r="3" fill="rgba(24,36,3,0.3)" />
+      <circle className="dot3" cx="64" cy="119" r="3" fill="rgba(24,36,3,0.3)" />
+    </svg>
+  )
+}
+
+function IllustrationBadges() {
+  return (
+    <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
+      <style>{`
+        @keyframes badgePulse {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 1; }
+        }
+        .badge-pulse { animation: badgePulse 3s ease-in-out infinite; }
+        .badge-pulse-2 { animation: badgePulse 3s ease-in-out 1s infinite; }
+        .badge-pulse-3 { animation: badgePulse 3s ease-in-out 2s infinite; }
+      `}</style>
+      {/* Connection lines */}
+      <line x1="100" y1="70" x2="58" y2="44" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+      <line x1="100" y1="70" x2="142" y2="44" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+      <line x1="100" y1="70" x2="58" y2="96" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+      <line x1="100" y1="70" x2="142" y2="96" stroke="rgba(24,36,3,0.07)" strokeWidth="1" />
+
+      {/* Center badge */}
+      <circle cx="100" cy="70" r="22" fill="rgba(24,36,3,0.07)" stroke="rgba(24,36,3,0.14)" strokeWidth="1.5" />
+      <path d="M91 70l5 5 12-12" stroke="rgba(24,36,3,0.65)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+
+      {/* Outer badges */}
+      <g className="badge-pulse">
+        <circle cx="58" cy="40" r="16" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+        <path d="M52 40l3.5 3.5 8-8" stroke="rgba(24,36,3,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <g className="badge-pulse-2">
+        <circle cx="142" cy="40" r="16" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+        <path d="M136 40l3.5 3.5 8-8" stroke="rgba(24,36,3,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <g className="badge-pulse-3">
+        <circle cx="58" cy="100" r="16" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+        <path d="M52 100l3.5 3.5 8-8" stroke="rgba(24,36,3,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+      <g className="badge-pulse">
+        <circle cx="142" cy="100" r="16" fill="white" stroke="rgba(24,36,3,0.1)" strokeWidth="1" />
+        <path d="M136 100l3.5 3.5 8-8" stroke="rgba(24,36,3,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
+
+      {/* Logo text below each outer badge */}
+      <rect x="44" y="60" width="28" height="4" rx="2" fill="rgba(24,36,3,0.07)" />
+      <rect x="128" y="60" width="28" height="4" rx="2" fill="rgba(24,36,3,0.07)" />
+    </svg>
+  )
+}
+
+// ── Feature card ──────────────────────────────────────────────────────────────
+
+const FEATURES = [
+  {
+    label: '01',
+    title: 'Digital identity',
+    description: 'A clean profile with bio, links, location, and community affiliation badges.',
+    illustration: <IllustrationIdentity />,
+  },
+  {
+    label: '02',
+    title: 'Solana tipping',
+    description: 'Receive SOL, USDC, or USDT tips directly from visitors — no middleman.',
+    illustration: <IllustrationTipping />,
+  },
+  {
+    label: '03',
+    title: 'AI assistant',
+    description: 'Upload your CV and let an AI answer visitor questions about your background.',
+    illustration: <IllustrationAI />,
+  },
+  {
+    label: '04',
+    title: 'Community badges',
+    description: 'Display your DAO and protocol affiliations with verified community logos.',
+    illustration: <IllustrationBadges />,
+  },
+]
+
+function FeaturesSection() {
+  const { ref, inView } = useInView()
+  return (
+    <section style={{ background: '#F7F7F5' }}>
+      <div className="mx-auto max-w-5xl px-6 py-24">
+        {/* Heading */}
+        <div
+          ref={ref}
+          className="mb-14 text-center transition-all duration-700"
+          style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(24px)' }}
+        >
+          <h2
+            className="mb-3 text-3xl font-bold tracking-tight text-[#182403] sm:text-4xl"
+            style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+          >
+            Everything in one place
+          </h2>
+          <p className="mx-auto max-w-md text-sm text-[#909090]">
+            Your complete Web3 identity, beautifully presented.
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {FEATURES.map((f, i) => (
+            <FeatureCard key={f.title} feature={f} delay={i * 100} inView={inView} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function FeatureCard({
+  feature,
+  delay,
+  inView,
+}: {
+  feature: (typeof FEATURES)[0]
+  delay: number
+  inView: boolean
+}) {
+  return (
+    <div
+      className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-700"
+      style={{
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'translateY(0)' : 'translateY(32px)',
+        transitionDelay: `${delay}ms`,
+        background: 'white',
+        border: '1px solid rgba(24,36,3,0.07)',
+      }}
+    >
+      {/* Illustration area */}
+      <div
+        className="relative flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]"
+        style={{ height: 148, padding: '16px 12px 8px', background: '#F7F7F5' }}
+      >
+        {feature.illustration}
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: 1, background: 'rgba(24,36,3,0.06)' }} />
+
+      {/* Text */}
+      <div className="flex flex-1 flex-col gap-1.5 p-5">
+        <span className="text-[10px] font-semibold tracking-widest text-[#C0C0C0]">
+          {feature.label}
+        </span>
+        <h3
+          className="text-sm font-semibold text-[#182403]"
+          style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+        >
+          {feature.title}
+        </h3>
+        <p className="text-xs leading-relaxed text-[#909090]">
+          {feature.description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-white dark:bg-gray-950">
+    <div
+      className="flex min-h-[100dvh] flex-col bg-white"
+      style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
+    >
       {/* Nav */}
-      <header className="border-b border-gray-100 dark:border-gray-900">
+      <header className="sticky top-0 z-50 border-b border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-50">
-            Myntro
-          </span>
-          <div className="flex items-center gap-3">
+          <MyntroLogo size="md" showBeta />
+          <div className="flex items-center gap-5">
             <Link
               href="/login"
-              className="text-sm font-medium text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+              className="text-sm font-medium text-[#182403] transition-opacity hover:opacity-70"
             >
               Sign in
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
+              className="rounded-full bg-[#182403] px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-[#2D3F05] active:scale-[0.98]"
             >
               Get started
             </Link>
@@ -28,95 +322,108 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <main className="flex flex-1 flex-col items-center justify-center px-6 pb-20 pt-24 text-center">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-1.5 text-xs font-medium text-gray-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-            Now live — claim your page
-          </div>
+          <Link
+            href="/waitlist"
+            className="group mb-8 inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-sm"
+            style={{
+              background: '#F0F7E0',
+              border: '1px solid #C6F135',
+              color: '#3A6200',
+            }}
+          >
+            <span
+              className="relative flex h-2 w-2 flex-shrink-0"
+            >
+              <span
+                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
+                style={{ background: '#8EE600' }}
+              />
+              <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: '#8EE600' }} />
+            </span>
+            Beta is open — secure your username
+            <span className="opacity-50 transition-opacity group-hover:opacity-100">→</span>
+          </Link>
 
-          <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-gray-900 dark:text-gray-50 sm:text-6xl">
+          <h1
+            className="mb-6 text-5xl font-bold leading-[1.12] tracking-tight text-[#182403] sm:text-6xl lg:text-7xl"
+            style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+          >
             Your Web3 identity,{' '}
-            <span className="text-gray-400">all in one link</span>
+            <span className="relative inline-block">
+              all in one link.
+              <span
+                className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full"
+                style={{ background: 'linear-gradient(90deg, #FDFDFD 0%, #8EE600 100%)' }}
+              />
+            </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-gray-500 dark:text-gray-400">
+          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#909090]">
             Share your links, showcase achievements, display community affiliations,
             and let visitors tip you in SOL — all with an AI assistant that knows your story.
           </p>
 
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link
-              href="/signup"
-              className="group flex items-center gap-2 rounded-xl bg-gray-900 px-6 py-3.5 text-sm font-semibold text-white transition-all hover:bg-gray-700 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
-            >
-              Create your page — it&apos;s free
+          <div className="flex justify-center">
+            <GreenCTA href="/signup">
+              Create Your Page — It&apos;s Free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-xl border border-gray-200 px-6 py-3.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-900"
-            >
-              Sign in
-            </Link>
+            </GreenCTA>
           </div>
-        </div>
 
-        <p className="mt-14 text-xs text-gray-400 dark:text-gray-600">
-          Free to create. No credit card required.
-        </p>
+          <p className="mt-12 text-xs text-[#C0C0C0]">
+            Free to create. No credit card required.
+          </p>
+        </div>
       </main>
 
       {/* Features */}
-      <section id="features" className="border-t border-gray-100 bg-gray-50 dark:border-gray-900 dark:bg-gray-950">
-        <div className="mx-auto max-w-5xl px-6 py-24">
-          <h2 className="mb-12 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
-            Everything in one place
-          </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <FeatureCard
-              icon={<Globe className="h-5 w-5" />}
-              title="Digital identity"
-              description="A clean profile with bio, links, location, and community affiliation badges."
-            />
-            <FeatureCard
-              icon={<Zap className="h-5 w-5" />}
-              title="Solana tipping"
-              description="Receive SOL, USDC, or USDT tips directly from visitors — no middleman."
-            />
-            <FeatureCard
-              icon={<Brain className="h-5 w-5" />}
-              title="AI assistant"
-              description="Upload your CV and let an AI answer visitor questions about your background."
-            />
-            <FeatureCard
-              icon={<Shield className="h-5 w-5" />}
-              title="Community badges"
-              description="Display your DAO and protocol affiliations with verified community logos."
-            />
-          </div>
-        </div>
+      <FeaturesSection />
+
+      {/* CTA band */}
+      <section className="border-t border-[#F0F0F0] bg-white px-6 py-20 text-center">
+        <h2
+          className="mb-4 text-3xl font-bold text-[#182403] sm:text-4xl"
+          style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+        >
+          Ready to own your identity?
+        </h2>
+        <p className="mx-auto mb-8 max-w-md text-[#909090]">
+          Join creators, builders, and contributors who use Myntro to share everything in one link.
+        </p>
+        <GreenCTA href="/signup">
+          Get your Myntro
+          <ArrowRight className="h-4 w-4" />
+        </GreenCTA>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 dark:border-gray-900">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6 text-sm text-gray-400 dark:text-gray-600">
-          <span>© 2026 Myntro</span>
-          <span>Built on Solana</span>
+      <footer className="border-t border-[#F0F0F0]">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-6 py-6 text-xs text-[#C0C0C0] sm:flex-row">
+          <MyntroLogo size="sm" />
+          <span>© 2026 Myntro. Built on Solana.</span>
         </div>
       </footer>
     </div>
   )
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+// ── Shared primary green CTA button ──────────────────────────────────────────
+
+function GreenCTA({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-        {icon}
-      </div>
-      <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-50">{title}</h3>
-      <p className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">{description}</p>
-    </div>
+    <Link
+      href={href}
+      className="group inline-flex h-12 items-center gap-2.5 rounded-xl px-8 font-semibold text-[#182403] transition-all hover:opacity-90 active:scale-[0.98]"
+      style={{
+        fontSize: '16px',
+        lineHeight: 1,
+        background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
+        boxShadow: '0 2px 12px rgba(142,230,0,0.30)',
+      }}
+    >
+      {children}
+    </Link>
   )
 }

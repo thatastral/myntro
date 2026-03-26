@@ -120,13 +120,13 @@ export function InlineEditor({
           'outline-none transition-colors',
           !disabled && [
             'cursor-text rounded-md px-1 -mx-1',
-            'hover:bg-gray-50 dark:hover:bg-gray-800/60',
-            'focus:bg-gray-50 dark:focus:bg-gray-800/60',
-            'focus:ring-1 focus:ring-gray-200 dark:focus:ring-gray-700',
+            'hover:bg-[#FAFAFA]',
+            'focus:bg-[#FAFAFA]',
+            'focus:ring-2 focus:ring-[#8EE600]/20',
           ],
           saving && 'opacity-60',
           // Placeholder via CSS when empty
-          'empty:before:content-[attr(data-placeholder)] empty:before:text-gray-400 empty:before:dark:text-gray-600',
+          'empty:before:content-[attr(data-placeholder)] empty:before:text-[#C0C0C0]',
           className,
         )}
       >
@@ -135,7 +135,7 @@ export function InlineEditor({
 
       {/* Saving/error indicator */}
       <div className="absolute -bottom-5 left-0 text-xs">
-        {saving && <span className="text-gray-400">Saving…</span>}
+        {saving && <span className="text-[#C0C0C0]">Saving…</span>}
         {error && <span className="text-red-500">{error}</span>}
       </div>
     </div>

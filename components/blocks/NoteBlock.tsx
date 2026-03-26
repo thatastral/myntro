@@ -62,23 +62,23 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
             transform: 'rotate(-1deg)',
           }}
         >
-          <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+          <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#182403]">
             {editText || 'Preview text...'}
           </p>
           {username && (
-            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-2 text-xs text-[#909090]">
               - {username}
             </p>
           )}
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex flex-col gap-2 rounded-xl border border-[#EBEBEB] bg-white p-3">
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             placeholder="Write your note..."
-            className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 p-2 text-sm text-gray-800 outline-none focus:border-violet-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+            className="w-full resize-none rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] p-2 text-sm text-[#182403] outline-none focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             rows={3}
             autoFocus
           />
@@ -86,7 +86,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
             <select
               value={editFont}
               onChange={(e) => setEditFont(e.target.value)}
-              className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#182403]"
             >
               {FONT_OPTIONS.map(f => (
                 <option key={f.value} value={f.value}>{f.label}</option>
@@ -97,7 +97,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
                 <button
                   key={key}
                   onClick={() => setEditColor(key)}
-                  className={`h-5 w-5 rounded-full border-2 transition-transform ${colorCls} ${editColor === key ? 'scale-125 border-gray-800 dark:border-white' : 'border-transparent'}`}
+                  className={`h-5 w-5 rounded-full border-2 transition-transform ${colorCls} ${editColor === key ? 'scale-125 border-[#182403]' : 'border-transparent'}`}
                 />
               ))}
             </div>
@@ -105,13 +105,13 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
           <div className="flex items-center justify-end gap-2">
             <button
               onClick={handleCancel}
-              className="rounded-lg px-3 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="rounded-lg px-3 py-1 text-xs text-[#909090] hover:bg-[#F5F5F5]"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="rounded-lg bg-gray-900 px-3 py-1 text-xs font-medium text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+              className="rounded-lg bg-[#182403] px-3 py-1 text-xs font-medium text-white hover:bg-[#2D3F05]"
             >
               Save
             </button>
@@ -130,11 +130,11 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
       }}
       onClick={() => onUpdate && setIsEditing(true)}
     >
-      <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+      <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#182403]">
         {text}
       </p>
       {username && (
-        <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+        <p className="mt-2 text-xs text-[#909090]">
           - {username}
         </p>
       )}

@@ -22,10 +22,10 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  StickyNote, Link2, Music, Youtube, Image as ImageIcon,
-  X, Plus, Loader2, GripVertical, FolderPlus, Pencil, Check,
-  Layers,
-} from 'lucide-react'
+  Note, Link, MusicNote, YoutubeLogo, Image as PhosphorImage,
+  X, Plus, CircleNotch, DotsSixVertical, FolderPlus, PencilSimple, Check,
+  SquaresFour,
+} from '@phosphor-icons/react'
 import type { Block, BlockType, Section } from '@/types'
 import { NoteBlock } from './NoteBlock'
 import { LinkBlock } from './LinkBlock'
@@ -52,7 +52,7 @@ function ReadOnlySectionBlock({ section, blocks, username }: { section: Section;
   if (blocks.length === 0) return null
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
         {section.title}
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -98,7 +98,7 @@ export function BentoGrid({ blocks, sections, username }: { blocks: Block[]; sec
 // ── Note colors ────────────────────────────────────────────────────
 
 const NOTE_COLORS = [
-  { id: 'default', label: 'White',  cls: 'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700' },
+  { id: 'default', label: 'White',  cls: 'bg-white border-[#EBEBEB]' },
   { id: 'yellow',  label: 'Yellow', cls: 'bg-amber-100 border-amber-300' },
   { id: 'teal',    label: 'Teal',   cls: 'bg-teal-100 border-teal-300' },
   { id: 'pink',    label: 'Pink',   cls: 'bg-pink-100 border-pink-300' },
@@ -108,11 +108,11 @@ const NOTE_COLORS = [
 // ── Block type config ──────────────────────────────────────────────
 
 const BLOCK_TYPES: { type: BlockType; label: string; Icon: React.ElementType; defaultSpan: 1 | 2 }[] = [
-  { type: 'note',    label: 'Note',    Icon: StickyNote, defaultSpan: 1 },
-  { type: 'link',    label: 'Link',    Icon: Link2,      defaultSpan: 1 },
-  { type: 'spotify', label: 'Spotify', Icon: Music,      defaultSpan: 2 },
-  { type: 'youtube', label: 'YouTube', Icon: Youtube,    defaultSpan: 2 },
-  { type: 'image',   label: 'Image',   Icon: ImageIcon,  defaultSpan: 1 },
+  { type: 'note',    label: 'Note',    Icon: Note,          defaultSpan: 1 },
+  { type: 'link',    label: 'Link',    Icon: Link,          defaultSpan: 1 },
+  { type: 'spotify', label: 'Spotify', Icon: MusicNote,     defaultSpan: 2 },
+  { type: 'youtube', label: 'YouTube', Icon: YoutubeLogo,   defaultSpan: 2 },
+  { type: 'image',   label: 'Image',   Icon: PhosphorImage, defaultSpan: 1 },
 ]
 
 // ── Premade section templates ──────────────────────────────────────
@@ -163,7 +163,7 @@ function SortableBlockItem({
         {...listeners}
         className="absolute left-2 top-2 z-20 hidden h-6 w-6 cursor-grab items-center justify-center rounded-md bg-black/60 text-white shadow-lg transition-transform active:cursor-grabbing group-hover/block:flex hover:scale-110"
       >
-        <GripVertical className="h-3 w-3" />
+        <DotsSixVertical className="h-3 w-3" />
       </div>
 
       <BlockRenderer block={block} username={username} onUpdate={onUpdate} />
@@ -189,8 +189,8 @@ function EmptyDropZone({ id }: { id: string }) {
       ref={setNodeRef}
       className={`col-span-2 flex h-16 items-center justify-center rounded-xl border-2 border-dashed text-xs transition-colors ${
         isOver
-          ? 'border-gray-400 bg-gray-50 text-gray-400 dark:border-gray-500 dark:bg-gray-800/50 dark:text-gray-500'
-          : 'border-gray-200 text-gray-300 dark:border-gray-800 dark:text-gray-700'
+          ? 'border-[#8EE600]/60 bg-[#F0FBE0] text-[#4A7A00]'
+          : 'border-[#EBEBEB] text-[#C0C0C0]'
       }`}
     >
       Drop blocks here
@@ -255,14 +255,14 @@ function SortableSectionItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 transition-shadow dark:border-gray-700 dark:bg-gray-900 ${isDragging ? 'shadow-lg' : ''}`}
+      className={`flex flex-col gap-3 rounded-2xl border border-[#EBEBEB] bg-white p-4 transition-shadow ${isDragging ? 'shadow-lg' : ''}`}
     >
       {/* Section header */}
       <div className="flex items-center gap-2 group/section">
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-400 transition-transform duration-200 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400"
+          className="text-[#C0C0C0] transition-transform duration-200 hover:text-[#182403]"
           style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -274,9 +274,9 @@ function SortableSectionItem({
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 dark:text-gray-700 dark:hover:text-gray-500"
+          className="cursor-grab active:cursor-grabbing text-[#D0D0D0] hover:text-[#909090]"
         >
-          <GripVertical className="h-4 w-4" />
+          <DotsSixVertical className="h-4 w-4" />
         </div>
 
         {editing ? (
@@ -288,29 +288,29 @@ function SortableSectionItem({
               onBlur={commitRename}
               onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setTitleDraft(section.title); setEditing(false) } }}
               maxLength={60}
-              className="flex-1 rounded-lg border border-gray-300 bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-gray-600 outline-none focus:border-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
+              className="flex-1 rounded-lg border border-[#EBEBEB] bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#182403] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
-            <button onClick={commitRename} className="text-gray-400 hover:text-gray-600">
+            <button onClick={commitRename} className="text-[#C0C0C0] hover:text-[#182403]">
               <Check className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
           <div className="flex flex-1 items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
               {section.title}
             </span>
             <button
               onClick={() => setEditing(true)}
-              className="hidden text-gray-300 hover:text-gray-500 dark:text-gray-700 dark:hover:text-gray-500 group-hover/section:block"
+              className="hidden text-[#D0D0D0] hover:text-[#909090] group-hover/section:block"
             >
-              <Pencil className="h-3 w-3" />
+              <PencilSimple className="h-3 w-3" />
             </button>
           </div>
         )}
 
         <button
           onClick={() => onDelete(section.id)}
-          className="hidden text-gray-300 hover:text-red-500 dark:text-gray-700 group-hover/section:block"
+          className="hidden text-[#D0D0D0] hover:text-red-500 group-hover/section:block"
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -339,7 +339,7 @@ function SortableSectionItem({
       )}
 
       {collapsed && blocks.length > 0 && (
-        <p className="text-xs text-gray-400">{blocks.length} block{blocks.length !== 1 ? 's' : ''} hidden</p>
+        <p className="text-xs text-[#C0C0C0]">{blocks.length} block{blocks.length !== 1 ? 's' : ''} hidden</p>
       )}
     </div>
   )
@@ -377,6 +377,7 @@ export function BlocksEditor({
   const [activeBlockType, setActiveBlockType] = useState<BlockType | null>(null)
   const [saving, setSaving] = useState(false)
   const [showSectionMenu, setShowSectionMenu] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [addingSection, setAddingSection] = useState(false)
   const [sectionTitle, setSectionTitle] = useState('')
   const imageInputRef = useRef<HTMLInputElement>(null)
@@ -690,7 +691,7 @@ export function BlocksEditor({
             </div>
           )}
           {activeSection && (
-            <div className="rounded-2xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-lg dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200">
+            <div className="rounded-2xl border border-[#EBEBEB] bg-white px-4 py-2 text-sm font-semibold text-[#182403] shadow-lg">
               {activeSection.title}
             </div>
           )}
@@ -699,7 +700,7 @@ export function BlocksEditor({
 
       {/* Add-block form panel */}
       {activeBlockType && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-4">
           {activeBlockType === 'note' && (
             <div className="space-y-3">
               <textarea
@@ -708,15 +709,15 @@ export function BlocksEditor({
                 placeholder="Write your note…"
                 rows={4}
                 autoFocus
-                className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">Font:</span>
+                  <span className="text-xs text-[#909090]">Font:</span>
                   <select
                     value={noteFont}
                     onChange={(e) => setNoteFont(e.target.value)}
-                    className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                    className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#182403] outline-none transition-colors focus:border-[#8EE600]"
                     style={{ fontFamily: noteFont }}
                   >
                     <option value="sans-serif">Sans-serif</option>
@@ -726,13 +727,13 @@ export function BlocksEditor({
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">Color:</span>
+                  <span className="text-xs text-[#909090]">Color:</span>
                   {NOTE_COLORS.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => setNoteColor(c.id)}
                       title={c.label}
-                      className={`h-5 w-5 rounded-full border-2 transition-transform ${c.cls} ${noteColor === c.id ? 'scale-125 border-gray-900 dark:border-gray-100' : 'border-transparent'}`}
+                      className={`h-5 w-5 rounded-full border-2 transition-transform ${c.cls} ${noteColor === c.id ? 'scale-125 border-[#182403]' : 'border-transparent'}`}
                     />
                   ))}
                 </div>
@@ -743,36 +744,36 @@ export function BlocksEditor({
           {activeBlockType === 'link' && (
             <div className="space-y-2">
               <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://…" autoFocus
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Title (optional)"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkDesc} onChange={(e) => setLinkDesc(e.target.value)} placeholder="Description (optional)"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
             </div>
           )}
 
           {activeBlockType === 'spotify' && (
             <input type="url" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)}
               placeholder="https://open.spotify.com/track/… or playlist/…" autoFocus
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
           )}
 
           {activeBlockType === 'youtube' && (
             <input type="url" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=… or youtu.be/…" autoFocus
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
           )}
 
           <div className="mt-3 flex items-center justify-end gap-2">
-            <button onClick={resetAndClose} className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <button onClick={resetAndClose} className="text-sm text-[#909090] transition-colors hover:text-[#182403]">
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-xl bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+              className="flex items-center gap-1.5 rounded-xl bg-[#182403] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-40"
             >
-              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+              {saving ? <CircleNotch className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
               Add
             </button>
           </div>
@@ -781,20 +782,20 @@ export function BlocksEditor({
 
       {/* Section menu */}
       {showSectionMenu && (
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Add section</p>
+        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">Add section</p>
           <div className="flex flex-col gap-1">
             {SECTION_TEMPLATES.map((t) => (
               <button
                 key={t.title}
                 onClick={() => handleAddSection(t.title)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#182403] transition-colors hover:bg-[#FAFAFA]"
               >
-                <Layers className="h-3.5 w-3.5 text-gray-400" />
+                <SquaresFour className="h-3.5 w-3.5 text-[#C0C0C0]" />
                 {t.title}
               </button>
             ))}
-            <div className="my-1 h-px bg-gray-100 dark:bg-gray-800" />
+            <div className="my-1 h-px bg-[#F0F0F0]" />
             {addingSection ? (
               <div className="flex items-center gap-2 px-1">
                 <input
@@ -806,12 +807,12 @@ export function BlocksEditor({
                   }}
                   placeholder="Section name…"
                   autoFocus
-                  className="flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   onClick={() => { if (sectionTitle.trim()) handleAddSection(sectionTitle.trim()) }}
                   disabled={!sectionTitle.trim()}
-                  className="rounded-xl bg-gray-900 px-3 py-2 text-sm text-white disabled:opacity-40 dark:bg-gray-100 dark:text-gray-900"
+                  className="rounded-xl bg-[#182403] px-3 py-2 text-sm text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-40"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
@@ -819,7 +820,7 @@ export function BlocksEditor({
             ) : (
               <button
                 onClick={() => setAddingSection(true)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Custom name…
@@ -828,7 +829,7 @@ export function BlocksEditor({
           </div>
           <div className="mt-3 flex justify-end">
             <button onClick={() => { setShowSectionMenu(false); setAddingSection(false); setSectionTitle('') }}
-              className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+              className="text-sm text-[#909090] transition-colors hover:text-[#182403]">
               Cancel
             </button>
           </div>
@@ -837,7 +838,7 @@ export function BlocksEditor({
 
       {/* Floating bottom nav pill */}
       <div className="fixed bottom-[60px] left-0 right-0 z-50 flex justify-center px-4 pb-1">
-        <div className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <div className="flex items-center gap-1 rounded-full border border-[#EBEBEB] bg-white px-3 py-2 shadow-[0_4px_16px_rgba(0,0,0,0.10)]">
           {BLOCK_TYPES.map(({ type, label, Icon }) => (
             <button
               key={type}
@@ -849,8 +850,8 @@ export function BlocksEditor({
               }}
               className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                 activeBlockType === type
-                  ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                  : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                  ? 'bg-[#182403] text-white'
+                  : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#182403]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -858,7 +859,7 @@ export function BlocksEditor({
           ))}
 
           {/* Divider */}
-          <div className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
+          <div className="mx-1 h-5 w-px bg-[#EBEBEB]" />
 
           {/* Section button */}
           <button
@@ -869,11 +870,33 @@ export function BlocksEditor({
             }}
             className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
               showSectionMenu
-                ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                : 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                ? 'bg-[#182403] text-white'
+                : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#182403]'
             }`}
           >
             <FolderPlus className="h-4 w-4" />
+          </button>
+
+          {/* Divider */}
+          <div className="mx-1 h-5 w-px bg-[#EBEBEB]" />
+
+          {/* Share button */}
+          <button
+            title="Share my Myntro"
+            onClick={() => {
+              const url = `${window.location.origin}/${username}`
+              navigator.clipboard.writeText(url).then(() => {
+                setCopied(true)
+                setTimeout(() => setCopied(false), 2000)
+              })
+            }}
+            className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-all ${
+              copied
+                ? 'bg-[#F0FBE0] text-[#4A7A00]'
+                : 'bg-[#182403] text-white hover:bg-[#2D3F05]'
+            }`}
+          >
+            {copied ? 'Copied!' : 'Share'}
           </button>
         </div>
       </div>
@@ -881,8 +904,8 @@ export function BlocksEditor({
       {/* Hidden image input */}
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
       {imageUploading && (
-        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm text-white dark:bg-gray-100 dark:text-gray-900">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading…
+        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-[#182403] px-4 py-2 text-sm text-white">
+          <CircleNotch className="h-3.5 w-3.5 animate-spin" /> Uploading…
         </div>
       )}
     </div>

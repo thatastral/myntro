@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Wallet, CheckCircle, Loader2, Unlink, AlertCircle, Copy } from 'lucide-react'
+import { Wallet, CheckCircle, CircleNotch, LinkBreak, Warning, Copy } from '@phosphor-icons/react'
 import {
   ConnectionProvider,
   WalletProvider,
@@ -149,9 +149,9 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
                 className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:border-gray-700 dark:hover:border-red-900 dark:hover:bg-red-950/20 dark:hover:text-red-400"
               >
                 {saving ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <CircleNotch className="h-3 w-3 animate-spin" />
                 ) : (
-                  <Unlink className="h-3 w-3" />
+                  <LinkBreak className="h-3 w-3" />
                 )}
               </button>
             </div>
@@ -217,7 +217,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               >
                 {saving ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <CircleNotch className="h-4 w-4 animate-spin" />
                     Saving…
                   </>
                 ) : (
@@ -229,7 +229,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
 
           {saving && inputMode === 'connect' && (
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <Loader2 className="h-3 w-3 animate-spin" />
+              <CircleNotch className="h-3 w-3 animate-spin" />
               Saving wallet…
             </div>
           )}
@@ -238,7 +238,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
 
       {error && (
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900 dark:bg-red-950/20">
-          <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-500" />
+          <Warning className="h-4 w-4 flex-shrink-0 text-red-500" />
           <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
