@@ -52,7 +52,7 @@ function ReadOnlySectionBlock({ section, blocks, username }: { section: Section;
   if (blocks.length === 0) return null
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
         {section.title}
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -262,7 +262,7 @@ function SortableSectionItem({
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="text-[#C0C0C0] transition-transform duration-200 hover:text-[#182403]"
+          className="text-[#C0C0C0] transition-transform duration-200 hover:text-[#0F1702]"
           style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -288,15 +288,15 @@ function SortableSectionItem({
               onBlur={commitRename}
               onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setTitleDraft(section.title); setEditing(false) } }}
               maxLength={60}
-              className="flex-1 rounded-lg border border-[#EBEBEB] bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#182403] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+              className="flex-1 rounded-lg border border-[#EBEBEB] bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
-            <button onClick={commitRename} className="text-[#C0C0C0] hover:text-[#182403]">
+            <button onClick={commitRename} className="text-[#C0C0C0] hover:text-[#0F1702]">
               <Check className="h-3.5 w-3.5" />
             </button>
           </div>
         ) : (
           <div className="flex flex-1 items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
               {section.title}
             </span>
             <button
@@ -691,7 +691,7 @@ export function BlocksEditor({
             </div>
           )}
           {activeSection && (
-            <div className="rounded-2xl border border-[#EBEBEB] bg-white px-4 py-2 text-sm font-semibold text-[#182403] shadow-lg">
+            <div className="rounded-2xl border border-[#EBEBEB] bg-white px-4 py-2 text-sm font-semibold text-[#0F1702] shadow-lg">
               {activeSection.title}
             </div>
           )}
@@ -709,7 +709,7 @@ export function BlocksEditor({
                 placeholder="Write your note…"
                 rows={4}
                 autoFocus
-                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -717,7 +717,7 @@ export function BlocksEditor({
                   <select
                     value={noteFont}
                     onChange={(e) => setNoteFont(e.target.value)}
-                    className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#182403] outline-none transition-colors focus:border-[#8EE600]"
+                    className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]"
                     style={{ fontFamily: noteFont }}
                   >
                     <option value="sans-serif">Sans-serif</option>
@@ -733,7 +733,7 @@ export function BlocksEditor({
                       key={c.id}
                       onClick={() => setNoteColor(c.id)}
                       title={c.label}
-                      className={`h-5 w-5 rounded-full border-2 transition-transform ${c.cls} ${noteColor === c.id ? 'scale-125 border-[#182403]' : 'border-transparent'}`}
+                      className={`h-5 w-5 rounded-full border-2 transition-transform ${c.cls} ${noteColor === c.id ? 'scale-125 border-[#0F1702]' : 'border-transparent'}`}
                     />
                   ))}
                 </div>
@@ -744,34 +744,34 @@ export function BlocksEditor({
           {activeBlockType === 'link' && (
             <div className="space-y-2">
               <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://…" autoFocus
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Title (optional)"
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkDesc} onChange={(e) => setLinkDesc(e.target.value)} placeholder="Description (optional)"
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
             </div>
           )}
 
           {activeBlockType === 'spotify' && (
             <input type="url" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)}
               placeholder="https://open.spotify.com/track/… or playlist/…" autoFocus
-              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
           )}
 
           {activeBlockType === 'youtube' && (
             <input type="url" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=… or youtu.be/…" autoFocus
-              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
           )}
 
           <div className="mt-3 flex items-center justify-end gap-2">
-            <button onClick={resetAndClose} className="text-sm text-[#909090] transition-colors hover:text-[#182403]">
+            <button onClick={resetAndClose} className="text-sm text-[#909090] transition-colors hover:text-[#0F1702]">
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 rounded-xl bg-[#182403] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-40"
+              className="flex items-center gap-1.5 rounded-xl bg-[#0F1702] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-40"
             >
               {saving ? <CircleNotch className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
               Add
@@ -789,7 +789,7 @@ export function BlocksEditor({
               <button
                 key={t.title}
                 onClick={() => handleAddSection(t.title)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#182403] transition-colors hover:bg-[#FAFAFA]"
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#0F1702] transition-colors hover:bg-[#FAFAFA]"
               >
                 <SquaresFour className="h-3.5 w-3.5 text-[#C0C0C0]" />
                 {t.title}
@@ -807,12 +807,12 @@ export function BlocksEditor({
                   }}
                   placeholder="Section name…"
                   autoFocus
-                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   onClick={() => { if (sectionTitle.trim()) handleAddSection(sectionTitle.trim()) }}
                   disabled={!sectionTitle.trim()}
-                  className="rounded-xl bg-[#182403] px-3 py-2 text-sm text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-40"
+                  className="rounded-xl bg-[#0F1702] px-3 py-2 text-sm text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-40"
                 >
                   <Check className="h-3.5 w-3.5" />
                 </button>
@@ -820,7 +820,7 @@ export function BlocksEditor({
             ) : (
               <button
                 onClick={() => setAddingSection(true)}
-                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+                className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Custom name…
@@ -829,7 +829,7 @@ export function BlocksEditor({
           </div>
           <div className="mt-3 flex justify-end">
             <button onClick={() => { setShowSectionMenu(false); setAddingSection(false); setSectionTitle('') }}
-              className="text-sm text-[#909090] transition-colors hover:text-[#182403]">
+              className="text-sm text-[#909090] transition-colors hover:text-[#0F1702]">
               Cancel
             </button>
           </div>
@@ -850,8 +850,8 @@ export function BlocksEditor({
               }}
               className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                 activeBlockType === type
-                  ? 'bg-[#182403] text-white'
-                  : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#182403]'
+                  ? 'bg-[#0F1702] text-white'
+                  : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#0F1702]'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -870,8 +870,8 @@ export function BlocksEditor({
             }}
             className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
               showSectionMenu
-                ? 'bg-[#182403] text-white'
-                : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#182403]'
+                ? 'bg-[#0F1702] text-white'
+                : 'text-[#909090] hover:bg-[#FAFAFA] hover:text-[#0F1702]'
             }`}
           >
             <FolderPlus className="h-4 w-4" />
@@ -893,7 +893,7 @@ export function BlocksEditor({
             className={`flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-all ${
               copied
                 ? 'bg-[#F0FBE0] text-[#4A7A00]'
-                : 'bg-[#182403] text-white hover:bg-[#2D3F05]'
+                : 'bg-[#0F1702] text-white hover:bg-[#1A2E03]'
             }`}
           >
             {copied ? 'Copied!' : 'Share'}
@@ -904,7 +904,7 @@ export function BlocksEditor({
       {/* Hidden image input */}
       <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
       {imageUploading && (
-        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-[#182403] px-4 py-2 text-sm text-white">
+        <div className="fixed bottom-[120px] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-[#0F1702] px-4 py-2 text-sm text-white">
           <CircleNotch className="h-3.5 w-3.5 animate-spin" /> Uploading…
         </div>
       )}

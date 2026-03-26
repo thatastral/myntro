@@ -50,7 +50,7 @@ export default function TipPage({ params }: TipPageProps) {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-3 bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
         <p className="text-sm text-[#909090]">Profile not found.</p>
-        <button onClick={() => router.push('/')} className="text-sm font-semibold text-[#182403] underline-offset-2 hover:underline">
+        <button onClick={() => router.push('/')} className="text-sm font-semibold text-[#0F1702] underline-offset-2 hover:underline">
           Go home
         </button>
       </div>
@@ -63,10 +63,10 @@ export default function TipPage({ params }: TipPageProps) {
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FAFAFA] border border-[#EBEBEB]">
           <Lightning className="h-7 w-7 text-[#C0C0C0]" />
         </div>
-        <p className="text-sm font-medium text-[#182403]">
+        <p className="text-sm font-medium text-[#0F1702]">
           @{username} hasn&apos;t connected a wallet yet.
         </p>
-        <button onClick={() => router.push(`/${username}`)} className="text-sm text-[#909090] underline-offset-2 hover:underline hover:text-[#182403] transition-colors">
+        <button onClick={() => router.push(`/${username}`)} className="text-sm text-[#909090] underline-offset-2 hover:underline hover:text-[#0F1702] transition-colors">
           Back to profile
         </button>
       </div>
@@ -78,7 +78,7 @@ export default function TipPage({ params }: TipPageProps) {
       <div className="mx-auto max-w-sm px-4 py-12">
         <button
           onClick={() => router.push(`/${username}`)}
-          className="mb-8 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+          className="mb-8 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to @{username}
@@ -92,7 +92,7 @@ export default function TipPage({ params }: TipPageProps) {
               </div>
             </div>
             <h1
-              className="text-lg font-bold text-[#182403]"
+              className="text-lg font-bold text-[#0F1702]"
               style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
             >
               Tip {ownerName}

@@ -152,7 +152,7 @@ export function CVUpload({ onSuccess }: CVUploadProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
           CV / Resume
         </h3>
 

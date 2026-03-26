@@ -15,6 +15,17 @@ async function getUserProfilePath(_request: NextRequest, userId: string): Promis
 }
 
 export default async function proxy(request: NextRequest) {
+  // Maintenance mode — redirect everything to /waitlist except the waitlist page and its API
+  const { pathname } = request.nextUrl
+  if (process.env.MAINTENANCE_MODE === 'true') {
+    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/_next')
+    if (!allowed) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/waitlist'
+      return NextResponse.redirect(url)
+    }
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -43,8 +54,6 @@ export default async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
-
   // Protect /onboarding — unauthenticated users go to login
   if (pathname.startsWith('/onboarding') && !user) {
     const url = request.nextUrl.clone()
@@ -58,6 +67,31 @@ export default async function proxy(request: NextRequest) {
     dest.pathname = await getUserProfilePath(request, user.id)
     if (dest.pathname !== '/onboarding') {
       return NextResponse.redirect(dest)
+    }
+
+    // Private beta gate — user is authenticated but has no username yet.
+    // Admin emails always bypass. Everyone else must be in the beta_testers table.
+    const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+    const isAdmin = adminEmails.includes((user.email ?? '').toLowerCase())
+
+    if (!isAdmin) {
+      const betaAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { global: { fetch: (url, opts = {}) => fetch(url, { ...opts, cache: 'no-store' }) } },
+      )
+      const { count } = await betaAdmin
+        .from('beta_testers')
+        .select('id', { count: 'exact', head: true })
+        .eq('email', user.email)
+
+      if (!count || count === 0) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/waitlist'
+        return NextResponse.redirect(url)
+      }
     }
   }
 

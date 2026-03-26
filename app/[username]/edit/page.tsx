@@ -167,7 +167,7 @@ export default function EditPage({ params }: EditPageProps) {
         </p>
         <button
           onClick={() => router.push('/')}
-          className="text-sm font-semibold text-[#182403] underline-offset-2 hover:underline"
+          className="text-sm font-semibold text-[#0F1702] underline-offset-2 hover:underline"
         >
           Go home
         </button>
@@ -217,7 +217,7 @@ export default function EditPage({ params }: EditPageProps) {
             <div className="flex items-center gap-3">
               <Link
                 href={`/${username}`}
-                className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+                className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Profile
@@ -232,7 +232,7 @@ export default function EditPage({ params }: EditPageProps) {
                 href={`/${username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
               >
                 <Eye className="h-3.5 w-3.5" />
                 Preview
@@ -240,14 +240,14 @@ export default function EditPage({ params }: EditPageProps) {
               </a>
               <a
                 href={`/${username}/analytics`}
-                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
               >
                 <ChartBar className="h-3.5 w-3.5" />
                 Analytics
               </a>
               <button
                 onClick={() => setSettingsOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
               >
                 <Gear className="h-3.5 w-3.5" />
                 Settings
@@ -260,7 +260,7 @@ export default function EditPage({ params }: EditPageProps) {
             <div className="flex items-start justify-between">
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-[#F0F0F0]"
+                className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]"
                 title="Change profile photo"
               >
                 {avatarUrl ? (
@@ -285,7 +285,7 @@ export default function EditPage({ params }: EditPageProps) {
               </button>
               <button
                 onClick={refetch}
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-all hover:bg-[#FAFAFA] hover:text-[#182403]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-all hover:bg-[#FAFAFA] hover:text-[#0F1702]"
                 title="Refresh profile"
               >
                 <ArrowClockwise className="h-4 w-4" />
@@ -301,7 +301,7 @@ export default function EditPage({ params }: EditPageProps) {
                   placeholder="Your name"
                   as="h1"
                   maxLength={80}
-                  className="text-2xl font-bold tracking-tight text-[#182403]"
+                  className="text-2xl font-bold tracking-tight text-[#0F1702]"
                 />
 
                 {/* Affiliation visibility picker — only verified ones can be featured */}
@@ -396,7 +396,7 @@ export default function EditPage({ params }: EditPageProps) {
                             target="_blank"
                             rel="noopener noreferrer"
                             title={link.title}
-                            className="flex h-6 w-6 items-center justify-center rounded-md text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#182403]"
+                            className="flex h-6 w-6 items-center justify-center rounded-md text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
                           >
                             <PlatformIcon id={link.icon} />
                           </a>
@@ -416,7 +416,7 @@ export default function EditPage({ params }: EditPageProps) {
                     <button
                       onClick={() => setAddingLink(v => !v)}
                       title="Add link"
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#182403]"
+                      className="flex h-6 w-6 items-center justify-center rounded-md text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
@@ -441,16 +441,16 @@ export default function EditPage({ params }: EditPageProps) {
                       onChange={e => setNewLinkUrl(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleSaveLink()}
                       placeholder="https://..."
-                      className="flex-1 bg-transparent text-xs text-[#182403] outline-none placeholder:text-[#C0C0C0]"
+                      className="flex-1 bg-transparent text-xs text-[#0F1702] outline-none placeholder:text-[#C0C0C0]"
                     />
                     <button
                       onClick={handleSaveLink}
                       disabled={savingLink || !newLinkPlatform || !newLinkUrl.trim()}
-                      className="text-xs font-semibold text-[#182403] disabled:opacity-40"
+                      className="text-xs font-semibold text-[#0F1702] disabled:opacity-40"
                     >
                       {savingLink ? <CircleNotch className="h-3 w-3 animate-spin" /> : 'Save'}
                     </button>
-                    <button onClick={() => setAddingLink(false)} className="text-[#C0C0C0] hover:text-[#182403]">
+                    <button onClick={() => setAddingLink(false)} className="text-[#C0C0C0] hover:text-[#0F1702]">
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -467,8 +467,8 @@ export default function EditPage({ params }: EditPageProps) {
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
                     activeTab === tab
-                      ? 'bg-[#182403] text-white shadow-sm'
-                      : 'text-[#909090] hover:text-[#182403]'
+                      ? 'bg-[#0F1702] text-white shadow-sm'
+                      : 'text-[#909090] hover:text-[#0F1702]'
                   }`}
                 >
                   {tab === 'me' ? 'Me' : 'Achievements'}
@@ -497,7 +497,7 @@ export default function EditPage({ params }: EditPageProps) {
 
                 {/* Affiliations */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
                     Affiliations
                   </h2>
                   <AffiliationEditor
@@ -512,7 +512,7 @@ export default function EditPage({ params }: EditPageProps) {
 
                 {/* CV / Resume */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
                     Resume / CV
                   </h2>
                   <CVUpload />
@@ -522,7 +522,7 @@ export default function EditPage({ params }: EditPageProps) {
 
                 {/* Wallet */}
                 <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
                     Wallet
                   </h2>
                   <WalletConnectSection
@@ -560,7 +560,7 @@ export default function EditPage({ params }: EditPageProps) {
               <Lightning className="h-3.5 w-3.5 text-[#909090]" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-bold leading-none text-[#182403]">
+              <span className="text-sm font-bold leading-none text-[#0F1702]">
                 {quickStats ? quickStats.tips.toLocaleString() : '—'}
               </span>
               <span className="text-[10px] text-[#C0C0C0]">Tips · 7d</span>
@@ -600,7 +600,7 @@ export default function EditPage({ params }: EditPageProps) {
               )
             })()}
             <div className="flex flex-col items-end">
-              <span className="text-sm font-bold leading-none text-[#182403]">
+              <span className="text-sm font-bold leading-none text-[#0F1702]">
                 {quickStats ? quickStats.views.toLocaleString() : '—'}
               </span>
               <span className="text-[10px] text-[#C0C0C0]">Views · 7d</span>

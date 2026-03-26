@@ -7,6 +7,7 @@ import { ProfileHeader } from '@/components/profile/ProfileHeader'
 import { LinksSection } from '@/components/profile/LinksSection'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { EditFab } from '@/components/profile/EditFab'
+import { JoinCTA } from '@/components/profile/JoinCTA'
 import type { ProfileData } from '@/types'
 
 interface ProfilePageProps {
@@ -142,6 +143,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           {(blocks.length > 0 || sections.length > 0 || achievements.length > 0) && (
             <ProfileTabs blocks={blocks} sections={sections} achievements={achievements} username={user.username} />
           )}
+
+          {/* Join CTA — visitors only */}
+          <JoinCTA username={user.username} userId={user.id} />
 
           {/* Footer */}
           <div className="pb-4 pt-2 text-center">

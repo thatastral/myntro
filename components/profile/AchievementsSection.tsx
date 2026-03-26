@@ -11,7 +11,7 @@ export function AchievementsSection({ achievements }: AchievementsSectionProps) 
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
         Achievements
       </h2>
       <div className="grid gap-3">
@@ -54,7 +54,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-2">
           <h3
-            className="font-semibold leading-tight text-[#182403]"
+            className="font-semibold leading-tight text-[#0F1702]"
             style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
           >
             {achievement.title}

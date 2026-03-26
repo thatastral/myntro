@@ -86,7 +86,7 @@ function LoginForm() {
         <div className="rounded-2xl border border-[#EBEBEB] bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
           <div className="mb-6">
             <h1
-              className="text-2xl font-bold text-[#182403]"
+              className="text-2xl font-bold text-[#0F1702]"
               style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
             >
               Welcome back
@@ -111,7 +111,7 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
               />
             </div>
 
@@ -120,7 +120,7 @@ function LoginForm() {
                 <label className="block text-xs font-semibold uppercase tracking-wide text-[#909090]">
                   Password
                 </label>
-                <Link href="/forgot-password" className="text-xs text-[#909090] transition-colors hover:text-[#182403]">
+                <Link href="/forgot-password" className="text-xs text-[#909090] transition-colors hover:text-[#0F1702]">
                   Forgot password?
                 </Link>
               </div>
@@ -131,7 +131,7 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   type="button"
@@ -146,7 +146,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#182403] py-3 text-sm font-semibold text-white transition-all hover:bg-[#2D3F05] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-[#0F1702] py-3 text-sm font-semibold text-white transition-all hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -168,7 +168,7 @@ function LoginForm() {
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#182403] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#0F1702] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {googleLoading ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />
@@ -182,7 +182,7 @@ function LoginForm() {
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="font-semibold text-[#182403] underline-offset-2 hover:underline"
+              className="font-semibold text-[#0F1702] underline-offset-2 hover:underline"
             >
               Sign up free
             </Link>

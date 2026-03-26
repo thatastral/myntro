@@ -26,7 +26,9 @@ Browser → proxy.ts → App Router page or API route → Supabase
 ```
 
 `proxy.ts` is Next.js 16's replacement for `middleware.ts`. It refreshes the Supabase session on every request and handles all route guards:
+- **Maintenance mode**: when `MAINTENANCE_MODE=true` env var is set, all routes except `/waitlist` and `/api/waitlist` redirect to `/waitlist`. Checked first, before any auth logic. Omit or set to `false` in `.env.local` to keep full access during local dev; set `true` only in Vercel production env vars.
 - `/onboarding`, `/{username}/edit` — redirect to `/login` if unauthenticated
+- `/onboarding` (authenticated, no username yet) — checked against `beta_testers` table; non-beta users redirected to `/waitlist`. Admin emails (`ADMIN_EMAILS`) always bypass.
 - `/`, `/login`, `/signup` — redirect authenticated users to `/{username}/edit` (queries `users` table for username, falls back to `/onboarding`)
 - `/admin/*` — restricted to emails listed in `ADMIN_EMAILS` env var; non-admins redirected to `/`
 
@@ -49,7 +51,9 @@ After OAuth the browser hits `/api/auth/callback` → checks if user has a profi
 
 All data lives in Supabase Postgres. Schema in `supabase/migrations/`. Always apply new migrations via the **Supabase dashboard SQL editor** — the Management API token has been unreliable.
 
-Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`, `waitlist`.
+Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`, `waitlist`, `beta_testers`.
+
+**`beta_testers`** (`supabase/migrations/008_beta_testers.sql`): Curated list of emails allowed to reach `/onboarding` during private beta. RLS enabled, no public access — managed via service role key only. Separate from `waitlist` (which is public username reservations). Add testers via SQL: `INSERT INTO beta_testers (email, note) VALUES ('...', '...') ON CONFLICT DO NOTHING`.
 
 Key columns:
 - `users.featured_affiliation_id UUID` references `affiliations(id) ON DELETE SET NULL` — controls which verified affiliation badge shows publicly. Migration: `supabase/migrations/003_featured_affiliation.sql`.
@@ -78,7 +82,7 @@ Two ingestion paths, both store to `documents` table with `parsed_text` for AI c
 
 `/api/ai/chat` builds context from the DB and the most recent `documents.parsed_text`, then streams from **Groq** via the OpenAI-compatible SDK (`lib/ai/deepseek.ts`, model `llama-3.3-70b-versatile`). Requires `GROQ_API_KEY`. `generateEmbedding()` always returns `null` (no embedding model) — vector search is skipped and CV text is included directly in the system prompt instead.
 
-**AI chat sidebar** (`components/profile/AIChatWidget.tsx`): Floating panel, fixed 16px gap from top/right/bottom (`top:16, right:16, bottom:16`), `borderRadius:20`, slide-in from right. Contains `MyntroMark` (inline SVG logo mark) and `MyntroAvatar` (self-contained: dark green `#182403` bg + `MyntroMark`). Uses `useId()` for unique SVG gradient/clip IDs so multiple avatars can render on the same page without ID collisions. Send button uses the brand green gradient. Any update to this component must keep `MyntroMark` and `MyntroAvatar` self-contained within the file.
+**AI chat sidebar** (`components/profile/AIChatWidget.tsx`): Floating panel, fixed 16px gap from top/right/bottom (`top:16, right:16, bottom:16`), `borderRadius:20`, slide-in from right. Contains `MyntroMark` (inline SVG logo mark) and `MyntroAvatar` (self-contained: dark green `#0F1702` bg + `MyntroMark`). Uses `useId()` for unique SVG gradient/clip IDs so multiple avatars can render on the same page without ID collisions. Send button uses the brand green gradient. Any update to this component must keep `MyntroMark` and `MyntroAvatar` self-contained within the file.
 
 ### Analytics
 
@@ -109,8 +113,10 @@ Pre-launch username reservation at `app/waitlist/page.tsx`:
 - Debounced real-time username availability check via `HEAD /api/waitlist?username=foo` (200 = available, 409 = taken)
 - `GET /api/waitlist` returns `{ count }` of signups
 - `POST /api/waitlist` validates email + username, checks both `users` and `waitlist` tables, inserts; handles `23505` duplicate gracefully
+- `/api/username` availability check also queries the `waitlist` table to block reserved usernames — but excludes the current user's own email so a waitlisted user can claim their own reservation
 - Migration: `supabase/migrations/007_waitlist.sql` — must be run manually in the Supabase dashboard SQL editor
 - Table has RLS enabled; policy allows public inserts, no public reads (admin client used in API routes)
+- Success screen card (`SuccessScreen` component): inline `<style>` keyframes (`cardIntro` fade-up on mount, `cardGlaze` sheen sweep at 0.7s delay), mouse-tracking 3D tilt via `onMouseMove` + `perspective(900px) rotateX/Y`. Outer wrapper handles tilt (no `overflow-hidden`); inner card has `overflow-hidden` for SVG border clipping.
 
 ### Onboarding flow
 
@@ -177,7 +183,7 @@ Note blocks in the bento grid have enhanced styling and are editable:
 
 ### Design system tokens
 
-Colors: `#182403` (dark green/text), `#909090` (muted), `#C0C0C0` (placeholder/subtle), `#EBEBEB` (border), `#FAFAFA` (surface), `#8EE600` (brand accent), `#4A7A00` (darker green). Avoid Tailwind `gray-*`, `amber-*`, or one-off hex values not in this set. Primary CTA button style: `linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)` with `boxShadow: '0 3px 16px rgba(142,230,0,0.35)'`.
+Colors: `#0F1702` (dark green/text), `#909090` (muted), `#C0C0C0` (placeholder/subtle), `#EBEBEB` (border), `#FAFAFA` (surface), `#8EE600` (brand accent), `#4A7A00` (darker green). Avoid Tailwind `gray-*`, `amber-*`, or one-off hex values not in this set. Primary CTA button style: `linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)` with `boxShadow: '0 3px 16px rgba(142,230,0,0.35)'`.
 
 ### Key conventions
 
@@ -191,4 +197,4 @@ Colors: `#182403` (dark green/text), `#909090` (muted), `#C0C0C0` (placeholder/s
 ### Environment variables
 
 Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, `ADMIN_EMAILS`.
-Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL`.
+Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL`, `MAINTENANCE_MODE` (set to `true` in Vercel production only to redirect all traffic to `/waitlist`; omit in `.env.local`).

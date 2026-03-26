@@ -109,14 +109,14 @@ export function SettingsModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#F5F5F5] px-5 py-4">
           <h2
-            className="text-base font-bold text-[#182403]"
+            className="text-base font-bold text-[#0F1702]"
             style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
           >
             Settings
           </h2>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#182403]"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -132,7 +132,7 @@ export function SettingsModal({
                 <Lock className="h-5 w-5 text-[#909090]" />
               )}
               <div>
-                <p className="text-sm font-medium text-[#182403]">Profile visibility</p>
+                <p className="text-sm font-medium text-[#0F1702]">Profile visibility</p>
                 <p className="text-xs text-[#909090]">
                   {user.profile_visibility === 'public'
                     ? 'Anyone can view your profile'
@@ -146,7 +146,7 @@ export function SettingsModal({
               disabled={visibilityLoading}
               className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
                 user.profile_visibility === 'public'
-                  ? 'bg-[#182403]'
+                  ? 'bg-[#0F1702]'
                   : 'bg-[#E8E8E8]'
               }`}
             >
@@ -163,7 +163,7 @@ export function SettingsModal({
             <div className="flex items-center gap-3">
               <Wallet className="h-5 w-5 text-[#909090]" />
               <div>
-                <p className="text-sm font-medium text-[#182403]">Connected wallet</p>
+                <p className="text-sm font-medium text-[#0F1702]">Connected wallet</p>
                 <p className="font-mono text-xs text-[#909090]">
                   {walletAddress
                     ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`
@@ -189,14 +189,14 @@ export function SettingsModal({
             <div className="flex items-center gap-3">
               <SignOut className="h-5 w-5 text-[#909090]" />
               <div>
-                <p className="text-sm font-medium text-[#182403]">Sign out</p>
+                <p className="text-sm font-medium text-[#0F1702]">Sign out</p>
                 <p className="text-xs text-[#909090]">{user.email}</p>
               </div>
             </div>
             <button
               onClick={handleSignOut}
               disabled={signOutLoading}
-              className="flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403] disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702] disabled:opacity-50"
             >
               {signOutLoading ? <CircleNotch className="h-3 w-3 animate-spin" /> : null}
               Sign out
@@ -208,7 +208,7 @@ export function SettingsModal({
             <div className="flex items-center gap-3">
               <Warning className="h-5 w-5 flex-shrink-0 text-red-500" />
               <div>
-                <p className="text-sm font-medium text-[#182403]">Delete account</p>
+                <p className="text-sm font-medium text-[#0F1702]">Delete account</p>
                 <p className="text-xs text-[#909090]">This action is permanent and cannot be undone.</p>
               </div>
             </div>
@@ -219,7 +219,7 @@ export function SettingsModal({
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 placeholder={`Type "${user.username}" to confirm`}
-                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-3 py-2 text-sm text-[#182403] placeholder-[#C0C0C0] outline-none transition-colors focus:border-red-300 focus:bg-white"
+                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] placeholder-[#C0C0C0] outline-none transition-colors focus:border-red-300 focus:bg-white"
               />
 
               {deleteError && (

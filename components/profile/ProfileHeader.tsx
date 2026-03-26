@@ -27,7 +27,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
       <div className="flex flex-col gap-4">
         {/* Top row: Avatar + actions */}
         <div className="flex items-start justify-between">
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl bg-[#F0F0F0]">
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]">
             {user.avatar_url ? (
               <Image
                 src={user.avatar_url}
@@ -49,7 +49,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
             {walletAddress && (
               <button
                 onClick={() => setTipOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2 text-xs font-semibold text-[#182403] transition-all hover:border-[#D0D0D0] hover:bg-[#FAFAFA]"
+                className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2 text-xs font-semibold text-[#0F1702] transition-all hover:border-[#D0D0D0] hover:bg-[#FAFAFA]"
               >
                 <Lightning className="h-3.5 w-3.5 text-[#909090]" />
                 <span className="hidden sm:inline">Tip</span>
@@ -59,11 +59,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
             <button
               onClick={() => setAiOpen(true)}
               aria-label="Ask AI about this profile"
-              className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-[#182403] transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-[0.97]"
-              style={{
-                background: 'linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)',
-                boxShadow: '0 2px 12px rgba(142,230,0,0.35), 0 1px 0 rgba(255,255,255,0.6) inset',
-              }}
+              className="flex items-center gap-2 rounded-xl bg-[#0F1702] px-3 py-2 text-xs font-semibold text-[#F1FCDF] transition-all hover:bg-[#1A2E03] hover:-translate-y-0.5 active:scale-[0.97]"
             >
               <Sparkle className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Ask AI</span>
@@ -75,7 +71,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1
-              className="text-2xl font-bold tracking-tight text-[#182403]"
+              className="text-2xl font-bold tracking-tight text-[#0F1702]"
               style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
             >
               {user.name || user.username}
@@ -96,14 +92,14 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
                       )}
                     </div>
                     {/* Tooltip */}
-                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#182403] px-2.5 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+                    <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0F1702] px-2.5 py-1.5 text-xs text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
                       <div className="flex items-center gap-1.5">
                         <svg className="h-3 w-3 text-[#8EE600] flex-shrink-0" viewBox="0 0 16 16" fill="currentColor">
                           <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.707 6.293l-4 4a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L7 8.086l3.293-3.293a1 1 0 011.414 1.414z" />
                         </svg>
                         <span>{a.role ? `${a.role} · ${a.community_name}` : `Member · ${a.community_name}`}</span>
                       </div>
-                      <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#182403]" />
+                      <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-[#0F1702]" />
                     </div>
                   </div>
                 ))}

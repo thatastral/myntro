@@ -20,7 +20,7 @@ export function AffiliationBadges({ affiliations }: AffiliationBadgesProps) {
 
 function AffiliationBadge({ affiliation }: { affiliation: Affiliation }) {
   const badge = (
-    <div className="flex items-center gap-2 rounded-full border border-[#EBEBEB] bg-white px-3 py-1.5 shadow-sm transition-all hover:border-[#D0D0D0] hover:shadow">
+    <div className="flex items-center gap-2 rounded-full border border-[#EBEBEB] bg-white px-3 py-1.5 transition-all hover:border-[#C0C0C0]">
       {/* Community logo */}
       {affiliation.logo_url ? (
         <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full">
@@ -39,7 +39,7 @@ function AffiliationBadge({ affiliation }: { affiliation: Affiliation }) {
       )}
 
       {/* Name + role */}
-      <span className="text-xs font-medium text-[#182403]">
+      <span className="text-xs font-medium text-[#0F1702]">
         {affiliation.community_name}
         {affiliation.role && (
           <span className="ml-1 font-normal text-[#909090]">

@@ -46,16 +46,24 @@ export async function POST(request: NextRequest) {
       .eq('username', username)
     if (user) availQuery = availQuery.neq('id', user.id)
 
-    const { count, error: queryError } = await availQuery
+    // Also check waitlist — block usernames reserved by SOMEONE ELSE.
+    // Exclude the current user's own email so they can claim their own reservation.
+    let wlQuery = admin
+      .from('waitlist')
+      .select('id', { count: 'exact', head: true })
+      .eq('username', username)
+    if (user?.email) wlQuery = wlQuery.neq('email', user.email)
 
-    console.log('[api/username] check:', { username, userId: user?.id, count, queryError: queryError?.message })
+    const [{ count, error: queryError }, { count: wlCount }] = await Promise.all([availQuery, wlQuery])
+
+    console.log('[api/username] check:', { username, userId: user?.id, count, wlCount, queryError: queryError?.message })
 
     if (queryError) {
       console.error('[api/username] Availability query error:', queryError)
       return NextResponse.json({ error: 'Could not check availability. Please try again.' }, { status: 500 })
     }
 
-    if (count && count > 0) {
+    if ((count && count > 0) || (wlCount && wlCount > 0)) {
       return NextResponse.json({ available: false }, { status: 200 })
     }
 

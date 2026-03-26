@@ -79,13 +79,13 @@ export default function AdminAffiliationsPage() {
           <div>
             <Link
               href="/"
-              className="mb-3 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+              className="mb-3 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
             >
               <ArrowLeft className="h-4 w-4" />
               Home
             </Link>
             <h1
-              className="text-xl font-bold text-[#182403]"
+              className="text-xl font-bold text-[#0F1702]"
               style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
             >
               Affiliation Review
@@ -102,8 +102,8 @@ export default function AdminAffiliationsPage() {
                   onClick={() => setFilter(f)}
                   className={`rounded-lg px-3 py-1.5 capitalize transition-colors ${
                     filter === f
-                      ? 'bg-[#182403] text-white'
-                      : 'text-[#909090] hover:text-[#182403]'
+                      ? 'bg-[#0F1702] text-white'
+                      : 'text-[#909090] hover:text-[#0F1702]'
                   }`}
                 >
                   {f}
@@ -112,7 +112,7 @@ export default function AdminAffiliationsPage() {
             </div>
             <button
               onClick={() => load(filter)}
-              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
             >
               <ArrowClockwise className="h-3.5 w-3.5" />
             </button>
@@ -155,7 +155,7 @@ export default function AdminAffiliationsPage() {
                   {/* Details */}
                   <div className="flex flex-1 flex-col gap-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-[#182403]">{a.community_name}</span>
+                      <span className="font-semibold text-[#0F1702]">{a.community_name}</span>
                       {a.verified ? (
                         <span className="flex items-center gap-1 rounded-full bg-[#F0FBE0] px-2 py-0.5 text-[10px] font-semibold text-[#4A7A00]">
                           <CheckCircle className="h-3 w-3" />
@@ -174,7 +174,7 @@ export default function AdminAffiliationsPage() {
                     {user && (
                       <button
                         onClick={() => router.push(`/${user.username}`)}
-                        className="mt-0.5 flex items-center gap-1.5 w-fit text-xs text-[#909090] transition-colors hover:text-[#182403]"
+                        className="mt-0.5 flex items-center gap-1.5 w-fit text-xs text-[#909090] transition-colors hover:text-[#0F1702]"
                       >
                         <div className="h-4 w-4 overflow-hidden rounded-full bg-[#E8E8E8] flex-shrink-0">
                           {user.avatar_url ? (
@@ -206,7 +206,7 @@ export default function AdminAffiliationsPage() {
                             href={a.proof_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 w-fit text-xs text-[#909090] underline-offset-2 hover:text-[#182403] hover:underline transition-colors"
+                            className="flex items-center gap-1 w-fit text-xs text-[#909090] underline-offset-2 hover:text-[#0F1702] hover:underline transition-colors"
                           >
                             <ArrowSquareOut className="h-3 w-3" />
                             {isPdf ? 'View PDF' : isImage ? 'Open full image' : 'View proof'}
@@ -226,7 +226,7 @@ export default function AdminAffiliationsPage() {
                       <button
                         onClick={() => setVerified(a.id, true)}
                         disabled={isActing}
-                        className="flex items-center gap-1.5 rounded-xl bg-[#182403] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-50"
+                        className="flex items-center gap-1.5 rounded-xl bg-[#0F1702] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-50"
                       >
                         {isActing ? <CircleNotch className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
                         Approve

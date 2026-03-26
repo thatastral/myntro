@@ -143,8 +143,8 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
             onClick={() => setMode('url')}
             className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${
               mode === 'url'
-                ? 'bg-white text-[#182403] shadow-sm'
-                : 'text-[#909090] hover:text-[#182403]'
+                ? 'bg-white text-[#0F1702] shadow-sm'
+                : 'text-[#909090] hover:text-[#0F1702]'
             }`}
           >
             <LinkIcon className="h-3 w-3" />
@@ -155,8 +155,8 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
             onClick={() => setMode('upload')}
             className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${
               mode === 'upload'
-                ? 'bg-white text-[#182403] shadow-sm'
-                : 'text-[#909090] hover:text-[#182403]'
+                ? 'bg-white text-[#0F1702] shadow-sm'
+                : 'text-[#909090] hover:text-[#0F1702]'
             }`}
           >
             <UploadSimple className="h-3 w-3" />
@@ -171,7 +171,7 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
           value={uploadName ? '' : value}
           onChange={(e) => { setUploadName(null); onChange(e.target.value) }}
           placeholder="Link to membership proof (Discord, NFT, etc.)"
-          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#182403] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
         />
       ) : (
         <div>
@@ -267,7 +267,7 @@ function AffiliationForm({
               placeholder="e.g. Developer DAO, Bankless"
               required
               maxLength={100}
-              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#182403] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
           </div>
 
@@ -278,7 +278,7 @@ function AffiliationForm({
               onChange={(e) => update('role', e.target.value)}
               placeholder="Member, Contributor, Core team…"
               maxLength={60}
-              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#182403] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
           </div>
         </div>
@@ -308,7 +308,7 @@ function AffiliationForm({
           <button
             type="button"
             onClick={onCancel}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F0F0F0] hover:text-[#182403]"
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F0F0F0] hover:text-[#0F1702]"
           >
             <X className="h-3 w-3" />
             Cancel
@@ -316,7 +316,7 @@ function AffiliationForm({
           <button
             type="submit"
             disabled={loading || !canSubmit}
-            className="flex items-center gap-1.5 rounded-lg bg-[#182403] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#2D3F05] disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-lg bg-[#0F1702] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-40"
           >
             {loading ? <CircleNotch className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
             {submitLabel}
@@ -396,13 +396,13 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
           Community Affiliations
         </h3>
         {!showAddForm && !editingId && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#182403]"
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
           >
             <Plus className="h-3.5 w-3.5" />
             Add affiliation
@@ -450,7 +450,7 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
                 </div>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-sm font-medium text-[#182403]">
+                  <span className="text-sm font-medium text-[#0F1702]">
                     {a.community_name}
                   </span>
                   {a.role && (
@@ -473,7 +473,7 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
                 <button
                   onClick={() => { setEditingId(a.id); setShowAddForm(false); setEditError(null) }}
                   disabled={!!deletingId}
-                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[#C0C0C0] opacity-0 transition-all hover:bg-[#FAFAFA] hover:text-[#182403] group-hover:opacity-100"
+                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[#C0C0C0] opacity-0 transition-all hover:bg-[#FAFAFA] hover:text-[#0F1702] group-hover:opacity-100"
                   aria-label={`Edit ${a.community_name}`}
                 >
                   <PencilSimple className="h-3.5 w-3.5" />
@@ -491,7 +491,7 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
             No affiliations yet.{' '}
             <button
               onClick={() => setShowAddForm(true)}
-              className="font-medium text-[#182403] underline-offset-2 hover:underline"
+              className="font-medium text-[#0F1702] underline-offset-2 hover:underline"
             >
               Add your first
             </button>

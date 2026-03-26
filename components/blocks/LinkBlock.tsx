@@ -17,10 +17,10 @@ export function LinkBlock({ block }: { block: Block }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-all hover:border-[#D5D5D5] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)]"
+      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-all hover:border-[#C0C0C0]"
     >
       {/* Preview image */}
-      <div className="relative w-full bg-[#F5F5F5]" style={{ paddingBottom: '52%' }}>
+      <div className="relative w-full bg-[#FAFAFA]" style={{ paddingBottom: '52%' }}>
         {previewImage ? (
           <Image
             src={previewImage}
@@ -41,7 +41,7 @@ export function LinkBlock({ block }: { block: Block }) {
       {/* Content */}
       <div className="flex flex-1 flex-col justify-between p-3">
         <div>
-          <p className="text-sm font-semibold text-[#182403] line-clamp-2">
+          <p className="text-sm font-semibold text-[#0F1702] line-clamp-2">
             {title || hostname}
           </p>
           {description && (

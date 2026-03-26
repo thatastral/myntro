@@ -69,7 +69,7 @@ function BarChart({ data }: { data: { label: string; count: number }[] }) {
                 className={cn(
                   'w-full rounded-sm transition-colors duration-150',
                   d.count > 0
-                    ? 'bg-[#182403] group-hover:bg-[#2D3F05]'
+                    ? 'bg-[#0F1702] group-hover:bg-[#1A2E03]'
                     : 'bg-[#F0F0F0]',
                 )}
                 style={{ height: `${pct}%` }}
@@ -80,7 +80,7 @@ function BarChart({ data }: { data: { label: string; count: number }[] }) {
       </div>
 
       {tooltip && (
-        <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#182403] px-2.5 py-1 text-xs font-medium text-white shadow-lg">
+        <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0F1702] px-2.5 py-1 text-xs font-medium text-white shadow-lg">
           {tooltip.label}: {tooltip.count}
         </div>
       )}
@@ -141,7 +141,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-3 bg-white">
         <p className="text-sm text-[#909090]">You don&apos;t have access to this page.</p>
-        <Link href={`/${username}`} className="text-sm font-semibold text-[#182403] underline-offset-2 hover:underline">
+        <Link href={`/${username}`} className="text-sm font-semibold text-[#0F1702] underline-offset-2 hover:underline">
           View profile
         </Link>
       </div>
@@ -166,7 +166,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
         <div className="mb-8 flex items-center justify-between">
           <Link
             href={`/${username}/edit`}
-            className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+            className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to editor
@@ -174,7 +174,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
           <button
             onClick={() => load(period, true)}
             disabled={refreshing}
-            className="flex items-center gap-1.5 text-xs text-[#909090] transition-colors hover:text-[#182403] disabled:opacity-50"
+            className="flex items-center gap-1.5 text-xs text-[#909090] transition-colors hover:text-[#0F1702] disabled:opacity-50"
           >
             <ArrowClockwise className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
             Refresh
@@ -183,7 +183,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
 
         <div className="mb-6">
           <h1
-            className="text-2xl font-bold text-[#182403]"
+            className="text-2xl font-bold text-[#0F1702]"
             style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
           >
             Analytics
@@ -202,8 +202,8 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
               className={cn(
                 'flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-150',
                 period === value
-                  ? 'bg-[#182403] text-white shadow-sm'
-                  : 'text-[#909090] hover:text-[#182403]',
+                  ? 'bg-[#0F1702] text-white shadow-sm'
+                  : 'text-[#909090] hover:text-[#0F1702]',
               )}
             >
               {label}
@@ -223,7 +223,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
                 <span className="text-xs text-[#909090]">{label}</span>
               </div>
               <div
-                className="text-2xl font-bold tracking-tight text-[#182403]"
+                className="text-2xl font-bold tracking-tight text-[#0F1702]"
                 style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
               >
                 {(data?.counts[key] ?? 0).toLocaleString()}
@@ -239,7 +239,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
             Total events — {periodLabel}
           </div>
           <span
-            className="text-sm font-bold text-[#182403]"
+            className="text-sm font-bold text-[#0F1702]"
             style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
           >
             {(data?.total ?? 0).toLocaleString()}
@@ -249,7 +249,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
         {/* Activity chart */}
         <div className="mb-4 rounded-2xl border border-[#EBEBEB] bg-white p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#182403]">Activity</h2>
+            <h2 className="text-sm font-semibold text-[#0F1702]">Activity</h2>
             <span className="text-xs capitalize text-[#C0C0C0]">{periodLabel}</span>
           </div>
           {data && data.chart.length > 0 ? (
@@ -265,7 +265,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
         <div className="rounded-2xl border border-[#EBEBEB] bg-white p-5">
           <div className="mb-4 flex items-center gap-2">
             <Globe className="h-4 w-4 text-[#909090]" />
-            <h2 className="text-sm font-semibold text-[#182403]">Geography</h2>
+            <h2 className="text-sm font-semibold text-[#0F1702]">Geography</h2>
           </div>
 
           {data && data.geo.length > 0 ? (
@@ -277,14 +277,14 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
                     <span className="text-lg leading-none">{flag(g.country_code)}</span>
                     <div className="flex flex-1 flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-[#182403]">{g.country}</span>
+                        <span className="text-xs font-medium text-[#0F1702]">{g.country}</span>
                         <span className="text-xs text-[#909090]">
                           {g.count.toLocaleString()} · {pct}%
                         </span>
                       </div>
                       <div className="h-1 w-full overflow-hidden rounded-full bg-[#F0F0F0]">
                         <div
-                          className="h-full rounded-full bg-[#182403] transition-all duration-500"
+                          className="h-full rounded-full bg-[#0F1702] transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -310,7 +310,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
             <Link
               href={`/${username}`}
               target="_blank"
-              className="mt-3 inline-block text-xs font-semibold text-[#182403] underline-offset-2 hover:underline"
+              className="mt-3 inline-block text-xs font-semibold text-[#0F1702] underline-offset-2 hover:underline"
             >
               Share your profile →
             </Link>

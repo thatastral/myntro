@@ -232,7 +232,7 @@ export default function OnboardingPage() {
 
   if (loading) return (
     <div className="flex min-h-[100dvh] items-center justify-center">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#8EE600]" />
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />
     </div>
   )
 
@@ -266,9 +266,9 @@ export default function OnboardingPage() {
                       <div
                         className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all duration-300"
                         style={{
-                          background: done ? '#8EE600' : active ? '#182403' : 'transparent',
+                          background: done ? '#8EE600' : active ? '#0F1702' : 'transparent',
                           border: done || active ? 'none' : '2px solid #EBEBEB',
-                          color: done ? '#182403' : active ? '#fff' : '#C0C0C0',
+                          color: done ? '#0F1702' : active ? '#fff' : '#C0C0C0',
                         }}
                       >
                         {done ? <Check weight="bold" className="h-3.5 w-3.5" /> : s}
@@ -296,7 +296,7 @@ export default function OnboardingPage() {
                     <div className="flex flex-1 justify-center">
                       <span
                         className="text-[10px] font-semibold transition-colors"
-                        style={{ color: active ? '#182403' : done ? '#4A7A00' : '#C0C0C0' }}
+                        style={{ color: active ? '#0F1702' : done ? '#4A7A00' : '#C0C0C0' }}
                       >
                         {label}
                       </span>
@@ -313,7 +313,7 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <h1
-                  className="text-xl font-bold text-[#182403]"
+                  className="text-xl font-bold text-[#0F1702]"
                   style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
                 >
                   Choose your username
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                     autoFocus
                     autoComplete="off"
                     autoCapitalize="none"
-                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#182403] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2">
                     {checkState === 'checking' && <CircleNotch className="h-4 w-4 animate-spin text-[#C0C0C0]" />}
@@ -362,7 +362,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleStep1}
                 disabled={submitting || checkState !== 'available'}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#182403] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2D3F05] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
               </button>
@@ -374,7 +374,7 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <h1
-                  className="text-xl font-bold text-[#182403]"
+                  className="text-xl font-bold text-[#0F1702]"
                   style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
                 >
                   Set up your profile
@@ -389,7 +389,7 @@ export default function OnboardingPage() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#182403] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export default function OnboardingPage() {
                     onChange={e => setBio(e.target.value.slice(0, 300))}
                     placeholder="A short description of who you are…"
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                    className="w-full resize-none rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                   />
                   <span className="absolute bottom-2.5 right-3 text-xs text-[#C0C0C0]">{300 - bio.length}</span>
                 </div>
@@ -414,7 +414,7 @@ export default function OnboardingPage() {
                   value={location}
                   onChange={e => setLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
               </div>
 
@@ -423,7 +423,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleStep2}
                 disabled={submitting}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#182403] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2D3F05] active:scale-[0.98] disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
               >
                 {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
               </button>
@@ -435,7 +435,7 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <h1
-                  className="text-xl font-bold text-[#182403]"
+                  className="text-xl font-bold text-[#0F1702]"
                   style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
                 >
                   Add your links
@@ -456,10 +456,10 @@ export default function OnboardingPage() {
                       disabled={maxed}
                       className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${
                         active
-                          ? 'border-[#182403] bg-[#182403] text-white'
+                          ? 'border-[#0F1702] bg-[#0F1702] text-white'
                           : maxed
                           ? 'cursor-not-allowed border-[#EBEBEB] bg-[#FAFAFA] text-[#D0D0D0]'
-                          : 'border-[#EBEBEB] bg-[#FAFAFA] text-[#909090] hover:border-[#182403] hover:text-[#182403]'
+                          : 'border-[#EBEBEB] bg-[#FAFAFA] text-[#909090] hover:border-[#0F1702] hover:text-[#0F1702]'
                       }`}
                     >
                       <Icon size={16} />
@@ -484,7 +484,7 @@ export default function OnboardingPage() {
                             onChange={e => setUrls(prev => ({ ...prev, [id]: e.target.value }))}
                             onBlur={e => validateUrl(id, e.target.value)}
                             placeholder={p.placeholder}
-                            className="flex-1 bg-transparent text-sm text-[#182403] outline-none placeholder:text-[#C0C0C0]"
+                            className="flex-1 bg-transparent text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0]"
                           />
                         </div>
                         {urlErrors[id] && (
@@ -501,7 +501,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleStep3}
                 disabled={submitting || (selected.size > 0 && hasInvalidUrls)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#182403] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2D3F05] active:scale-[0.98] disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
               >
                 {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : selected.size === 0 ? 'Skip' : 'Continue'}
               </button>
@@ -513,7 +513,7 @@ export default function OnboardingPage() {
             <div className="space-y-4">
               <div>
                 <h1
-                  className="text-xl font-bold text-[#182403]"
+                  className="text-xl font-bold text-[#0F1702]"
                   style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
                 >
                   Add a profile photo
@@ -529,7 +529,7 @@ export default function OnboardingPage() {
                   onMouseMove={handleAvatarMouseMove}
                   onMouseUp={handleAvatarMouseUp}
                   onMouseLeave={handleAvatarMouseUp}
-                  className={`relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] transition ${avatarPreview ? 'cursor-grab active:cursor-grabbing hover:border-[#C0C0C0]' : 'cursor-pointer hover:border-[#8EE600]/60'}`}
+                  className={`relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] transition ${avatarPreview ? 'cursor-grab active:cursor-grabbing hover:border-[#C0C0C0]' : 'cursor-pointer hover:border-[#8EE600]/60'}`}
                 >
                   {avatarPreview ? (
                     <div
@@ -548,14 +548,14 @@ export default function OnboardingPage() {
                 <div className="text-sm text-[#909090]">
                   {avatarPreview ? (
                     <>
-                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#182403] underline-offset-2 hover:underline">
+                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#0F1702] underline-offset-2 hover:underline">
                         Change photo
                       </button>
                       <p className="mt-0.5 text-xs">Drag to reposition</p>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#182403] underline-offset-2 hover:underline">
+                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#0F1702] underline-offset-2 hover:underline">
                         Upload a photo
                       </button>
                       <p className="mt-0.5 text-xs">JPEG, PNG, WebP or GIF — max 5 MB</p>
@@ -582,7 +582,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleFinish}
                 disabled={submitting}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#182403] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2D3F05] active:scale-[0.98] disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
               >
                 {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Finishing up…</> : avatarFile ? 'Finish' : 'Skip & finish'}
               </button>
@@ -595,7 +595,7 @@ export default function OnboardingPage() {
           {step === 1 ? (
             <button
               onClick={handleBackToLogin}
-              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -603,7 +603,7 @@ export default function OnboardingPage() {
           ) : (
             <button
               onClick={() => setStep(step - 1)}
-              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#182403]"
+              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
             >
               <ArrowLeft className="h-4 w-4" />
               Back

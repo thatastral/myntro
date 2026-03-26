@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import type { Block } from '@/types'
 
@@ -56,13 +58,13 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
       <div className="flex flex-col gap-3">
         {/* Live preview */}
         <div 
-          className={`flex min-h-[100px] flex-col rounded-2xl border p-4 shadow-md ${editColorClass}`}
+          className={`flex min-h-[100px] flex-col rounded-2xl border p-4 shadow-sm ${editColorClass}`}
           style={{ 
             fontFamily: editFontOption.family,
             transform: 'rotate(-1deg)',
           }}
         >
-          <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#182403]">
+          <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#0F1702]">
             {editText || 'Preview text...'}
           </p>
           {username && (
@@ -78,7 +80,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             placeholder="Write your note..."
-            className="w-full resize-none rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] p-2 text-sm text-[#182403] outline-none focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+            className="w-full resize-none rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] p-2 text-sm text-[#0F1702] outline-none focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             rows={3}
             autoFocus
           />
@@ -86,7 +88,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
             <select
               value={editFont}
               onChange={(e) => setEditFont(e.target.value)}
-              className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#182403]"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#0F1702]"
             >
               {FONT_OPTIONS.map(f => (
                 <option key={f.value} value={f.value}>{f.label}</option>
@@ -97,7 +99,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
                 <button
                   key={key}
                   onClick={() => setEditColor(key)}
-                  className={`h-5 w-5 rounded-full border-2 transition-transform ${colorCls} ${editColor === key ? 'scale-125 border-[#182403]' : 'border-transparent'}`}
+                  className={`h-5 w-5 rounded-full border-2 transition-transform ${colorCls} ${editColor === key ? 'scale-125 border-[#0F1702]' : 'border-transparent'}`}
                 />
               ))}
             </div>
@@ -111,7 +113,7 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
             </button>
             <button
               onClick={handleSave}
-              className="rounded-lg bg-[#182403] px-3 py-1 text-xs font-medium text-white hover:bg-[#2D3F05]"
+              className="rounded-lg bg-[#0F1702] px-3 py-1 text-xs font-medium text-white hover:bg-[#1A2E03]"
             >
               Save
             </button>
@@ -123,14 +125,14 @@ export function NoteBlock({ block, username, onUpdate }: NoteBlockProps) {
 
   return (
     <div 
-      className={`flex h-full min-h-[120px] cursor-pointer flex-col rounded-2xl border p-4 shadow-md transition-shadow hover:shadow-lg ${cls}`}
+      className={`flex h-full min-h-[120px] cursor-pointer flex-col rounded-2xl border p-4 shadow-sm transition-shadow hover:shadow-md ${cls}`}
       style={{ 
         fontFamily: fontOption.family,
         transform: 'rotate(-1deg)',
       }}
       onClick={() => onUpdate && setIsEditing(true)}
     >
-      <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#182403]">
+      <p className="flex-1 whitespace-pre-wrap text-sm leading-relaxed text-[#0F1702]">
         {text}
       </p>
       {username && (

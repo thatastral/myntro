@@ -116,7 +116,7 @@ export default function SignupPage() {
         <div className="rounded-2xl border border-[#EBEBEB] bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
           <div className="mb-6">
             <h1
-              className="text-2xl font-bold text-[#182403]"
+              className="text-2xl font-bold text-[#0F1702]"
               style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
             >
               Create your page
@@ -141,7 +141,7 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function SignupPage() {
                   onBlur={() => setPasswordFocused(false)}
                   required
                   placeholder="Create a strong password"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   type="button"
@@ -191,7 +191,7 @@ export default function SignupPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#182403] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   type="button"
@@ -206,12 +206,12 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading || !allRequirementsMet}
-              className="relative h-12 w-full overflow-hidden rounded-xl font-semibold text-[#182403] transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="relative h-12 w-full overflow-hidden rounded-xl font-semibold transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 fontSize: '16px',
                 lineHeight: 1,
-                background: loading || !allRequirementsMet ? '#E8E8E8' : 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
-                boxShadow: loading || !allRequirementsMet ? 'none' : '0 2px 8px rgba(142,230,0,0.25)',
+                background: loading || !allRequirementsMet ? '#E8E8E8' : '#0F1702',
+                color: loading || !allRequirementsMet ? '#909090' : 'white',
               }}
             >
               {loading ? (
@@ -234,7 +234,7 @@ export default function SignupPage() {
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#182403] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#0F1702] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {googleLoading ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />
@@ -248,7 +248,7 @@ export default function SignupPage() {
             Already have an account?{' '}
             <Link
               href="/login"
-              className="font-semibold text-[#182403] underline-offset-2 hover:underline"
+              className="font-semibold text-[#0F1702] underline-offset-2 hover:underline"
             >
               Sign in
             </Link>

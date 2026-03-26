@@ -61,7 +61,7 @@ export function MyntroLogo({ size = 'md', showBeta = false }: MyntroLogoProps) {
 
       {/* Wordmark */}
       <span
-        className={`font-bold tracking-tight text-[#182403] ${textClass}`}
+        className={`font-bold tracking-tight text-[#0F1702] ${textClass}`}
         style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
       >
         Myntro
@@ -70,8 +70,8 @@ export function MyntroLogo({ size = 'md', showBeta = false }: MyntroLogoProps) {
       {/* Beta pill */}
       {showBeta && (
         <span
-          className="rounded-full px-2 py-[3px] text-[10px] font-medium leading-none text-[#182403]"
-          style={{ border: '0.35px solid #182403' }}
+          className="rounded-full px-2 py-[3px] text-[10px] font-medium leading-none text-[#0F1702]"
+          style={{ border: '0.35px solid #0F1702' }}
         >
           Beta
         </span>

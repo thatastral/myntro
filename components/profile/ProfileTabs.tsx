@@ -25,8 +25,8 @@ export function ProfileTabs({ blocks, sections, achievements, username }: Profil
             onClick={() => setTab(t)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
               tab === t
-                ? 'bg-[#182403] text-white shadow-sm'
-                : 'text-[#909090] hover:text-[#182403]'
+                ? 'bg-[#0F1702] text-white shadow-sm'
+                : 'text-[#909090] hover:text-[#0F1702]'
             }`}
           >
             {t === 'me' ? 'Me' : 'Achievements'}

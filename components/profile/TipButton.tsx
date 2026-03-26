@@ -9,7 +9,7 @@ export function TipButton({ username }: TipButtonProps) {
   return (
     <Link
       href={`/${username}/tip`}
-      className="group flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#EBEBEB] bg-white px-5 py-3.5 text-sm font-semibold text-[#182403] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#D0D0D0] hover:shadow-md sm:w-auto"
+      className="group flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#EBEBEB] bg-white px-5 py-3.5 text-sm font-semibold text-[#0F1702] transition-all hover:border-[#C0C0C0] sm:w-auto"
     >
       <Lightning className="h-4 w-4 text-[#909090] transition-transform group-hover:scale-110" />
       Send a tip

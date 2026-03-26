@@ -12,7 +12,7 @@ export function LinksSection({ links }: LinksSectionProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#C0C0C0]">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
         Links
       </h2>
       <div className="flex flex-col gap-2">
@@ -40,13 +40,13 @@ function LinkCard({ link }: { link: Link }) {
       href={link.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-center gap-3 rounded-xl border border-[#EBEBEB] bg-white px-4 py-3 transition-all hover:-translate-y-0.5 hover:border-[#C0C0C0] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)]"
+      className="group flex items-center gap-3 rounded-xl border border-[#EBEBEB] bg-white px-4 py-3 transition-all hover:border-[#C0C0C0]"
     >
       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#F5F5F5] text-[#909090]">
         <Icon className="h-4 w-4" />
       </div>
       <div className="flex flex-1 flex-col min-w-0">
-        <span className="text-sm font-medium text-[#182403]">{link.title}</span>
+        <span className="text-sm font-medium text-[#0F1702]">{link.title}</span>
         {count && (
           <span className="text-xs text-[#C0C0C0]">{count} followers</span>
         )}

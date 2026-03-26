@@ -56,7 +56,7 @@ function MyntroAvatar({ containerSize, markSize, rounded = 'xl' }: {
   return (
     <div
       className="flex-shrink-0 flex items-center justify-center overflow-hidden"
-      style={{ width: containerSize, height: containerSize, background: '#182403', borderRadius }}
+      style={{ width: containerSize, height: containerSize, background: '#0F1702', borderRadius }}
     >
       <MyntroMark size={markSize} gradId={`mg_${uid}`} clipId={`mc_${uid}`} />
     </div>
@@ -166,7 +166,7 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
       {/* Backdrop */}
       <div
         className={`fixed inset-0 z-40 transition-all duration-300 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
-        style={{ background: 'rgba(24,36,3,0.22)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
+        style={{ background: 'rgba(15,23,2,0.22)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}
         onClick={handleClose}
       />
 
@@ -179,7 +179,7 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
           right: 16,
           width: 'min(400px, calc(100vw - 32px))',
           borderRadius: 20,
-          boxShadow: '0 8px 32px rgba(24,36,3,0.12), 0 2px 8px rgba(24,36,3,0.08), 0 0 0 1px rgba(24,36,3,0.06)',
+          boxShadow: '0 8px 32px rgba(15,23,2,0.12), 0 2px 8px rgba(15,23,2,0.08), 0 0 0 1px rgba(15,23,2,0.06)',
           fontFamily: 'var(--font-dm-sans), sans-serif',
           overflow: 'hidden',
         }}
@@ -189,13 +189,13 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
           <div className="flex items-center gap-3">
             <MyntroAvatar containerSize={38} markSize={28} rounded="xl" />
             <div>
-              <p className="text-sm font-semibold text-[#182403]">Ask about {ownerName}</p>
+              <p className="text-sm font-semibold text-[#0F1702]">Ask about {ownerName}</p>
               <p className="text-xs text-[#C0C0C0]">AI-powered · Myntro</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#C0C0C0] transition-all hover:bg-[#F5F5F5] hover:text-[#182403]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#C0C0C0] transition-all hover:bg-[#F5F5F5] hover:text-[#0F1702]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -206,12 +206,12 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
           {messages.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
               {/* Logo mark — large */}
-              <div style={{ boxShadow: '0 4px 24px rgba(24,36,3,0.18)', borderRadius: 20 }}>
+              <div style={{ boxShadow: '0 4px 24px rgba(15,23,2,0.18)', borderRadius: 20 }}>
                 <MyntroAvatar containerSize={72} markSize={52} rounded="2xl" />
               </div>
 
               <div className="space-y-1">
-                <p className="text-base font-semibold text-[#182403]">Ask me anything about {ownerName}</p>
+                <p className="text-base font-semibold text-[#0F1702]">Ask me anything about {ownerName}</p>
                 <p className="text-sm text-[#909090]">Skills, projects, experience, communities — I know it all.</p>
               </div>
 
@@ -221,7 +221,7 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
                   <button
                     key={s}
                     onClick={() => sendMessage(s)}
-                    className="group w-full flex items-center justify-between rounded-xl border border-[#EBEBEB] bg-white px-4 py-3 text-left text-sm text-[#182403] transition-all hover:-translate-y-0.5 hover:border-[#C6F135]/70 hover:bg-[#F8FDE8] hover:shadow-[0_2px_12px_rgba(142,230,0,0.12)]"
+                    className="group w-full flex items-center justify-between rounded-xl border border-[#EBEBEB] bg-white px-4 py-3 text-left text-sm text-[#0F1702] transition-all hover:-translate-y-0.5 hover:border-[#C6F135]/70 hover:bg-[#F8FDE8] hover:shadow-[0_2px_12px_rgba(142,230,0,0.12)]"
                   >
                     <span>{s}</span>
                     <PaperPlaneRight
@@ -243,7 +243,7 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
                   {msg.role === 'user' ? (
                     <div
                       className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full"
-                      style={{ background: '#182403' }}
+                      style={{ background: '#0F1702' }}
                     >
                       <User className="h-3.5 w-3.5 text-white" />
                     </div>
@@ -256,8 +256,8 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
                     className="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed"
                     style={
                       msg.role === 'user'
-                        ? { background: '#182403', color: '#fff', borderTopRightRadius: 6 }
-                        : { background: '#F5F5F5', color: '#182403', borderTopLeftRadius: 6 }
+                        ? { background: '#0F1702', color: '#fff', borderTopRightRadius: 6 }
+                        : { background: '#F5F5F5', color: '#0F1702', borderTopLeftRadius: 6 }
                     }
                   >
                     {msg.content || (streaming && i === messages.length - 1 ? (
@@ -295,13 +295,13 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
               disabled={streaming}
               rows={1}
               maxLength={1000}
-              className="max-h-32 flex-1 resize-none bg-transparent text-sm text-[#182403] placeholder-[#C0C0C0] outline-none disabled:opacity-60"
+              className="max-h-32 flex-1 resize-none bg-transparent text-sm text-[#0F1702] placeholder-[#C0C0C0] outline-none disabled:opacity-60"
               style={{ lineHeight: '1.4' }}
             />
             {streaming ? (
               <button
                 onClick={handleStop}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-all hover:bg-[#F5F5F5] hover:text-[#182403]"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl border border-[#EBEBEB] bg-white text-[#909090] transition-all hover:bg-[#F5F5F5] hover:text-[#0F1702]"
               >
                 <StopCircle className="h-4 w-4" />
               </button>
@@ -309,12 +309,10 @@ export function AIChatSidebar({ open, onClose, username, ownerName }: AIChatSide
               <button
                 onClick={() => sendMessage()}
                 disabled={!input.trim()}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl font-semibold text-[#182403] transition-all hover:-translate-y-0.5 hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl font-semibold transition-all hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
                 style={{
-                  background: input.trim()
-                    ? 'linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)'
-                    : '#F0F0F0',
-                  boxShadow: input.trim() ? '0 2px 10px rgba(142,230,0,0.35)' : 'none',
+                  background: input.trim() ? '#0F1702' : '#F0F0F0',
+                  color: input.trim() ? '#F1FCDF' : '#C0C0C0',
                 }}
               >
                 <PaperPlaneRight className="h-3.5 w-3.5" weight="fill" />
