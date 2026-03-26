@@ -45,6 +45,11 @@ export const metadata: Metadata = {
     default: 'Myntro — Web3 Personal Pages',
     template: '%s | Myntro',
   },
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
   description:
     'Web3-native personal pages with AI-powered identity. Share your links, achievements, and affiliations. Accept tips via Solana.',
   keywords: ['web3', 'personal page', 'solana', 'crypto', 'identity', 'AI'],
