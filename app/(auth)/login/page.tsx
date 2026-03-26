@@ -4,7 +4,8 @@ import { useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeSlash } from '@phosphor-icons/react'
+import { MyntroLogo } from '@/components/MyntroLogo'
 
 function LoginForm() {
   const [email, setEmail] = useState('')
@@ -69,31 +70,39 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 dark:bg-gray-950">
+    <div
+      className="flex min-h-[100dvh] flex-col items-center justify-center bg-white px-4"
+      style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
+    >
       <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
-            Myntro
-          </span>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Sign in to your account
-          </p>
+        {/* Logo */}
+        <div className="mb-10 flex justify-center">
+          <Link href="/">
+            <MyntroLogo size="md" />
+          </Link>
         </div>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <h1 className="mb-6 text-xl font-semibold text-gray-900 dark:text-gray-50">
-            Welcome back
-          </h1>
+        {/* Card */}
+        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+          <div className="mb-6">
+            <h1
+              className="text-2xl font-bold text-[#0F1702]"
+              style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+            >
+              Welcome back
+            </h1>
+            <p className="mt-1 text-sm text-[#909090]">Sign in to your Myntro account</p>
+          </div>
 
           {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400">
+            <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">
                 Email
               </label>
               <input
@@ -102,18 +111,16 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-gray-600 dark:focus:ring-gray-800"
+                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
               />
             </div>
+
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-[#909090]">
                   Password
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs text-gray-500 underline-offset-2 hover:underline dark:text-gray-400"
-                >
+                <Link href="/forgot-password" className="text-xs text-[#909090] transition-colors hover:text-[#0F1702]">
                   Forgot password?
                 </Link>
               </div>
@@ -124,26 +131,26 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-4 pr-10 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:ring-2 focus:ring-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-gray-600 dark:focus:ring-gray-800"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                  tabIndex={-1}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C0C0C0] transition-colors hover:text-[#909090]"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+              className="w-full rounded-xl bg-[#0F1702] py-3 text-sm font-semibold text-white transition-all hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   Signing in…
                 </span>
               ) : (
@@ -153,31 +160,31 @@ function LoginForm() {
           </form>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-            <span className="text-xs text-gray-400">or</span>
-            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+            <div className="h-px flex-1 bg-[#F0F0F0]" />
+            <span className="text-[11px] font-medium text-[#C0C0C0]">or</span>
+            <div className="h-px flex-1 bg-[#F0F0F0]" />
           </div>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-750"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#0F1702] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {googleLoading ? (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />
             ) : (
               <GoogleIcon />
             )}
             {googleLoading ? 'Redirecting…' : 'Continue with Google'}
           </button>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-6 text-center text-sm text-[#909090]">
             Don&apos;t have an account?{' '}
             <Link
               href="/signup"
-              className="font-medium text-gray-900 underline-offset-2 hover:underline dark:text-gray-100"
+              className="font-semibold text-[#0F1702] underline-offset-2 hover:underline"
             >
-              Sign up
+              Sign up free
             </Link>
           </p>
         </div>
@@ -200,8 +207,8 @@ function GoogleIcon() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <span className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-gray-600" />
+      <div className="flex min-h-[100dvh] items-center justify-center">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#8EE600]" />
       </div>
     }>
       <LoginForm />

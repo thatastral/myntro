@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle } from '@phosphor-icons/react'
 import type { Affiliation } from '@/types'
 
 interface AffiliationBadgesProps {
@@ -20,7 +20,7 @@ export function AffiliationBadges({ affiliations }: AffiliationBadgesProps) {
 
 function AffiliationBadge({ affiliation }: { affiliation: Affiliation }) {
   const badge = (
-    <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 shadow-sm transition-all hover:border-gray-300 hover:shadow dark:border-gray-700 dark:bg-gray-900 dark:hover:border-gray-600">
+    <div className="flex items-center gap-2 rounded-full border border-[#EBEBEB] bg-white px-3 py-1.5 transition-all hover:border-[#C0C0C0]">
       {/* Community logo */}
       {affiliation.logo_url ? (
         <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full">
@@ -33,16 +33,16 @@ function AffiliationBadge({ affiliation }: { affiliation: Affiliation }) {
           />
         </div>
       ) : (
-        <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 text-[8px] font-bold text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+        <div className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-[#EBEBEB] text-[8px] font-bold text-[#909090]">
           {affiliation.community_name.charAt(0).toUpperCase()}
         </div>
       )}
 
       {/* Name + role */}
-      <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+      <span className="text-xs font-medium text-[#0F1702]">
         {affiliation.community_name}
         {affiliation.role && (
-          <span className="ml-1 font-normal text-gray-400 dark:text-gray-500">
+          <span className="ml-1 font-normal text-[#909090]">
             · {affiliation.role}
           </span>
         )}
@@ -50,7 +50,7 @@ function AffiliationBadge({ affiliation }: { affiliation: Affiliation }) {
 
       {/* Verified checkmark */}
       {affiliation.verified && (
-        <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-blue-500" aria-label="Verified" />
+        <CheckCircle className="h-3.5 w-3.5 flex-shrink-0 text-[#909090]" aria-label="Verified" />
       )}
     </div>
   )

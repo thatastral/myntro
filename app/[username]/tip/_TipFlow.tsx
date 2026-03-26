@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Copy, Check, Loader2, AlertCircle, CheckCircle2, Zap } from 'lucide-react'
+import { Copy, Check, CircleNotch, Warning, CheckCircle, Lightning } from '@phosphor-icons/react'
 import {
   ConnectionProvider,
   WalletProvider,
@@ -124,7 +124,7 @@ function TipSend({ ownerName, walletAddress }: TipSendProps) {
   if (txSig) {
     return (
       <div className="flex flex-col items-center gap-3 px-6 py-10">
-        <CheckCircle2 className="h-12 w-12 text-green-500" />
+        <CheckCircle className="h-12 w-12 text-green-500" />
         <p className="text-base font-semibold text-gray-900 dark:text-gray-50">Tip sent!</p>
         <a
           href={`https://solscan.io/tx/${txSig}`}
@@ -223,7 +223,7 @@ function TipSend({ ownerName, walletAddress }: TipSendProps) {
 
           {error && (
             <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900 dark:bg-red-950/20">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-500" />
+              <Warning className="h-4 w-4 flex-shrink-0 text-red-500" />
               <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
             </div>
           )}
@@ -234,8 +234,8 @@ function TipSend({ ownerName, walletAddress }: TipSendProps) {
             className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
           >
             {sending
-              ? <><Loader2 className="h-4 w-4 animate-spin" />Sending…</>
-              : <><Zap className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>}
+              ? <><CircleNotch className="h-4 w-4 animate-spin" />Sending…</>
+              : <><Lightning className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>}
           </button>
         </>
       )}

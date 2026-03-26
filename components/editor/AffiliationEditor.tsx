@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef } from 'react'
-import { Plus, Trash2, Loader2, CheckCircle, Users, Check, X, Camera, Pencil, Clock, Upload, Link as LinkIcon } from 'lucide-react'
+import { Plus, Trash, CircleNotch, CheckCircle, Users, Check, X, Camera, PencilSimple, Clock, UploadSimple, Link as LinkIcon } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import type { Affiliation } from '@/types'
 
@@ -63,21 +63,21 @@ function LogoUpload({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Community logo</label>
+      <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Community logo</label>
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="group relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 transition-colors hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800"
+        className="group relative flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[#EBEBEB] bg-[#FAFAFA] transition-colors hover:border-[#D5D5D5]"
       >
         {value ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={value} alt="logo" className="h-full w-full object-cover" />
         ) : (
-          <Camera className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+          <Camera className="h-4 w-4 text-[#C0C0C0]" />
         )}
         {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-gray-900/70">
-            <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+            <CircleNotch className="h-4 w-4 animate-spin text-[#909090]" />
           </div>
         )}
         {value && !uploading && (
@@ -97,7 +97,7 @@ function LogoUpload({
         <button
           type="button"
           onClick={() => onChange('')}
-          className="text-[10px] text-gray-400 underline-offset-2 hover:underline"
+          className="text-[10px] text-[#909090] underline-offset-2 hover:underline"
         >
           Remove
         </button>
@@ -136,15 +136,15 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Proof</label>
-        <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-0.5 dark:border-gray-700 dark:bg-gray-800">
+        <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Proof</label>
+        <div className="flex rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] p-0.5">
           <button
             type="button"
             onClick={() => setMode('url')}
             className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${
               mode === 'url'
-                ? 'bg-white text-gray-700 shadow-sm dark:bg-gray-700 dark:text-gray-200'
-                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'bg-white text-[#0F1702] shadow-sm'
+                : 'text-[#909090] hover:text-[#0F1702]'
             }`}
           >
             <LinkIcon className="h-3 w-3" />
@@ -155,11 +155,11 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
             onClick={() => setMode('upload')}
             className={`flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${
               mode === 'upload'
-                ? 'bg-white text-gray-700 shadow-sm dark:bg-gray-700 dark:text-gray-200'
-                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                ? 'bg-white text-[#0F1702] shadow-sm'
+                : 'text-[#909090] hover:text-[#0F1702]'
             }`}
           >
-            <Upload className="h-3 w-3" />
+            <UploadSimple className="h-3 w-3" />
             Upload
           </button>
         </div>
@@ -171,7 +171,7 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
           value={uploadName ? '' : value}
           onChange={(e) => { setUploadName(null); onChange(e.target.value) }}
           placeholder="Link to membership proof (Discord, NFT, etc.)"
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
         />
       ) : (
         <div>
@@ -179,21 +179,21 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-500 transition-colors hover:border-gray-300 hover:bg-gray-100 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600"
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2.5 text-sm text-[#909090] transition-colors hover:border-[#D5D5D5] hover:bg-[#F5F5F5] disabled:opacity-50"
           >
             {uploading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Uploading…</>
+              <><CircleNotch className="h-4 w-4 animate-spin" />Uploading…</>
             ) : uploadName ? (
-              <><Check className="h-4 w-4 text-green-500" /><span className="truncate max-w-[200px] text-green-600 dark:text-green-400">{uploadName}</span></>
+              <><Check className="h-4 w-4 text-[#4A7A00]" /><span className="truncate max-w-[200px] text-[#4A7A00]">{uploadName}</span></>
             ) : (
-              <><Upload className="h-4 w-4" />Click to upload image or PDF</>
+              <><UploadSimple className="h-4 w-4" />Click to upload image or PDF</>
             )}
           </button>
           {uploadName && (
             <button
               type="button"
               onClick={() => { onChange(''); setUploadName(null) }}
-              className="mt-1 text-[10px] text-gray-400 underline-offset-2 hover:underline"
+              className="mt-1 text-[10px] text-[#909090] underline-offset-2 hover:underline"
             >
               Remove
             </button>
@@ -207,7 +207,7 @@ function ProofInput({ value, onChange }: { value: string; onChange: (val: string
           />
         </div>
       )}
-      <p className="text-[10px] text-gray-400 dark:text-gray-500">
+      <p className="text-[10px] text-[#C0C0C0]">
         Screenshot, NFT link, Discord role, or any proof of membership. Max 5 MB.
       </p>
     </div>
@@ -242,11 +242,11 @@ function AffiliationForm({
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); onSubmit(form) }}
-      className="flex flex-col gap-3 rounded-xl border border-violet-200 bg-violet-50/30 p-4 dark:border-violet-900/40 dark:bg-violet-950/10"
+      className="flex flex-col gap-3 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] p-4"
     >
       <div className="flex gap-3">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+          <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">
             Community logo <span className="text-red-500">*</span>
           </label>
           <LogoUpload value={form.logo_url} onChange={(url) => update('logo_url', url)} />
@@ -257,7 +257,7 @@ function AffiliationForm({
 
         <div className="flex flex-1 flex-col gap-2">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+            <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">
               Community / DAO / Protocol <span className="text-red-500">*</span>
             </label>
             <input
@@ -267,18 +267,18 @@ function AffiliationForm({
               placeholder="e.g. Developer DAO, Bankless"
               required
               maxLength={100}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Role</label>
+            <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Role</label>
             <input
               value={form.role}
               onChange={(e) => update('role', e.target.value)}
               placeholder="Member, Contributor, Core team…"
               maxLength={60}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+              className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
             />
           </div>
         </div>
@@ -286,9 +286,9 @@ function AffiliationForm({
 
       <ProofInput value={form.proof_link} onChange={(val) => update('proof_link', val)} />
 
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <p className="text-xs text-gray-400 dark:text-gray-500">
+      <p className="text-xs text-[#C0C0C0]">
         Verification badges are awarded manually by the Myntro team after review.
       </p>
 
@@ -297,9 +297,9 @@ function AffiliationForm({
           <button
             type="button"
             onClick={onDelete}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50"
           >
-            <Trash2 className="h-3 w-3" />
+            <Trash className="h-3 w-3" />
             Delete
           </button>
         ) : <span />}
@@ -308,7 +308,7 @@ function AffiliationForm({
           <button
             type="button"
             onClick={onCancel}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F0F0F0] hover:text-[#0F1702]"
           >
             <X className="h-3 w-3" />
             Cancel
@@ -316,9 +316,9 @@ function AffiliationForm({
           <button
             type="submit"
             disabled={loading || !canSubmit}
-            className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+            className="flex items-center gap-1.5 rounded-lg bg-[#0F1702] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-40"
           >
-            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+            {loading ? <CircleNotch className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
             {submitLabel}
           </button>
         </div>
@@ -396,13 +396,13 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
           Community Affiliations
         </h3>
         {!showAddForm && !editingId && (
           <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+            className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
           >
             <Plus className="h-3.5 w-3.5" />
             Add affiliation
@@ -433,38 +433,38 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
               <div
                 key={a.id}
                 className={cn(
-                  'group flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white px-3 py-2.5 shadow-sm dark:border-gray-700 dark:bg-gray-900',
+                  'group flex items-center gap-2.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2.5 transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]',
                   deletingId === a.id && 'opacity-40',
                 )}
               >
                 {/* Logo thumbnail */}
-                <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
+                <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-lg bg-[#F5F5F5]">
                   {a.logo_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={a.logo_url} alt={a.community_name} className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-gray-400">
+                    <div className="flex h-full w-full items-center justify-center text-[10px] font-bold text-[#C0C0C0]">
                       {a.community_name.charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
 
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                  <span className="text-sm font-medium text-[#0F1702]">
                     {a.community_name}
                   </span>
                   {a.role && (
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{a.role}</span>
+                    <span className="text-xs text-[#909090]">{a.role}</span>
                   )}
                 </div>
 
                 {a.verified ? (
-                  <span className="flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-950/30 dark:text-green-400">
+                  <span className="flex items-center gap-1 rounded-full bg-[#F0FBE0] px-2 py-0.5 text-[10px] font-semibold text-[#4A7A00]">
                     <CheckCircle className="h-3 w-3" />
                     Approved
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-950/30 dark:text-amber-400">
+                  <span className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                     <Clock className="h-3 w-3" />
                     Pending
                   </span>
@@ -473,10 +473,10 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
                 <button
                   onClick={() => { setEditingId(a.id); setShowAddForm(false); setEditError(null) }}
                   disabled={!!deletingId}
-                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity hover:bg-gray-100 hover:text-gray-600 group-hover:opacity-100 dark:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[#C0C0C0] opacity-0 transition-all hover:bg-[#FAFAFA] hover:text-[#0F1702] group-hover:opacity-100"
                   aria-label={`Edit ${a.community_name}`}
                 >
-                  <Pencil className="h-3.5 w-3.5" />
+                  <PencilSimple className="h-3.5 w-3.5" />
                 </button>
               </div>
             )
@@ -485,13 +485,13 @@ export function AffiliationEditor({ affiliations, onAdd, onUpdate, onDelete }: A
       )}
 
       {affiliations.length === 0 && !showAddForm && (
-        <div className="rounded-xl border border-dashed border-gray-200 py-8 text-center dark:border-gray-800">
-          <Users className="mx-auto mb-2 h-6 w-6 text-gray-300 dark:text-gray-600" />
-          <p className="text-sm text-gray-400 dark:text-gray-500">
+        <div className="rounded-xl border border-dashed border-[#EBEBEB] py-8 text-center">
+          <Users className="mx-auto mb-2 h-6 w-6 text-[#D0D0D0]" />
+          <p className="text-sm text-[#909090]">
             No affiliations yet.{' '}
             <button
               onClick={() => setShowAddForm(true)}
-              className="font-medium text-gray-600 underline-offset-2 hover:underline dark:text-gray-400"
+              className="font-medium text-[#0F1702] underline-offset-2 hover:underline"
             >
               Add your first
             </button>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { X, Zap, Copy, Check, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { X, Lightning, Copy, Check, CircleNotch, Warning, CheckCircle } from '@phosphor-icons/react'
 import {
   ConnectionProvider,
   WalletProvider,
@@ -90,7 +90,6 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
         const fromATA = await getAssociatedTokenAddress(mint, publicKey)
         const toATA = await getAssociatedTokenAddress(mint, receiver)
 
-        // Create receiver ATA if it doesn't exist
         try {
           await getAccount(connection, toATA)
         } catch {
@@ -125,19 +124,19 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
 
   return (
     <div className="flex flex-col gap-4 p-5">
-      {/* Receiver address — read-only */}
+      {/* Receiver address */}
       <div className="flex flex-col gap-1">
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Sending to</p>
-        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-800">
-          <span className="flex-1 font-mono text-sm font-medium text-gray-800 dark:text-gray-200">
+        <p className="text-xs font-medium text-[#909090]">Sending to</p>
+        <div className="flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-4 py-2.5">
+          <span className="flex-1 font-mono text-sm font-medium text-[#0F1702]">
             {truncate(walletAddress)}
           </span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-gray-400 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs text-[#909090] transition-colors hover:bg-[#F5F5F5]"
           >
             {copied ? (
-              <><Check className="h-3.5 w-3.5 text-green-500" /><span className="text-green-600 dark:text-green-400">Copied</span></>
+              <><Check className="h-3.5 w-3.5 text-[#4A7A00]" /><span className="text-[#4A7A00]">Copied</span></>
             ) : (
               <><Copy className="h-3.5 w-3.5" />Copy</>
             )}
@@ -146,56 +145,49 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
       </div>
 
       {txSig ? (
-        /* Success state */
         <div className="flex flex-col items-center gap-3 py-4">
-          <CheckCircle2 className="h-10 w-10 text-green-500" />
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-            Tip sent!
-          </p>
+          <CheckCircle className="h-10 w-10 text-[#4A7A00]" />
+          <p className="text-sm font-semibold text-[#0F1702]">Tip sent!</p>
           <a
             href={`https://solscan.io/tx/${txSig}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-violet-500 underline-offset-2 hover:underline"
+            className="text-xs text-[#4A7A00] underline-offset-2 hover:underline"
           >
             View on Solscan
           </a>
           <button
             onClick={onClose}
-            className="mt-1 rounded-xl bg-gray-900 px-5 py-2 text-sm font-semibold text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900"
+            className="mt-1 rounded-xl bg-[#0F1702] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1A2E03]"
           >
             Done
           </button>
         </div>
       ) : !connected ? (
-        /* Connect wallet prompt */
         <div className="flex flex-col items-center gap-3 py-2">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Connect your wallet to send a tip.
-          </p>
+          <p className="text-sm text-[#909090]">Connect your wallet to send a tip.</p>
           <WalletMultiButton
             style={{
               borderRadius: '12px',
               height: '40px',
               fontSize: '13px',
               fontWeight: 600,
-              background: '#18181b',
+              background: '#0F1702',
             }}
           />
         </div>
       ) : (
-        /* Send form */
         <div className="flex flex-col gap-3">
           {/* Token selector */}
-          <div className="flex rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] p-1">
             {TOKENS.map((t) => (
               <button
                 key={t}
                 onClick={() => { setToken(t); setAmount('') }}
                 className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors ${
                   token === t
-                    ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-50'
-                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                    ? 'bg-white text-[#0F1702] shadow-sm'
+                    : 'text-[#C0C0C0] hover:text-[#909090]'
                 }`}
               >
                 {t}
@@ -211,8 +203,8 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
                 onClick={() => setAmount(String(p))}
                 className={`flex-1 rounded-lg border py-1.5 text-xs font-medium transition-colors ${
                   amount === String(p)
-                    ? 'border-gray-900 bg-gray-900 text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600'
+                    ? 'border-[#0F1702] bg-[#0F1702] text-white'
+                    : 'border-[#EBEBEB] bg-white text-[#909090] hover:border-[#C0C0C0]'
                 }`}
               >
                 {p} {token}
@@ -221,7 +213,7 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
           </div>
 
           {/* Custom amount */}
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2">
             <input
               type="number"
               min="0"
@@ -229,27 +221,27 @@ function TipInner({ ownerName, walletAddress, onClose }: TipInnerProps) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Custom amount"
-              className="flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50"
+              className="flex-1 bg-transparent text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0]"
             />
-            <span className="text-xs font-medium text-gray-400">{token}</span>
+            <span className="text-xs font-medium text-[#C0C0C0]">{token}</span>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900 dark:bg-red-950/20">
-              <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-500" />
-              <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
+            <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5">
+              <Warning className="h-4 w-4 flex-shrink-0 text-red-500" />
+              <p className="text-xs text-red-700">{error}</p>
             </div>
           )}
 
           <button
             onClick={handleSend}
             disabled={sending || !amount || parseFloat(amount) <= 0}
-            className="flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-amber-600 disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#0F1702] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-50"
           >
             {sending ? (
-              <><Loader2 className="h-4 w-4 animate-spin" />Sending…</>
+              <><CircleNotch className="h-4 w-4 animate-spin" />Sending…</>
             ) : (
-              <><Zap className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>
+              <><Lightning className="h-4 w-4" />Send {amount ? `${amount} ${token}` : 'tip'}</>
             )}
           </button>
         </div>
@@ -272,23 +264,23 @@ export function TipModal({ open, onClose, ownerName, walletAddress }: TipModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0F1702]/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900">
+      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-[#EBEBEB] bg-white shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-800">
+        <div className="flex items-center justify-between border-b border-[#F0F0F0] px-5 py-4">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/30">
-              <Zap className="h-4 w-4 text-amber-500" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#F0F7E0]">
+              <Lightning className="h-4 w-4 text-[#4A7A00]" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">Tip {ownerName}</p>
-              <p className="text-xs text-gray-400">SOL · USDC · USDT via Solana</p>
+              <p className="text-sm font-semibold text-[#0F1702]">Tip {ownerName}</p>
+              <p className="text-xs text-[#C0C0C0]">SOL · USDC · USDT via Solana</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
           >
             <X className="h-4 w-4" />
           </button>

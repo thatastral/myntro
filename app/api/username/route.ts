@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/
 
@@ -30,16 +30,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ available: false, error: 'This username is reserved.' }, { status: 200 })
     }
 
+    // Admin client bypasses RLS — reliable for availability checks regardless
+    // of profile_visibility or any other row-level policy on the users table
+    const admin = createAdminClient()
+
+    // Get the current user so we can exclude their own row from the check
+    // (prevents their previously-saved username from appearing as "taken")
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    // Check availability
-    const { data: existing } = await supabase
+    // Availability check — count matching rows, excluding the current user's own
+    let availQuery = admin
       .from('users')
-      .select('id')
+      .select('id', { count: 'exact', head: true })
       .eq('username', username)
-      .maybeSingle()
+    if (user) availQuery = availQuery.neq('id', user.id)
 
-    if (existing) {
+    // Also check waitlist — block usernames reserved by SOMEONE ELSE.
+    // Exclude the current user's own email so they can claim their own reservation.
+    let wlQuery = admin
+      .from('waitlist')
+      .select('id', { count: 'exact', head: true })
+      .eq('username', username)
+    if (user?.email) wlQuery = wlQuery.neq('email', user.email)
+
+    const [{ count, error: queryError }, { count: wlCount }] = await Promise.all([availQuery, wlQuery])
+
+    console.log('[api/username] check:', { username, userId: user?.id, count, wlCount, queryError: queryError?.message })
+
+    if (queryError) {
+      console.error('[api/username] Availability query error:', queryError)
+      return NextResponse.json({ error: 'Could not check availability. Please try again.' }, { status: 500 })
+    }
+
+    if ((count && count > 0) || (wlCount && wlCount > 0)) {
       return NextResponse.json({ available: false }, { status: 200 })
     }
 
@@ -48,25 +72,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Create profile — requires authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Upsert user profile
-    const { error: insertError } = await supabase.from('users').upsert({
-      id: user.id,
-      email: user.email!,
-      username,
-      name: name || user.user_metadata?.full_name || '',
-      avatar_url: avatar_url || user.user_metadata?.avatar_url || null,
-      profile_visibility: 'public',
-    })
+    // Remove any orphaned rows with the same email but a different id.
+    // This can happen when a user's auth id changes (e.g. re-signup) and leaves
+    // a stale row that would violate the unique constraint on email.
+    await admin.from('users').delete().eq('email', user.email!).neq('id', user.id)
+
+    // Upsert user profile using admin client + explicit conflict column so RLS
+    // never interferes with the insert-or-update decision.
+    const { error: insertError } = await admin.from('users').upsert(
+      {
+        id: user.id,
+        email: user.email!,
+        username,
+        name: name || user.user_metadata?.full_name || '',
+        avatar_url: avatar_url || user.user_metadata?.avatar_url || null,
+        profile_visibility: 'public',
+      },
+      { onConflict: 'id' },
+    )
 
     if (insertError) {
-      // Handle duplicate username race condition
       if (insertError.code === '23505') {
+        console.error('[api/username] Unique constraint on upsert:', insertError)
         return NextResponse.json({ available: false, error: 'Username just got taken.' }, { status: 409 })
       }
       console.error('[api/username] Insert error:', insertError)

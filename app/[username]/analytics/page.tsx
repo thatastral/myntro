@@ -4,9 +4,9 @@ import { use, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, Eye, MousePointerClick, Bot, Zap,
-  TrendingUp, Loader2, Globe, RefreshCw,
-} from 'lucide-react'
+  ArrowLeft, Eye, CursorClick, Robot, Lightning,
+  TrendUp, CircleNotch, Globe, ArrowClockwise,
+} from '@phosphor-icons/react'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
@@ -34,13 +34,12 @@ const PERIODS: { value: Period; label: string }[] = [
 ]
 
 const STATS = [
-  { key: 'profile_view' as const, label: 'Profile Views', icon: Eye, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-100 dark:border-blue-900/40' },
-  { key: 'link_click' as const, label: 'Link Clicks', icon: MousePointerClick, color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-100 dark:border-violet-900/40' },
-  { key: 'ai_chat' as const, label: 'AI Chats', icon: Bot, color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-100 dark:border-green-900/40' },
-  { key: 'tip_sent' as const, label: 'Tips Received', icon: Zap, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-100 dark:border-amber-900/40' },
+  { key: 'profile_view' as const, label: 'Profile Views', icon: Eye, dot: '#4285F4' },
+  { key: 'link_click' as const, label: 'Link Clicks', icon: CursorClick, dot: '#8B5CF6' },
+  { key: 'ai_chat' as const, label: 'AI Chats', icon: Robot, dot: '#10B981' },
+  { key: 'tip_sent' as const, label: 'Tips Received', icon: Lightning, dot: '#F59E0B' },
 ]
 
-// Country code → flag emoji
 function flag(cc: string) {
   return cc
     .toUpperCase()
@@ -51,7 +50,7 @@ function flag(cc: string) {
 
 function BarChart({ data }: { data: { label: string; count: number }[] }) {
   const max = Math.max(...data.map((d) => d.count), 1)
-  const [tooltip, setTooltip] = useState<{ label: string; count: number; x: number } | null>(null)
+  const [tooltip, setTooltip] = useState<{ label: string; count: number } | null>(null)
 
   return (
     <div className="relative">
@@ -63,15 +62,15 @@ function BarChart({ data }: { data: { label: string; count: number }[] }) {
               key={i}
               className="group relative flex flex-1 cursor-default flex-col justify-end"
               style={{ height: '100%' }}
-              onMouseEnter={(e) => setTooltip({ label: d.label, count: d.count, x: e.currentTarget.getBoundingClientRect().left })}
+              onMouseEnter={() => setTooltip({ label: d.label, count: d.count })}
               onMouseLeave={() => setTooltip(null)}
             >
               <div
                 className={cn(
-                  'w-full rounded-sm transition-colors',
+                  'w-full rounded-sm transition-colors duration-150',
                   d.count > 0
-                    ? 'bg-gray-800 group-hover:bg-gray-600 dark:bg-gray-200 dark:group-hover:bg-gray-400'
-                    : 'bg-gray-100 dark:bg-gray-800',
+                    ? 'bg-[#0F1702] group-hover:bg-[#1A2E03]'
+                    : 'bg-[#F0F0F0]',
                 )}
                 style={{ height: `${pct}%` }}
               />
@@ -80,15 +79,13 @@ function BarChart({ data }: { data: { label: string; count: number }[] }) {
         })}
       </div>
 
-      {/* Tooltip */}
       {tooltip && (
-        <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1 text-xs font-medium text-white shadow-lg dark:bg-gray-100 dark:text-gray-900">
+        <div className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-[#0F1702] px-2.5 py-1 text-xs font-medium text-white shadow-lg">
           {tooltip.label}: {tooltip.count}
         </div>
       )}
 
-      {/* X-axis labels — show first, middle, last */}
-      <div className="mt-1.5 flex justify-between text-[10px] text-gray-400 dark:text-gray-600">
+      <div className="mt-1.5 flex justify-between text-[10px] text-[#C0C0C0]">
         <span>{data[0]?.label}</span>
         <span>{data[Math.floor(data.length / 2)]?.label}</span>
         <span>{data[data.length - 1]?.label}</span>
@@ -134,25 +131,27 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
 
   if (authLoading || loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
+        <CircleNotch className="h-5 w-5 animate-spin text-[#C0C0C0]" />
       </div>
     )
   }
 
   if (error === 'forbidden') {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-gray-50 dark:bg-gray-950">
-        <p className="text-sm text-gray-500">You don&apos;t have access to this page.</p>
-        <Link href={`/${username}`} className="text-sm font-medium underline-offset-2 hover:underline">View profile</Link>
+      <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-3 bg-white">
+        <p className="text-sm text-[#909090]">You don&apos;t have access to this page.</p>
+        <Link href={`/${username}`} className="text-sm font-semibold text-[#0F1702] underline-offset-2 hover:underline">
+          View profile
+        </Link>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <p className="text-sm text-gray-500">{error}</p>
+      <div className="flex min-h-[100dvh] items-center justify-center bg-white">
+        <p className="text-sm text-[#909090]">{error}</p>
       </div>
     )
   }
@@ -160,14 +159,14 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
   const periodLabel = { '1h': 'past hour', '24h': 'past 24 hours', '7d': 'past 7 days', '30d': 'past 30 days', '90d': 'past 90 days' }[period]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-[100dvh] bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
       <div className="mx-auto max-w-xl px-4 py-12">
 
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <Link
             href={`/${username}/edit`}
-            className="flex items-center gap-1.5 text-sm text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
+            className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to editor
@@ -175,31 +174,36 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
           <button
             onClick={() => load(period, true)}
             disabled={refreshing}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="flex items-center gap-1.5 text-xs text-[#909090] transition-colors hover:text-[#0F1702] disabled:opacity-50"
           >
-            <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
+            <ArrowClockwise className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
             Refresh
           </button>
         </div>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">Analytics</h1>
-          <p className="mt-1 text-sm text-gray-400 dark:text-gray-500">
+          <h1
+            className="text-2xl font-bold text-[#0F1702]"
+            style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+          >
+            Analytics
+          </h1>
+          <p className="mt-1 text-sm text-[#909090]">
             @{username} · {(data?.all_time_total ?? 0).toLocaleString()} total events all time
           </p>
         </div>
 
         {/* Period switcher */}
-        <div className="mb-6 flex rounded-2xl border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-6 flex rounded-2xl border border-[#EBEBEB] bg-[#FAFAFA] p-1">
           {PERIODS.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => setPeriod(value)}
               className={cn(
-                'flex-1 rounded-xl py-2 text-sm font-semibold transition-all',
+                'flex-1 rounded-xl py-2 text-sm font-semibold transition-all duration-150',
                 period === value
-                  ? 'bg-gray-900 text-white shadow-sm dark:bg-gray-100 dark:text-gray-900'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
+                  ? 'bg-[#0F1702] text-white shadow-sm'
+                  : 'text-[#909090] hover:text-[#0F1702]',
               )}
             >
               {label}
@@ -209,60 +213,63 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
 
         {/* Stat cards */}
         <div className="mb-4 grid grid-cols-2 gap-3">
-          {STATS.map(({ key, label, icon: Icon, color, bg, border }) => (
+          {STATS.map(({ key, label, icon: Icon, dot }) => (
             <div
               key={key}
-              className={cn(
-                'rounded-2xl border bg-white p-4 dark:bg-gray-900',
-                border,
-              )}
+              className="rounded-2xl border border-[#EBEBEB] bg-white p-4"
             >
-              <div className={cn('mb-3 inline-flex rounded-xl p-2', bg)}>
-                <Icon className={cn('h-4 w-4', color)} />
+              <div className="mb-3 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: dot }} />
+                <span className="text-xs text-[#909090]">{label}</span>
               </div>
-              <div className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+              <div
+                className="text-2xl font-bold tracking-tight text-[#0F1702]"
+                style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+              >
                 {(data?.counts[key] ?? 0).toLocaleString()}
               </div>
-              <div className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{label}</div>
             </div>
           ))}
         </div>
 
         {/* Total summary */}
-        <div className="mb-4 flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900">
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <TrendingUp className="h-4 w-4" />
+        <div className="mb-4 flex items-center justify-between rounded-2xl border border-[#EBEBEB] bg-white px-4 py-3">
+          <div className="flex items-center gap-2 text-sm text-[#909090]">
+            <TrendUp className="h-4 w-4" />
             Total events — {periodLabel}
           </div>
-          <span className="text-sm font-bold text-gray-900 dark:text-gray-50">
+          <span
+            className="text-sm font-bold text-[#0F1702]"
+            style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+          >
             {(data?.total ?? 0).toLocaleString()}
           </span>
         </div>
 
         {/* Activity chart */}
-        <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-4 rounded-2xl border border-[#EBEBEB] bg-white p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Activity</h2>
-            <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">{periodLabel}</span>
+            <h2 className="text-sm font-semibold text-[#0F1702]">Activity</h2>
+            <span className="text-xs capitalize text-[#C0C0C0]">{periodLabel}</span>
           </div>
           {data && data.chart.length > 0 ? (
             <BarChart data={data.chart} />
           ) : (
-            <div className="flex h-28 items-center justify-center text-xs text-gray-300 dark:text-gray-700">
+            <div className="flex h-28 items-center justify-center text-xs text-[#C0C0C0]">
               No data for this period
             </div>
           )}
         </div>
 
         {/* Geography */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-5">
           <div className="mb-4 flex items-center gap-2">
-            <Globe className="h-4 w-4 text-gray-400" />
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Geography</h2>
+            <Globe className="h-4 w-4 text-[#909090]" />
+            <h2 className="text-sm font-semibold text-[#0F1702]">Geography</h2>
           </div>
 
           {data && data.geo.length > 0 ? (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {data.geo.map((g) => {
                 const pct = data.total > 0 ? Math.round((g.count / data.total) * 100) : 0
                 return (
@@ -270,16 +277,14 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
                     <span className="text-lg leading-none">{flag(g.country_code)}</span>
                     <div className="flex flex-1 flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                          {g.country}
-                        </span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500">
+                        <span className="text-xs font-medium text-[#0F1702]">{g.country}</span>
+                        <span className="text-xs text-[#909090]">
                           {g.count.toLocaleString()} · {pct}%
                         </span>
                       </div>
-                      <div className="h-1 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                      <div className="h-1 w-full overflow-hidden rounded-full bg-[#F0F0F0]">
                         <div
-                          className="h-full rounded-full bg-gray-800 dark:bg-gray-200"
+                          className="h-full rounded-full bg-[#0F1702] transition-all duration-500"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -290,26 +295,22 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2 py-6 text-center">
-              <Globe className="h-8 w-8 text-gray-200 dark:text-gray-800" />
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                No geography data yet for this period.
-              </p>
-              <p className="text-[11px] text-gray-300 dark:text-gray-600">
-                Location is captured from new visits going forward.
-              </p>
+              <Globe className="h-8 w-8 text-[#E8E8E8]" />
+              <p className="text-xs text-[#909090]">No geography data yet for this period.</p>
+              <p className="text-[11px] text-[#C0C0C0]">Location is captured from new visits going forward.</p>
             </div>
           )}
         </div>
 
         {/* Empty state */}
         {data?.total === 0 && (
-          <div className="mt-4 rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center dark:border-gray-800 dark:bg-gray-900">
-            <TrendingUp className="mx-auto mb-3 h-8 w-8 text-gray-300 dark:text-gray-700" />
-            <p className="text-sm font-medium text-gray-500">No activity in the {periodLabel}</p>
+          <div className="mt-4 rounded-2xl border border-dashed border-[#E8E8E8] bg-white p-8 text-center">
+            <TrendUp className="mx-auto mb-3 h-8 w-8 text-[#E0E0E0]" />
+            <p className="text-sm font-medium text-[#909090]">No activity in the {periodLabel}</p>
             <Link
               href={`/${username}`}
               target="_blank"
-              className="mt-3 inline-block text-xs font-medium text-gray-600 underline-offset-2 hover:underline dark:text-gray-400"
+              className="mt-3 inline-block text-xs font-semibold text-[#0F1702] underline-offset-2 hover:underline"
             >
               Share your profile →
             </Link>

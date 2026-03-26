@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, XCircle, Loader2, Globe } from 'lucide-react'
+import { CheckCircle, XCircle, CircleNotch, Globe, Check, ArrowLeft } from '@phosphor-icons/react'
 import {
   SiX, SiSnapchat, SiYoutube, SiTiktok, SiInstagram,
   SiFacebook, SiGithub, SiPinterest, SiMedium,
 } from 'react-icons/si'
 import { FaLinkedinIn } from 'react-icons/fa'
 import { useAuth } from '@/hooks/useAuth'
+import { MyntroLogo } from '@/components/MyntroLogo'
+import { createClient } from '@/lib/supabase/client'
 
 const PLATFORMS = [
   { id: 'x',         label: 'X / Twitter', placeholder: 'x.com/username',           pattern: /^(https?:\/\/)?(www\.)?(x\.com|twitter\.com)\/.+/i, Icon: SiX },
@@ -31,6 +33,12 @@ export default function OnboardingPage() {
   const router = useRouter()
 
   const [step, setStep] = useState(1)
+
+  const handleBackToLogin = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   // Step 1
   const [username, setUsername] = useState('')
@@ -82,8 +90,9 @@ export default function OnboardingPage() {
     })
       .then(r => r.json())
       .then(data => {
-        if (data.available) { setCheckState('available'); setCheckMsg(`@${value} is available`) }
-        else { setCheckState('taken'); setCheckMsg(data.error || 'Username already taken.') }
+        if (data.available === true) { setCheckState('available'); setCheckMsg(`@${value} is available`) }
+        else if (data.available === false) { setCheckState('taken'); setCheckMsg(data.error || 'Username already taken.') }
+        else { setCheckState('idle'); setCheckMsg('') }
       })
       .catch(() => { setCheckState('idle'); setCheckMsg('') })
   }, [])
@@ -222,50 +231,100 @@ export default function OnboardingPage() {
   })
 
   if (loading) return (
-    <div className="flex min-h-screen items-center justify-center">
-      <span className="h-6 w-6 animate-spin rounded-full border-2 border-gray-200 border-t-gray-600" />
+    <div className="flex min-h-[100dvh] items-center justify-center">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />
     </div>
   )
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-6 dark:bg-gray-950">
+    <div
+      className="flex min-h-[100dvh] flex-col items-center justify-center bg-white px-4 py-10"
+      style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
+    >
       <div className="w-full max-w-md">
 
-        {/* Wordmark */}
-        <div className="mb-8 text-center">
-          <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-50">Myntro</span>
+        {/* Logo */}
+        <div className="mb-8 flex justify-center">
+          <MyntroLogo size="md" />
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
 
           {/* Step indicators */}
-          <div className="mb-6 flex items-center gap-2">
-            {STEPS.map((label, i) => {
-              const s = i + 1
-              const done = s < step
-              const active = s === step
-              return (
-                <div key={s} className="flex flex-1 flex-col items-center gap-1">
-                  <div className={`h-1 w-full rounded-full transition-colors ${done || active ? 'bg-gray-900 dark:bg-gray-100' : 'bg-gray-200 dark:bg-gray-700'}`} />
-                  <span className={`text-[10px] ${active ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-400 dark:text-gray-600'}`}>{label}</span>
-                </div>
-              )
-            })}
+          <div className="mb-7">
+            {/* Row 1: dots + connector lines */}
+            <div className="flex items-center">
+              {STEPS.map((_, i) => {
+                const s = i + 1
+                const done = s < step
+                const active = s === step
+                const isLast = i === STEPS.length - 1
+                return (
+                  <div key={s} className="flex flex-1 items-center">
+                    <div className="flex flex-1 justify-center">
+                      <div
+                        className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold transition-all duration-300"
+                        style={{
+                          background: done ? '#8EE600' : active ? '#0F1702' : 'transparent',
+                          border: done || active ? 'none' : '2px solid #EBEBEB',
+                          color: done ? '#0F1702' : active ? '#fff' : '#C0C0C0',
+                        }}
+                      >
+                        {done ? <Check weight="bold" className="h-3.5 w-3.5" /> : s}
+                      </div>
+                    </div>
+                    {!isLast && (
+                      <div
+                        className="h-px w-8 flex-shrink-0 transition-all duration-300"
+                        style={{ background: done ? '#8EE600' : '#EBEBEB' }}
+                      />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            {/* Row 2: labels — mirrors dots row structure so each label centers under its dot */}
+            <div className="mt-1.5 flex">
+              {STEPS.map((label, i) => {
+                const s = i + 1
+                const done = s < step
+                const active = s === step
+                const isLast = i === STEPS.length - 1
+                return (
+                  <div key={s} className="flex flex-1 items-center">
+                    <div className="flex flex-1 justify-center">
+                      <span
+                        className="text-[10px] font-semibold transition-colors"
+                        style={{ color: active ? '#0F1702' : done ? '#4A7A00' : '#C0C0C0' }}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                    {!isLast && <div className="w-8 flex-shrink-0" />}
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           {/* Step 1 — Username */}
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Choose your username</h1>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Your public profile URL — choose carefully, this can&apos;t be changed.</p>
+                <h1
+                  className="text-xl font-bold text-[#0F1702]"
+                  style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+                >
+                  Choose your username
+                </h1>
+                <p className="mt-1 text-sm text-[#909090]">Your public profile URL — choose carefully, this can&apos;t be changed.</p>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">Username</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 select-none text-sm text-gray-400">myntro.me/</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 select-none text-sm text-[#C0C0C0]">myntro.me/</span>
                   <input
                     type="text"
                     value={username}
@@ -275,22 +334,22 @@ export default function OnboardingPage() {
                     autoFocus
                     autoComplete="off"
                     autoCapitalize="none"
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-[6.5rem] pr-10 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-gray-500 dark:focus:bg-gray-800"
+                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                    {checkState === 'checking' && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
-                    {checkState === 'available' && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    {checkState === 'checking' && <CircleNotch className="h-4 w-4 animate-spin text-[#C0C0C0]" />}
+                    {checkState === 'available' && <CheckCircle className="h-4 w-4 text-[#4A7A00]" />}
                     {(checkState === 'taken' || checkState === 'invalid') && <XCircle className="h-4 w-4 text-red-500" />}
                   </span>
                 </div>
                 {checkMsg && (
-                  <p className={`mt-1.5 text-xs ${checkState === 'available' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                  <p className={`mt-1.5 text-xs ${checkState === 'available' ? 'text-[#4A7A00]' : 'text-red-600'}`}>
                     {checkMsg}
                   </p>
                 )}
               </div>
 
-              <div className="rounded-xl bg-gray-50 p-3 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+              <div className="rounded-xl bg-[#FAFAFA] p-3 text-xs text-[#909090]">
                 <ul className="list-inside list-disc space-y-0.5">
                   <li>3–30 characters</li>
                   <li>Lowercase letters, numbers, and underscores only</li>
@@ -298,14 +357,14 @@ export default function OnboardingPage() {
                 </ul>
               </div>
 
-              {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
               <button
                 onClick={handleStep1}
                 disabled={submitting || checkState !== 'available'}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
+                {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
               </button>
             </div>
           )}
@@ -314,60 +373,60 @@ export default function OnboardingPage() {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Set up your profile</h1>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">This is what people see when they visit your page.</p>
+                <h1
+                  className="text-xl font-bold text-[#0F1702]"
+                  style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+                >
+                  Set up your profile
+                </h1>
+                <p className="mt-1 text-sm text-[#909090]">This is what people see when they visit your page.</p>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Display name</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">Display name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-gray-500"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">Bio</label>
                 <div className="relative">
                   <textarea
                     value={bio}
                     onChange={e => setBio(e.target.value.slice(0, 300))}
                     placeholder="A short description of who you are…"
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none transition focus:border-gray-400 focus:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-gray-500"
+                    className="w-full resize-none rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                   />
-                  <span className="absolute bottom-2.5 right-3 text-xs text-gray-400">{300 - bio.length}</span>
+                  <span className="absolute bottom-2.5 right-3 text-xs text-[#C0C0C0]">{300 - bio.length}</span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Location</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">Location</label>
                 <input
                   type="text"
                   value={location}
                   onChange={e => setLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50 dark:focus:border-gray-500 dark:placeholder:text-gray-500"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
                 />
               </div>
 
-              {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div className="flex gap-2">
-                <button onClick={() => setStep(1)} className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                  Back
-                </button>
-                <button
-                  onClick={handleStep2}
-                  disabled={submitting}
-                  className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
-                >
-                  {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
-                </button>
-              </div>
+              <button
+                onClick={handleStep2}
+                disabled={submitting}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
+              >
+                {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}
+              </button>
             </div>
           )}
 
@@ -375,8 +434,13 @@ export default function OnboardingPage() {
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Add your links</h1>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Select up to 5 platforms and paste your profile URLs. You can always add more later.</p>
+                <h1
+                  className="text-xl font-bold text-[#0F1702]"
+                  style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+                >
+                  Add your links
+                </h1>
+                <p className="mt-1 text-sm text-[#909090]">Select up to 5 platforms and paste your profile URLs. You can always add more later.</p>
               </div>
 
               {/* Platform grid */}
@@ -390,12 +454,12 @@ export default function OnboardingPage() {
                       title={label}
                       onClick={() => togglePlatform(id)}
                       disabled={maxed}
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl border transition ${
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${
                         active
-                          ? 'border-gray-900 bg-gray-900 text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900'
+                          ? 'border-[#0F1702] bg-[#0F1702] text-white'
                           : maxed
-                          ? 'cursor-not-allowed border-gray-200 bg-gray-50 text-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
-                          : 'border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600'
+                          ? 'cursor-not-allowed border-[#EBEBEB] bg-[#FAFAFA] text-[#D0D0D0]'
+                          : 'border-[#EBEBEB] bg-[#FAFAFA] text-[#909090] hover:border-[#0F1702] hover:text-[#0F1702]'
                       }`}
                     >
                       <Icon size={16} />
@@ -412,15 +476,15 @@ export default function OnboardingPage() {
                     const hasError = !!urlErrors[id]
                     return (
                       <div key={id}>
-                        <div className={`flex items-center gap-2 rounded-xl border bg-gray-50 px-3 py-2 dark:bg-gray-800 ${hasError ? 'border-red-400 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'}`}>
-                          <p.Icon size={14} className="shrink-0 text-gray-400" />
+                        <div className={`flex items-center gap-2 rounded-xl border bg-[#FAFAFA] px-3 py-2.5 ${hasError ? 'border-red-400' : 'border-[#E8E8E8]'}`}>
+                          <p.Icon size={14} className="shrink-0 text-[#909090]" />
                           <input
                             type="url"
                             value={urls[id] ?? ''}
                             onChange={e => setUrls(prev => ({ ...prev, [id]: e.target.value }))}
                             onBlur={e => validateUrl(id, e.target.value)}
                             placeholder={p.placeholder}
-                            className="flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50"
+                            className="flex-1 bg-transparent text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0]"
                           />
                         </div>
                         {urlErrors[id] && (
@@ -432,20 +496,15 @@ export default function OnboardingPage() {
                 </div>
               )}
 
-              {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div className="flex gap-2">
-                <button onClick={() => setStep(2)} className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                  Back
-                </button>
-                <button
-                  onClick={handleStep3}
-                  disabled={submitting || (selected.size > 0 && hasInvalidUrls)}
-                  className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
-                >
-                  {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</> : selected.size === 0 ? 'Skip' : 'Continue'}
-                </button>
-              </div>
+              <button
+                onClick={handleStep3}
+                disabled={submitting || (selected.size > 0 && hasInvalidUrls)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
+              >
+                {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : selected.size === 0 ? 'Skip' : 'Continue'}
+              </button>
             </div>
           )}
 
@@ -453,8 +512,13 @@ export default function OnboardingPage() {
           {step === 4 && (
             <div className="space-y-4">
               <div>
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-50">Add a profile photo</h1>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Optional — you can add or change this any time from your edit page.</p>
+                <h1
+                  className="text-xl font-bold text-[#0F1702]"
+                  style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+                >
+                  Add a profile photo
+                </h1>
+                <p className="mt-1 text-sm text-[#909090]">Optional — you can add or change this any time from your edit page.</p>
               </div>
 
               {/* Avatar picker */}
@@ -465,7 +529,7 @@ export default function OnboardingPage() {
                   onMouseMove={handleAvatarMouseMove}
                   onMouseUp={handleAvatarMouseUp}
                   onMouseLeave={handleAvatarMouseUp}
-                  className={`relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 transition dark:border-gray-700 dark:bg-gray-800 ${avatarPreview ? 'cursor-grab active:cursor-grabbing hover:border-gray-400 hover:bg-gray-100 dark:hover:border-gray-600' : 'cursor-pointer hover:border-gray-400 hover:bg-gray-100 dark:hover:border-gray-600'}`}
+                  className={`relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] transition ${avatarPreview ? 'cursor-grab active:cursor-grabbing hover:border-[#C0C0C0]' : 'cursor-pointer hover:border-[#8EE600]/60'}`}
                 >
                   {avatarPreview ? (
                     <div
@@ -478,20 +542,20 @@ export default function OnboardingPage() {
                       }}
                     />
                   ) : (
-                    <svg className="h-7 w-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                    <svg className="h-7 w-7 text-[#C0C0C0]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
                   )}
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">
+                <div className="text-sm text-[#909090]">
                   {avatarPreview ? (
                     <>
-                      <button onClick={() => fileInputRef.current?.click()} className="font-medium text-gray-900 hover:underline dark:text-gray-100">
+                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#0F1702] underline-offset-2 hover:underline">
                         Change photo
                       </button>
                       <p className="mt-0.5 text-xs">Drag to reposition</p>
                     </>
                   ) : (
                     <>
-                      <button onClick={() => fileInputRef.current?.click()} className="font-medium text-gray-900 hover:underline dark:text-gray-100">
+                      <button onClick={() => fileInputRef.current?.click()} className="font-semibold text-[#0F1702] underline-offset-2 hover:underline">
                         Upload a photo
                       </button>
                       <p className="mt-0.5 text-xs">JPEG, PNG, WebP or GIF — max 5 MB</p>
@@ -513,21 +577,37 @@ export default function OnboardingPage() {
                 }}
               />
 
-              {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+              {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div className="flex gap-2">
-                <button onClick={() => setStep(3)} className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                  Back
-                </button>
-                <button
-                  onClick={handleFinish}
-                  disabled={submitting}
-                  className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
-                >
-                  {submitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Finishing up…</> : avatarFile ? 'Finish' : 'Skip & finish'}
-                </button>
-              </div>
+              <button
+                onClick={handleFinish}
+                disabled={submitting}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:opacity-50"
+              >
+                {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Finishing up…</> : avatarFile ? 'Finish' : 'Skip & finish'}
+              </button>
             </div>
+          )}
+        </div>
+
+        {/* Back navigation — below the card */}
+        <div className="mt-4 flex justify-center">
+          {step === 1 ? (
+            <button
+              onClick={handleBackToLogin}
+              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
+          ) : (
+            <button
+              onClick={() => setStep(step - 1)}
+              className="flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
           )}
         </div>
       </div>

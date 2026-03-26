@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Plus, Pencil, Trash2, Loader2, X, Trophy, Check } from 'lucide-react'
+import { Plus, PencilSimple, Trash, CircleNotch, X, Trophy, Check } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import type { Achievement } from '@/types'
 
@@ -49,10 +49,10 @@ function AchievementForm({
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); onSubmit(form) }}
-      className="flex flex-col gap-3 rounded-xl border border-blue-200 bg-blue-50/30 p-4 dark:border-blue-900/40 dark:bg-blue-950/10"
+      className="flex flex-col gap-3 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] p-4"
     >
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+        <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">
           Title <span className="text-red-500">*</span>
         </label>
         <input
@@ -62,61 +62,61 @@ function AchievementForm({
           placeholder="Won ETH Global Hackathon"
           required
           maxLength={120}
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Description</label>
+        <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Description</label>
         <textarea
           value={form.description}
           onChange={(e) => update('description', e.target.value)}
           placeholder="Brief description of this achievement…"
           rows={2}
           maxLength={500}
-          className="resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+          className="resize-none rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Date</label>
+          <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Date</label>
           <input
             type="date"
             value={form.date}
             onChange={(e) => update('date', e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Link</label>
+          <label className="text-xs font-medium uppercase tracking-wider text-[#909090]">Link</label>
           <input
             type="url"
             value={form.link}
             onChange={(e) => update('link', e.target.value)}
             placeholder="https://…"
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
           />
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
       <div className="flex justify-end gap-2">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F0F0F0] hover:text-[#0F1702]"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading || !form.title.trim()}
-          className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+          className="flex items-center gap-1.5 rounded-lg bg-[#0F1702] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1A2E03] disabled:opacity-40"
         >
-          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+          {loading ? <CircleNotch className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
           {submitLabel}
         </button>
       </div>
@@ -192,12 +192,12 @@ export function AchievementEditor({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
           Achievements
         </h3>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
         >
           <Plus className="h-3.5 w-3.5" />
           Add achievement
@@ -225,25 +225,28 @@ export function AchievementEditor({
             <div
               key={achievement.id}
               className={cn(
-                'group flex items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900',
+                'group flex items-start gap-3 rounded-xl border border-[#EBEBEB] bg-white p-3 transition-shadow hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]',
                 deletingId === achievement.id && 'opacity-40',
               )}
             >
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-amber-50 border border-amber-100">
                 <Trophy className="h-4 w-4 text-amber-500" />
               </div>
 
               <div className="flex min-w-0 flex-1 flex-col">
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+                <span
+                  className="text-sm font-semibold text-[#0F1702]"
+                  style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+                >
                   {achievement.title}
                 </span>
                 {achievement.description && (
-                  <span className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
+                  <span className="mt-0.5 text-xs text-[#909090] line-clamp-2">
                     {achievement.description}
                   </span>
                 )}
                 {achievement.date && (
-                  <span className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  <span className="mt-1 text-xs text-[#C0C0C0]">
                     {new Date(achievement.date).toLocaleDateString('en-US', {
                       month: 'short',
                       year: 'numeric',
@@ -255,19 +258,19 @@ export function AchievementEditor({
               <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                 <button
                   onClick={() => setEditingId(achievement.id)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
                 >
-                  <Pencil className="h-3.5 w-3.5" />
+                  <PencilSimple className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => handleDelete(achievement.id)}
                   disabled={deletingId === achievement.id}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:hover:bg-red-950/30"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
                 >
                   {deletingId === achievement.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    <CircleNotch className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash className="h-3.5 w-3.5" />
                   )}
                 </button>
               </div>
@@ -276,13 +279,13 @@ export function AchievementEditor({
         )}
 
         {achievements.length === 0 && !showAddForm && (
-          <div className="rounded-xl border border-dashed border-gray-200 py-8 text-center dark:border-gray-800">
-            <Trophy className="mx-auto mb-2 h-6 w-6 text-gray-300 dark:text-gray-600" />
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+          <div className="rounded-xl border border-dashed border-[#EBEBEB] py-8 text-center">
+            <Trophy className="mx-auto mb-2 h-6 w-6 text-[#D0D0D0]" />
+            <p className="text-sm text-[#909090]">
               No achievements yet.{' '}
               <button
                 onClick={() => setShowAddForm(true)}
-                className="font-medium text-gray-600 underline-offset-2 hover:underline dark:text-gray-400"
+                className="font-medium text-[#0F1702] underline-offset-2 hover:underline"
               >
                 Add your first
               </button>
