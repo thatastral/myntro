@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { scrapeUrl } from '@/lib/scrape'
 
 // GET /api/achievements?user_id=<id>
 export async function GET(request: NextRequest) {
@@ -46,6 +47,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'title is required.' }, { status: 400 })
     }
 
+    // Scrape achievement link in the background at save time
+    const scraped_content = link?.trim() ? await scrapeUrl(link.trim()) : null
+
     const { data, error } = await supabase
       .from('achievements')
       .insert({
@@ -55,6 +59,7 @@ export async function POST(request: NextRequest) {
         date: date ?? null,
         link: link?.trim() ?? null,
         image_url: image_url ?? null,
+        scraped_content: scraped_content && Object.keys(scraped_content).length ? scraped_content : null,
       })
       .select()
       .single()
@@ -90,12 +95,20 @@ export async function PATCH(request: NextRequest) {
 
     const allowed = ['title', 'description', 'date', 'link', 'image_url'] as const
     type AllowedField = typeof allowed[number]
-    const safeUpdates: Partial<Record<AllowedField, unknown>> = {}
+    const safeUpdates: Partial<Record<AllowedField | 'scraped_content', unknown>> = {}
 
     for (const key of allowed) {
       if (key in updates) {
         safeUpdates[key] = updates[key]
       }
+    }
+
+    // Re-scrape if link was updated
+    if ('link' in updates && updates.link) {
+      const scraped = await scrapeUrl(updates.link.trim())
+      safeUpdates.scraped_content = Object.keys(scraped).length ? scraped : null
+    } else if ('link' in updates && !updates.link) {
+      safeUpdates.scraped_content = null
     }
 
     const { data, error } = await supabase

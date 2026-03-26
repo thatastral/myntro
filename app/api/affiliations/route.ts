@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { scrapeUrl } from '@/lib/scrape'
 
 // GET /api/affiliations?user_id=<id>
 export async function GET(request: NextRequest) {
@@ -46,6 +47,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'community_name is required.' }, { status: 400 })
     }
 
+    // Scrape proof link at save time for AI context
+    const scraped_content = proof_link?.trim() ? await scrapeUrl(proof_link.trim()) : null
+
     const { data, error } = await supabase
       .from('affiliations')
       .insert({
@@ -54,7 +58,8 @@ export async function POST(request: NextRequest) {
         role: role?.trim() ?? null,
         logo_url: logo_url ?? null,
         proof_link: proof_link?.trim() ?? null,
-        verified: false, // verification is a manual/admin process
+        verified: false,
+        scraped_content: scraped_content && Object.keys(scraped_content).length ? scraped_content : null,
       })
       .select()
       .single()
@@ -91,6 +96,9 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'community_name is required.' }, { status: 400 })
     }
 
+    // Re-scrape proof link if it changed
+    const scraped_content = proof_link?.trim() ? await scrapeUrl(proof_link.trim()) : null
+
     const { data, error } = await supabase
       .from('affiliations')
       .update({
@@ -98,6 +106,7 @@ export async function PATCH(request: NextRequest) {
         role: role?.trim() ?? null,
         logo_url: logo_url ?? null,
         proof_link: proof_link?.trim() ?? null,
+        scraped_content: scraped_content && Object.keys(scraped_content).length ? scraped_content : null,
       })
       .eq('id', id)
       .eq('user_id', user.id)

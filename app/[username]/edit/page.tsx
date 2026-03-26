@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Settings, Eye, EyeOff, ArrowUpRight, Loader2, BarChart2, Sun, Moon, Camera, Zap, TrendingUp, TrendingDown, Plus, X, Globe, RefreshCw, MapPin } from 'lucide-react'
+import { Settings, Eye, EyeOff, ArrowUpRight, Loader2, BarChart2, Sun, Moon, Camera, Zap, TrendingUp, TrendingDown, Plus, X, Globe, RefreshCw, MapPin, Info } from 'lucide-react'
 import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
 import { InlineEditor } from '@/components/editor/InlineEditor'
@@ -199,6 +199,11 @@ export default function EditPage({ params }: EditPageProps) {
     return <p.Icon size={14} />
   }
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/${username}`
+    await navigator.clipboard.writeText(url)
+  }
+
   const handleSaveLink = async () => {
     if (!newLinkPlatform || !newLinkUrl.trim()) return
     setSavingLink(true)
@@ -376,91 +381,92 @@ export default function EditPage({ params }: EditPageProps) {
             />
 
             {/* Location + social link icons */}
-            <div className="flex items-start gap-2">
-              {user.location && (
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
-                  <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                  <span>{user.location}</span>
-                </div>
-              )}
-              <div className="ml-auto flex items-center gap-1 shrink-0">
-                    {links.map(link => {
-                      const cnt = link.follower_count
-                      const fmtCount = cnt === null || cnt === undefined ? null
-                        : cnt >= 1_000_000 ? `${(cnt / 1_000_000).toFixed(1)}M`
-                        : cnt >= 1_000 ? `${(cnt / 1_000).toFixed(1)}K`
-                        : String(cnt)
-                      return (
-                        <div key={link.id} className="group/link relative flex items-center gap-0.5">
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={link.title}
-                            className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-                          >
-                            <PlatformIcon id={link.icon} />
-                          </a>
-                          {fmtCount && (
-                            <span className="text-[10px] text-gray-400 leading-none dark:text-gray-500">{fmtCount}</span>
-                          )}
-                          <button
-                            onClick={() => deleteLink(link.id)}
-                            title="Remove link"
-                            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-600 group-hover/link:flex dark:bg-gray-700 dark:text-gray-400"
-                          >
-                            <X className="h-2 w-2" />
-                          </button>
-                        </div>
-                      )
-                    })}
-                    <button
-                      onClick={() => setAddingLink(v => !v)}
-                      title="Add link"
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-
-                {addingLink && (
-                  <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
-                    <select
-                      value={newLinkPlatform}
-                      onChange={e => setNewLinkPlatform(e.target.value)}
-                      className="bg-transparent text-xs text-gray-600 outline-none dark:text-gray-300"
-                    >
-                      <option value="">Platform</option>
-                      {LINK_PLATFORMS.map(p => (
-                        <option key={p.id} value={p.id}>{p.label}</option>
-                      ))}
-                    </select>
-                    <div className="h-3 w-px bg-gray-200 dark:bg-gray-700" />
-                    <input
-                      type="url"
-                      value={newLinkUrl}
-                      onChange={e => setNewLinkUrl(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleSaveLink()}
-                      placeholder="https://..."
-                      className="flex-1 bg-transparent text-xs text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50"
-                    />
-                    <button
-                      onClick={handleSaveLink}
-                      disabled={savingLink || !newLinkPlatform || !newLinkUrl.trim()}
-                      className="text-xs font-medium text-gray-900 disabled:opacity-40 dark:text-gray-50"
-                    >
-                      {savingLink ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
-                    </button>
-                    <button onClick={() => setAddingLink(false)} className="text-gray-400 hover:text-gray-600">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                {user.location && (
+                  <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                    <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span>{user.location}</span>
                   </div>
                 )}
+                <div className="ml-auto flex items-center gap-1 shrink-0">
+                  {links.map(link => {
+                    const cnt = link.follower_count
+                    const fmtCount = cnt === null || cnt === undefined ? null
+                      : cnt >= 1_000_000 ? `${(cnt / 1_000_000).toFixed(1)}M`
+                      : cnt >= 1_000 ? `${(cnt / 1_000).toFixed(1)}K`
+                      : String(cnt)
+                    return (
+                      <div key={link.id} className="group/link relative flex items-center gap-0.5">
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={link.title}
+                          className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                        >
+                          <PlatformIcon id={link.icon} />
+                        </a>
+                        {fmtCount && (
+                          <span className="text-[10px] text-gray-400 leading-none dark:text-gray-500">{fmtCount}</span>
+                        )}
+                        <button
+                          onClick={() => deleteLink(link.id)}
+                          title="Remove link"
+                          className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-600 group-hover/link:flex dark:bg-gray-700 dark:text-gray-400"
+                        >
+                          <X className="h-2 w-2" />
+                        </button>
+                      </div>
+                    )
+                  })}
+                  <button
+                    onClick={() => setAddingLink(v => !v)}
+                    title="Add link"
+                    className="flex h-6 w-6 items-center justify-center rounded-md text-gray-300 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
+
+              {addingLink && (
+                <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
+                  <select
+                    value={newLinkPlatform}
+                    onChange={e => setNewLinkPlatform(e.target.value)}
+                    className="bg-transparent text-xs text-gray-600 outline-none dark:text-gray-300"
+                  >
+                    <option value="">Platform</option>
+                    {LINK_PLATFORMS.map(p => (
+                      <option key={p.id} value={p.id}>{p.label}</option>
+                    ))}
+                  </select>
+                  <div className="h-3 w-px bg-gray-200 dark:bg-gray-700" />
+                  <input
+                    type="url"
+                    value={newLinkUrl}
+                    onChange={e => setNewLinkUrl(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSaveLink()}
+                    placeholder="https://..."
+                    className="flex-1 bg-transparent text-xs text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-50"
+                  />
+                  <button
+                    onClick={handleSaveLink}
+                    disabled={savingLink || !newLinkPlatform || !newLinkUrl.trim()}
+                    className="text-xs font-medium text-gray-900 disabled:opacity-40 dark:text-gray-50"
+                  >
+                    {savingLink ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
+                  </button>
+                  <button onClick={() => setAddingLink(false)} className="text-gray-400 hover:text-gray-600">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Tab switcher + content wrapper */}
-            <div className="flex w-full max-w-full flex-col gap-4 overflow-hidden">
+            <div className="flex w-full max-w-full flex-col gap-4 overflow-hidden mt-4">
             <div className="flex w-full items-center gap-1 self-start rounded-full border border-gray-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900">
               {(['me', 'achievements'] as const).map(tab => (
                 <button
@@ -492,44 +498,76 @@ export default function EditPage({ params }: EditPageProps) {
                   onDeleteSection={deleteSection}
                   onReorderBlocks={reorderBlocks}
                   onReorderSections={reorderSections}
+                  onShare={handleShare}
                 />
 
                 <div className="h-px bg-gray-100 dark:bg-gray-800" />
 
-                {/* Affiliations */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Affiliations
+                {/* Identity & Background group */}
+                <div className="flex flex-col gap-6">
+                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-50">
+                    Identity &amp; Background
                   </h2>
-                  <AffiliationEditor
-                    affiliations={profile.affiliations}
-                    onAdd={addAffiliation}
-                    onUpdate={updateAffiliation}
-                    onDelete={deleteAffiliation}
-                  />
-                </div>
 
-                <div className="h-px bg-gray-100 dark:bg-gray-800" />
+                  {/* Affiliations */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        Affiliations
+                      </h3>
+                      <div className="group/tip relative">
+                        <Info className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
+                        <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600 opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                          Add organizations or communities you belong to. Verified badges appear on your public profile.
+                        </div>
+                      </div>
+                    </div>
+                    <AffiliationEditor
+                      affiliations={profile.affiliations}
+                      onAdd={addAffiliation}
+                      onUpdate={updateAffiliation}
+                      onDelete={deleteAffiliation}
+                    />
+                  </div>
 
-                {/* CV / Resume */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Resume / CV
-                  </h2>
-                  <CVUpload />
-                </div>
+                  <div className="h-px bg-gray-100 dark:bg-gray-800" />
 
-                <div className="h-px bg-gray-100 dark:bg-gray-800" />
+                  {/* CV / Resume */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        Resume / CV
+                      </h3>
+                      <div className="group/tip relative">
+                        <Info className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
+                        <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600 opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                          Upload your CV so your AI assistant can answer questions about your background.
+                        </div>
+                      </div>
+                    </div>
+                    <CVUpload />
+                  </div>
 
-                {/* Wallet */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    Wallet
-                  </h2>
-                  <WalletConnectSection
-                    savedAddress={walletAddress}
-                    onSaved={setWalletAddress}
-                  />
+                  <div className="h-px bg-gray-100 dark:bg-gray-800" />
+
+                  {/* Wallet */}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                        Wallet
+                      </h3>
+                      <div className="group/tip relative">
+                        <Info className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
+                        <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600 opacity-0 shadow-lg transition-opacity group-hover/tip:opacity-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                          Connect your Solana wallet to receive tips from visitors to your profile.
+                        </div>
+                      </div>
+                    </div>
+                    <WalletConnectSection
+                      savedAddress={walletAddress}
+                      onSaved={setWalletAddress}
+                    />
+                  </div>
                 </div>
 
                 <p className="pb-20 text-center text-xs text-gray-400 dark:text-gray-600">
@@ -551,72 +589,75 @@ export default function EditPage({ params }: EditPageProps) {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Floating stats bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-between border-t border-gray-200 bg-white/90 px-6 py-3 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
-        {/* Tips — left */}
-        <a
-          href={`/${username}/analytics`}
-          className="flex items-center gap-2 group"
-        >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
-            <Zap className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
-              {quickStats ? quickStats.tips.toLocaleString() : '—'}
-            </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">Tips · 7d</span>
-          </div>
-          {quickStats && (() => {
-            const prev = quickStats.prevTips
-            const curr = quickStats.tips
-            if (prev === 0 && curr === 0) return null
-            const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
-            const up = pct >= 0
-            return (
-              <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-                   : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
-              }`}>
-                {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                {up ? '+' : ''}{pct}%
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
+        <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
+          {/* Tips — left */}
+          <a
+            href={`/${username}/analytics`}
+            className="flex items-center gap-2 group"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 dark:bg-amber-950/30">
+              <Zap className="h-3.5 w-3.5 text-amber-500" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
+                {quickStats ? quickStats.tips.toLocaleString() : '—'}
               </span>
-            )
-          })()}
-        </a>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">Tips · 7d</span>
+            </div>
+            {quickStats && (() => {
+              const prev = quickStats.prevTips
+              const curr = quickStats.tips
+              if (prev === 0 && curr === 0) return null
+              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
+              const up = pct >= 0
+              return (
+                <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+                     : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+                }`}>
+                  {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+                  {up ? '+' : ''}{pct}%
+                </span>
+              )
+            })()}
+          </a>
 
-        {/* Views — right */}
-        <a
-          href={`/${username}/analytics`}
-          className="flex items-center gap-2 group"
-        >
-          {quickStats && (() => {
-            const prev = quickStats.prevViews
-            const curr = quickStats.views
-            if (prev === 0 && curr === 0) return null
-            const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
-            const up = pct >= 0
-            return (
-              <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-                   : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
-              }`}>
-                {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-                {up ? '+' : ''}{pct}%
+          {/* Views — right */}
+          <a
+            href={`/${username}/analytics`}
+            className="flex items-center gap-2 group"
+          >
+            {quickStats && (() => {
+              const prev = quickStats.prevViews
+              const curr = quickStats.views
+              if (prev === 0 && curr === 0) return null
+              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
+              const up = pct >= 0
+              return (
+                <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                  up ? 'bg-green-50 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+                     : 'bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+                }`}>
+                  {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+                  {up ? '+' : ''}{pct}%
+                </span>
+              )
+            })()}
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
+                {quickStats ? quickStats.views.toLocaleString() : '—'}
               </span>
-            )
-          })()}
-          <div className="flex flex-col items-end">
-            <span className="text-sm font-bold leading-none text-gray-900 dark:text-gray-50">
-              {quickStats ? quickStats.views.toLocaleString() : '—'}
-            </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500">Views · 7d</span>
-          </div>
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
-            <Eye className="h-3.5 w-3.5 text-blue-500" />
-          </div>
-        </a>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">Views · 7d</span>
+            </div>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/30">
+              <Eye className="h-3.5 w-3.5 text-blue-500" />
+            </div>
+          </a>
+        </div>
       </div>
 
       <SettingsModal

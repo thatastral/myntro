@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Fetch user profile for context
+    // Fetch user profile
     const { data: profile } = await supabase
       .from('users')
       .select('id, name, bio, location, profile_visibility')
@@ -39,85 +39,138 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'This profile is private.' }, { status: 403 })
     }
 
-    // Vector search (optional — skipped if embeddings unavailable)
-    let relevantContext = ''
+    // Fetch all profile data in parallel
+    const [
+      linksResult,
+      achievementsResult,
+      affiliationsResult,
+      docsResult,
+      blocksResult,
+      sectionsResult,
+    ] = await Promise.all([
+      supabase.from('links').select('title, url, icon').eq('user_id', profile.id).order('display_order'),
+      supabase.from('achievements').select('title, description, date, link, scraped_content').eq('user_id', profile.id).order('date', { ascending: false }),
+      supabase.from('affiliations').select('community_name, role, verified, proof_link, scraped_content').eq('user_id', profile.id),
+      supabase.from('documents').select('parsed_text').eq('user_id', profile.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('blocks').select('type, content, section_id, display_order').eq('user_id', profile.id).order('display_order'),
+      supabase.from('sections').select('id, title, display_order').eq('user_id', profile.id).order('display_order'),
+    ])
 
+    // Vector search (optional — skipped when embeddings unavailable)
+    let vectorContext = ''
     try {
-      const questionEmbedding = await generateEmbedding(question.trim())
-
-      if (questionEmbedding) {
+      const embedding = await generateEmbedding(question.trim())
+      if (embedding) {
         const { data: matches } = await supabase.rpc('match_embeddings', {
-          query_embedding: questionEmbedding,
+          query_embedding: embedding,
           match_user_id: profile.id,
           match_threshold: 0.7,
           match_count: 5,
         })
-        if (matches && matches.length > 0) {
-          relevantContext = matches.map((m: { content: string }) => m.content).join('\n\n')
+        if (matches?.length) {
+          vectorContext = matches.map((m: { content: string }) => m.content).join('\n\n')
         }
       }
-    } catch (embeddingErr) {
-      console.warn('[api/ai/chat] Vector search skipped:', embeddingErr)
+    } catch {
+      // Vector search unavailable — proceed without it
     }
 
-    // Fetch public profile data for additional context
-    const [linksResult, achievementsResult, affiliationsResult, docsResult] = await Promise.all([
-      supabase.from('links').select('title, url').eq('user_id', profile.id).limit(10),
-      supabase.from('achievements').select('title, description, date').eq('user_id', profile.id).limit(10),
-      supabase.from('affiliations').select('community_name, role, verified').eq('user_id', profile.id).limit(10),
-      // Fetch most recent CV/document text as fallback when embeddings are unavailable
-      supabase
-        .from('documents')
-        .select('parsed_text, file_url')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ])
+    // ── Build structured context sections ───────────────────────────
 
-    // Build system prompt
-    const profileSummary = [
-      `Name: ${profile.name || username}`,
-      profile.bio ? `Bio: ${profile.bio}` : '',
-      profile.location ? `Location: ${profile.location}` : '',
-      linksResult.data?.length
-        ? `Links: ${linksResult.data.map((l) => `${l.title} (${l.url})`).join(', ')}`
-        : '',
-      achievementsResult.data?.length
-        ? `Achievements: ${achievementsResult.data
-            .map((a) => `${a.title}${a.description ? ': ' + a.description : ''}`)
-            .join(' | ')}`
-        : '',
-      affiliationsResult.data?.length
-        ? `Affiliations: ${affiliationsResult.data
-            .map((a) => `${a.community_name}${a.role ? ' (' + a.role + ')' : ''}${a.verified ? ' ✓' : ''}`)
-            .join(', ')}`
-        : '',
-    ]
-      .filter(Boolean)
-      .join('\n')
+    const lines: string[] = []
 
-    // Use vector search results if available, otherwise fall back to the full CV text
-    const cvContext = relevantContext
-      || (docsResult.data?.parsed_text
-          ? docsResult.data.parsed_text.slice(0, 8000)
-          : '')
+    // Basic identity
+    lines.push(`## About ${profile.name || username}`)
+    lines.push(`Username: @${username}`)
+    if (profile.name) lines.push(`Full name: ${profile.name}`)
+    if (profile.bio) lines.push(`Bio: ${profile.bio}`)
+    if (profile.location) lines.push(`Location: ${profile.location}`)
 
-    const systemPrompt = `You are an AI assistant for ${profile.name || username}'s personal page on Myntro. Your job is to answer visitor questions about this person based on their profile information.
+    // Social / website links
+    const links = linksResult.data ?? []
+    if (links.length) {
+      lines.push('\n## Social & Website Links')
+      for (const l of links) {
+        lines.push(`- ${l.icon ? l.icon.charAt(0).toUpperCase() + l.icon.slice(1) : l.title}: ${l.url}`)
+      }
+    }
 
-Profile information:
-${profileSummary}
+    // Affiliations
+    const affiliations = affiliationsResult.data ?? []
+    if (affiliations.length) {
+      lines.push('\n## Affiliations & Communities')
+      for (const a of affiliations) {
+        const parts = [a.community_name]
+        if (a.role) parts.push(`— ${a.role}`)
+        if (a.verified) parts.push('(verified)')
+        if (a.proof_link) parts.push(`[proof: ${a.proof_link}]`)
+        lines.push(`- ${parts.join(' ')}`)
+        const sc = a.scraped_content as Record<string, string> | null
+        if (sc?.description) lines.push(`  About: ${sc.description}`)
+        if (sc?.text) lines.push(`  Details: ${sc.text.slice(0, 400)}`)
+      }
+    }
 
-${cvContext ? `CV / Document context:\n${cvContext}` : ''}
+    // Achievements
+    const achievements = achievementsResult.data ?? []
+    if (achievements.length) {
+      lines.push('\n## Achievements & Milestones')
+      for (const a of achievements) {
+        const parts = [`• ${a.title}`]
+        if (a.date) parts.push(`(${a.date.slice(0, 10)})`)
+        lines.push(parts.join(' '))
+        if (a.description) lines.push(`  ${a.description}`)
+        if (a.link) lines.push(`  Link: ${a.link}`)
+        const sc = a.scraped_content as Record<string, string> | null
+        if (sc?.description) lines.push(`  Page summary: ${sc.description}`)
+        if (sc?.text) lines.push(`  Page content: ${sc.text.slice(0, 500)}`)
+      }
+    }
 
-Instructions:
-- Answer questions about this person's background, skills, achievements, and work.
-- Be helpful, concise, and professional.
-- If you don't have enough information to answer, say so honestly — don't make things up.
-- Do not reveal private or sensitive information beyond what's in the profile.
-- Keep responses focused and under 200 words unless more detail is explicitly requested.`
+    // Bento grid content (notes, links, embeds) — grouped by section
+    const blocks = blocksResult.data ?? []
+    const sections = sectionsResult.data ?? []
 
-    // Build message history (cap at last 10 exchanges)
+    if (blocks.length) {
+      lines.push('\n## Portfolio & Content Blocks')
+
+      // Free blocks (no section)
+      const freeBlocks = blocks.filter((b) => !b.section_id)
+      if (freeBlocks.length) {
+        appendBlocks(lines, freeBlocks)
+      }
+
+      // Sectioned blocks
+      for (const section of sections) {
+        const sectionBlocks = blocks.filter((b) => b.section_id === section.id)
+        if (!sectionBlocks.length) continue
+        lines.push(`\n### ${section.title}`)
+        appendBlocks(lines, sectionBlocks)
+      }
+    }
+
+    // CV / document text
+    const cvText = vectorContext || (docsResult.data?.parsed_text?.slice(0, 8000) ?? '')
+    if (cvText) {
+      lines.push('\n## CV / Resume')
+      lines.push(cvText)
+    }
+
+    const profileContext = lines.join('\n')
+
+    const systemPrompt = `You are an AI assistant embedded on ${profile.name || username}'s personal profile page on Myntro. Visitors ask you questions about this person. Answer based solely on the profile data provided below.
+
+${profileContext}
+
+---
+Guidelines:
+- Answer in a helpful, warm, and professional tone.
+- Be specific — use names, dates, and details from the profile when relevant.
+- If you don't have enough information to answer a question, say so honestly. Never fabricate facts.
+- Keep responses concise (under 150 words) unless the visitor explicitly asks for more detail.
+- Do not reveal or speculate about anything not present in the profile data.`
+
+    // Build message history (cap at last 20 messages)
     const recentHistory: ChatMessage[] = (history as ChatMessage[])
       .filter((m) => m.role === 'user' || m.role === 'assistant')
       .slice(-20)
@@ -142,7 +195,7 @@ Instructions:
       const msg = streamErr instanceof Error ? streamErr.message : String(streamErr)
       console.error('[api/ai/chat] Stream error:', msg)
 
-      if (msg.includes('401') || msg.toLowerCase().includes('auth') || msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('invalid api key')) {
+      if (msg.includes('401') || msg.toLowerCase().includes('api key')) {
         return NextResponse.json({ error: 'AI service is not configured. Please add a GROQ_API_KEY.' }, { status: 503 })
       }
       if (msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
@@ -153,5 +206,37 @@ Instructions:
   } catch (err) {
     console.error('[api/ai/chat] Unexpected error:', err)
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 })
+  }
+}
+
+// ── Helper: render blocks into readable lines ───────────────────────
+
+type RawBlock = { type: string; content: Record<string, string>; section_id: string | null; display_order: number }
+
+function appendBlocks(lines: string[], blocks: RawBlock[]) {
+  for (const block of blocks) {
+    const c = block.content
+    switch (block.type) {
+      case 'note':
+        if (c.text) lines.push(`- Note: "${c.text}"`)
+        break
+      case 'link': {
+        const title = c.scraped_title || c.title || c.url
+        lines.push(`- Link: ${title} — ${c.url}`)
+        if (c.scraped_description) lines.push(`  Description: ${c.scraped_description}`)
+        if (c.scraped_text) lines.push(`  Page content: ${c.scraped_text.slice(0, 500)}`)
+        break
+      }
+      case 'spotify':
+        if (c.url) lines.push(`- Spotify: ${c.url}`)
+        break
+      case 'youtube':
+        if (c.url) lines.push(`- YouTube: ${c.url}`)
+        break
+      case 'image':
+        if (c.caption) lines.push(`- Image: "${c.caption}"`)
+        else if (c.url) lines.push(`- Image: ${c.url}`)
+        break
+    }
   }
 }

@@ -59,7 +59,8 @@ export default async function proxy(request: NextRequest) {
   }
 
   // Redirect authenticated users from landing / login / signup to their profile
-  if (user && (pathname === '/' || pathname === '/login' || pathname === '/signup')) {
+  // Allow /forgot-password and /reset-password through even when authenticated
+  if (user && (pathname === '/' || pathname === '/login' || pathname === '/signup') && !pathname.startsWith('/forgot-password') && !pathname.startsWith('/reset-password')) {
     const dest = request.nextUrl.clone()
     dest.pathname = await getUserProfilePath(request, user.id)
     return NextResponse.redirect(dest)

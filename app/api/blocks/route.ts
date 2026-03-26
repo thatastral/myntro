@@ -1,29 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { scrapeUrl } from '@/lib/scrape'
 
-// ── OG image helper ────────────────────────────────────────────────
-
-async function fetchOgImage(url: string): Promise<string | null> {
-  try {
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Myntrobot/1.0 (link preview)' },
-      signal: AbortSignal.timeout(6000),
-      redirect: 'follow',
-    })
-    if (!res.ok) return null
-    const html = await res.text()
-    // og:image (both attribute orders)
-    const og =
-      html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
-      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)?.[1]
-    if (og) return og
-    // twitter:image fallback
-    const tw =
-      html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
-      html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i)?.[1]
-    return tw ?? null
-  } catch {
-    return null
+async function enrichLinkContent(url: string) {
+  const { title, description, og_image, text } = await scrapeUrl(url)
+  return {
+    ...(og_image ? { og_image } : {}),
+    ...(title ? { scraped_title: title } : {}),
+    ...(description ? { scraped_description: description } : {}),
+    ...(text ? { scraped_text: text } : {}),
   }
 }
 
@@ -57,11 +42,11 @@ export async function POST(request: NextRequest) {
 
   if (!type || !content) return NextResponse.json({ error: 'type and content required' }, { status: 400 })
 
-  // Enrich link blocks with OG image at save time
+  // Enrich link blocks with OG metadata + scraped page text at save time
   let enrichedContent = { ...content }
   if (type === 'link' && content.url) {
-    const ogImage = await fetchOgImage(content.url)
-    if (ogImage) enrichedContent.og_image = ogImage
+    const enrichment = await enrichLinkContent(content.url)
+    enrichedContent = { ...enrichedContent, ...enrichment }
   }
 
   const admin = createAdminClient()

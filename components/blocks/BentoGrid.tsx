@@ -24,7 +24,7 @@ import { CSS } from '@dnd-kit/utilities'
 import {
   StickyNote, Link2, Music, Youtube, Image as ImageIcon,
   X, Plus, Loader2, GripVertical, FolderPlus, Pencil, Check,
-  Layers,
+  Layers, Share2,
 } from 'lucide-react'
 import type { Block, BlockType, Section } from '@/types'
 import { NoteBlock } from './NoteBlock'
@@ -359,6 +359,7 @@ interface BlocksEditorProps {
   onDeleteSection: (id: string) => Promise<void>
   onReorderBlocks: (updates: { id: string; section_id: string | null; display_order: number }[]) => Promise<void>
   onReorderSections: (orderedIds: string[]) => Promise<void>
+  onShare?: () => void
 }
 
 export function BlocksEditor({
@@ -373,6 +374,7 @@ export function BlocksEditor({
   onDeleteSection,
   onReorderBlocks,
   onReorderSections,
+  onShare,
 }: BlocksEditorProps) {
   const [activeBlockType, setActiveBlockType] = useState<BlockType | null>(null)
   const [saving, setSaving] = useState(false)
@@ -381,6 +383,7 @@ export function BlocksEditor({
   const [sectionTitle, setSectionTitle] = useState('')
   const imageInputRef = useRef<HTMLInputElement>(null)
   const [imageUploading, setImageUploading] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
 
   // Block form state
   const [noteText, setNoteText] = useState('')
@@ -875,6 +878,31 @@ export function BlocksEditor({
           >
             <FolderPlus className="h-4 w-4" />
           </button>
+
+          {onShare && (
+            <>
+              {/* Divider */}
+              <div className="mx-1 h-5 w-px bg-gray-200 dark:bg-gray-700" />
+
+              {/* Share button */}
+              <button
+                title="Share my Myntro"
+                onClick={() => {
+                  onShare()
+                  setShareCopied(true)
+                  setTimeout(() => setShareCopied(false), 2000)
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
+                  shareCopied
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-900 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200'
+                }`}
+              >
+                {shareCopied ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+                {shareCopied ? 'Copied!' : 'Share my Myntro'}
+              </button>
+            </>
+          )}
         </div>
       </div>
 

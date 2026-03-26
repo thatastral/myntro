@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { X, Globe, Lock, Wallet, Trash2, Loader2, AlertTriangle, LogOut } from 'lucide-react'
+import { X, Globe, Lock, Wallet, Trash2, Loader2, AlertTriangle, LogOut, RefreshCw, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@/types'
@@ -30,6 +30,23 @@ export function SettingsModal({
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [disconnectLoading, setDisconnectLoading] = useState(false)
   const [signOutLoading, setSignOutLoading] = useState(false)
+  const [rescrapeLoading, setRescrapeLoading] = useState(false)
+  const [rescrapeResult, setRescrapeResult] = useState<string | null>(null)
+
+  const handleRescrape = useCallback(async () => {
+    setRescrapeLoading(true)
+    setRescrapeResult(null)
+    try {
+      const res = await fetch('/api/blocks/rescrape', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      setRescrapeResult(`Done — ${data.updated} of ${data.total} links refreshed`)
+    } catch {
+      setRescrapeResult('Something went wrong. Try again.')
+    } finally {
+      setRescrapeLoading(false)
+    }
+  }, [])
 
   const toggleVisibility = useCallback(async () => {
     setVisibilityLoading(true)
@@ -182,6 +199,31 @@ export function SettingsModal({
                 Disconnect
               </button>
             )}
+          </div>
+
+          {/* Refresh AI context */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-3">
+              <RefreshCw className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-50">Refresh AI context</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {rescrapeResult ?? 'Re-scrapes all portfolio link blocks for the AI assistant'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleRescrape}
+              disabled={rescrapeLoading}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+            >
+              {rescrapeLoading
+                ? <Loader2 className="h-3 w-3 animate-spin" />
+                : rescrapeResult && !rescrapeResult.includes('wrong')
+                  ? <Check className="h-3 w-3 text-green-500" />
+                  : <RefreshCw className="h-3 w-3" />}
+              {rescrapeLoading ? 'Refreshing…' : 'Refresh'}
+            </button>
           </div>
 
           {/* Sign out */}
