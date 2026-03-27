@@ -594,7 +594,7 @@ function SuccessScreen({ username }: { username: string }) {
 
           <div className="flex flex-col items-center gap-4">
             <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('join me on myntro.me 👀')}`}
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('join me on myntro.me👀')}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => haptic('light')}

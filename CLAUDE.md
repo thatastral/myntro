@@ -158,7 +158,30 @@ Note blocks are editable inline: text, font family (Space Grotesk, Georgia, Arch
 - `types/index.ts` holds all shared TypeScript interfaces; keep in sync with DB schema
 - Shadcn components go in `components/ui/`
 
+### Waitlist page (`app/waitlist/page.tsx`)
+
+Standalone pre-launch page — no auth required, no Supabase session needed.
+
+**API**: `GET /api/waitlist?username=x` (HEAD) → 200 available / 409 taken. `POST /api/waitlist` → `{ username, email }` saves to `waitlist` table. Usernames are cross-checked against the live `users` table so reserved handles can't be claimed.
+
+**Card animations** (inline `<style>` tag in `SuccessScreen`):
+- `cardIntro` — 600ms ease-out fade-in + rise on mount
+- `cardGlaze` — 2.2s white sheen sweep, only starts after confetti finishes (`glazeReady` state set by `onDone` callback from `useConfetti`)
+- 3D tilt on hover: outer wrapper holds `perspective(900px) rotateX/Y`, inner card holds `overflow-hidden` — these must stay split or the 3D transform clips content
+
+**Confetti** (`useConfetti` hook, canvas API): 180 particles, brand green palette, sin-wave flutter, staggered spawn delays. Calls `onDone?.()` when all particles fade out.
+
+**Haptics** (`web-haptics` package, `useWebHaptics` from `web-haptics/react`): `light` on input focus, `success`/`error` on username check result, `buzz` on submit, `light` on Share on X. Only fires on supported mobile hardware.
+
+**Username input UX**: `usernameFocused` state gates the green border AND box-shadow — both only show when the field is focused, even when `checkState === 'available'`. On available, `useEffect` watching `checkState` blurs the username input and focuses email.
+
+**Submit button**: only enabled when `checkState === 'available'` AND email passes `EMAIL_REGEX` (`/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/`).
+
+### Maintenance mode
+
+`proxy.ts` checks `process.env.MAINTENANCE_MODE === 'true'` at the top of every request. When enabled, all traffic redirects to `/waitlist` except `/waitlist`, `/api/waitlist/*`, and `/_next/*`. Set this env var in Vercel **Production** only to keep the waitlist public while blocking the rest of the app. Local dev is unaffected.
+
 ### Environment variables
 
 Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, `ADMIN_EMAILS`.
-Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL`.
+Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL`, `NEXT_PUBLIC_APP_URL` (used for OG image URLs in `app/waitlist/layout.tsx`; defaults to `https://myntro.me`), `MAINTENANCE_MODE` (set to `true` to redirect all traffic to `/waitlist`).
