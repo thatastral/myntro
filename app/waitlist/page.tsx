@@ -291,7 +291,7 @@ export default function WaitlistPage() {
                     className="flex h-11 shrink-0 items-center border-r px-3 text-sm font-medium select-none"
                     style={{ color: '#C0C0C0', background: '#FAFAFA', borderColor: 'rgba(15,23,2,0.06)' }}
                   >
-                    myntro.xyz/
+                    myntro.me/
                   </span>
                   <input
                     ref={usernameInputRef}
