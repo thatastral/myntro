@@ -427,7 +427,20 @@ function SuccessScreen({ username }: { username: string }) {
             when it&apos;s time to activate your page.
           </p>
 
-          <div>
+          <div className="flex flex-col items-center gap-4">
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent('join me on "myntro.me" 👀')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:opacity-90 active:scale-[0.97]"
+              style={{ background: '#0F1702' }}
+            >
+              {/* X logo */}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
+                <path d="M8.303 5.93 13.394 0h-1.205L7.759 5.147 4.21 0H0l5.34 7.783L0 14h1.205l4.67-5.436L9.79 14H14L8.303 5.93Zm-1.653 1.924-.541-.775L1.64.98h1.853l3.474 4.968.541.775 4.513 6.453h-1.853L6.65 7.854Z"/>
+              </svg>
+              Share on X
+            </a>
             <Link
               href="/"
               className="text-sm text-[#C0C0C0] transition-colors hover:text-[#0F1702]"
