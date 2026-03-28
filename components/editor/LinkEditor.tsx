@@ -122,12 +122,12 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#909090]">
           Links
         </h3>
         <button
           onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+          className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
         >
           <Plus className="h-3.5 w-3.5" />
           Add link
@@ -145,10 +145,10 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
             onDrop={(e) => handleDrop(e, link.id)}
             onDragEnd={() => { setDraggingId(null); setDragOverId(null) }}
             className={cn(
-              'group rounded-xl border bg-white transition-all dark:bg-gray-900',
+              'group rounded-xl border bg-white transition-all',
               dragOverId === link.id && draggingId !== link.id
-                ? 'border-blue-300 shadow-md dark:border-blue-700'
-                : 'border-gray-200 dark:border-gray-800',
+                ? 'border-[#8EE600] shadow-md'
+                : 'border-[#EBEBEB]',
               draggingId === link.id && 'opacity-40',
             )}
           >
@@ -162,26 +162,26 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
                   value={editForm.title}
                   onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
                   placeholder="Title"
-                  className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+                  className="rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none transition-all duration-150 focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20 placeholder:text-[#C0C0C0]"
                 />
                 <input
                   value={editForm.url}
                   onChange={(e) => setEditForm((f) => ({ ...f, url: e.target.value }))}
                   placeholder="https://example.com"
-                  className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+                  className="rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none transition-all duration-150 focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20 placeholder:text-[#C0C0C0]"
                 />
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setEditingId(null)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-[#C0C0C0] hover:bg-[#F5F5F5] hover:text-[#909090]"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="submit"
                     disabled={editLoading}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-900 text-white hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0F1702] text-white hover:bg-[#1A2E03] disabled:opacity-40"
                   >
                     {editLoading ? (
                       <CircleNotch className="h-3.5 w-3.5 animate-spin" />
@@ -193,12 +193,12 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
               </form>
             ) : (
               <div className="flex items-center gap-2 px-3 py-3">
-                <DotsSixVertical className="h-4 w-4 flex-shrink-0 cursor-grab text-gray-300 active:cursor-grabbing dark:text-gray-600" />
+                <DotsSixVertical className="h-4 w-4 flex-shrink-0 cursor-grab text-[#D5D5D5] active:cursor-grabbing" />
                 <div className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-sm font-medium text-gray-800 dark:text-gray-200">
+                  <span className="truncate text-sm font-medium text-[#0F1702]">
                     {link.title}
                   </span>
-                  <span className="truncate text-xs text-gray-400 dark:text-gray-500">
+                  <span className="truncate text-xs text-[#C0C0C0]">
                     {link.url}
                   </span>
                 </div>
@@ -206,20 +206,20 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-800"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#D5D5D5] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[#F5F5F5] hover:text-[#909090]"
                 >
                   <ArrowSquareOut className="h-3.5 w-3.5" />
                 </a>
                 <button
                   onClick={() => startEdit(link)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-800"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#D5D5D5] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[#F5F5F5] hover:text-[#909090]"
                 >
                   <PencilSimple className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => handleDelete(link.id)}
                   disabled={deletingId === link.id}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-300 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 disabled:opacity-50 dark:hover:bg-red-950/30"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#D5D5D5] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
                 >
                   {deletingId === link.id ? (
                     <CircleNotch className="h-3.5 w-3.5 animate-spin" />
@@ -233,12 +233,12 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
         ))}
 
         {links.length === 0 && !showAddForm && (
-          <div className="rounded-xl border border-dashed border-gray-200 py-8 text-center dark:border-gray-800">
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+          <div className="rounded-xl border border-dashed border-[#EBEBEB] py-8 text-center">
+            <p className="text-sm text-[#C0C0C0]">
               No links yet.{' '}
               <button
                 onClick={() => setShowAddForm(true)}
-                className="font-medium text-gray-600 underline-offset-2 hover:underline dark:text-gray-400"
+                className="font-medium text-[#909090] underline-offset-2 hover:underline"
               >
                 Add your first link
               </button>
@@ -251,7 +251,7 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
       {showAddForm && (
         <form
           onSubmit={handleAddSubmit}
-          className="flex flex-col gap-2 rounded-xl border border-blue-200 bg-blue-50/30 p-3 dark:border-blue-900/40 dark:bg-blue-950/10"
+          className="flex flex-col gap-2 rounded-xl border border-[#8EE600]/30 bg-[#F7FCE8]/40 p-3"
         >
           <input
             autoFocus
@@ -259,32 +259,32 @@ export function LinkEditor({ links, onAdd, onUpdate, onDelete, onReorder }: Link
             onChange={(e) => setAddForm((f) => ({ ...f, title: e.target.value }))}
             placeholder="Title (e.g. GitHub)"
             required
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-all duration-150 focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20 placeholder:text-[#C0C0C0]"
           />
           <input
             value={addForm.url}
             onChange={(e) => setAddForm((f) => ({ ...f, url: e.target.value }))}
             placeholder="https://github.com/yourname"
             required
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-all duration-150 focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20 placeholder:text-[#C0C0C0]"
           />
 
           {addError && (
-            <p className="text-xs text-red-600 dark:text-red-400">{addError}</p>
+            <p className="text-xs text-red-500">{addError}</p>
           )}
 
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={() => { setShowAddForm(false); setAddForm(EMPTY_FORM); setAddError(null) }}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] hover:bg-[#F5F5F5]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={addLoading || !addForm.title.trim() || !addForm.url.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-gray-700 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900"
+              className="flex items-center gap-1.5 rounded-lg bg-[#0F1702] px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-[#1A2E03] disabled:opacity-40"
             >
               {addLoading ? <CircleNotch className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
               Add link

@@ -83,7 +83,20 @@ function LoginForm() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-[#EBEBEB] bg-white p-8 shadow-[0_2px_16px_rgba(0,0,0,0.06)]">
+        <div
+          className="rounded-2xl border border-[#EBEBEB] bg-white p-8"
+          style={{
+            boxShadow: '0 2px 16px rgba(15,23,2,0.08)',
+            borderTop: '2px solid #F5F5F5',
+            animation: 'authCardIn 400ms cubic-bezier(0.25,0.46,0.45,0.94) forwards',
+          }}
+        >
+          <style>{`
+            @keyframes authCardIn {
+              from { opacity: 0; transform: translateY(12px) scale(0.99); }
+              to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+          `}</style>
           <div className="mb-6">
             <h1
               className="text-2xl font-bold text-[#0F1702]"
@@ -95,14 +108,17 @@ function LoginForm() {
           </div>
 
           {error && (
-            <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+            <div
+              role="alert"
+              className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 border-l-4 border-l-red-400"
+            >
               {error}
             </div>
           )}
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#909090]">
+              <label className="mb-1.5 block text-[11px] font-semibold tracking-[0.06em] text-[#909090] uppercase">
                 Email
               </label>
               <input
@@ -111,13 +127,13 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition-all duration-150 placeholder:text-[#C0C0C0] focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
               />
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="block text-xs font-semibold uppercase tracking-wide text-[#909090]">
+                <label className="block text-[11px] font-semibold tracking-[0.06em] text-[#909090] uppercase">
                   Password
                 </label>
                 <Link href="/forgot-password" className="text-xs text-[#909090] transition-colors hover:text-[#0F1702]">
@@ -131,10 +147,11 @@ function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-4 pr-10 text-sm text-[#0F1702] outline-none transition-all duration-150 placeholder:text-[#C0C0C0] focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
                 />
                 <button
                   type="button"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C0C0C0] transition-colors hover:text-[#909090]"
                 >
@@ -146,7 +163,25 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-[#0F1702] py-3 text-sm font-semibold text-white transition-all hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-[#0F1702] py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              style={{
+                transition: 'transform 150ms ease-out, box-shadow 150ms ease-out, background 150ms ease',
+                willChange: 'transform',
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,23,2,0.20)'
+                  e.currentTarget.style.background = '#1A2E03'
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.background = '#0F1702'
+              }}
+              onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.98)' }}
+              onMouseUp={(e) => { e.currentTarget.style.transform = 'translateY(-1px)' }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -161,14 +196,16 @@ function LoginForm() {
 
           <div className="my-5 flex items-center gap-3">
             <div className="h-px flex-1 bg-[#F0F0F0]" />
-            <span className="text-[11px] font-medium text-[#C0C0C0]">or</span>
+            <span className="rounded-full border border-[#EBEBEB] bg-white px-3 py-0.5 text-[11px] font-medium text-[#C0C0C0]">
+              or
+            </span>
             <div className="h-px flex-1 bg-[#F0F0F0]" />
           </div>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#0F1702] transition-all hover:bg-[#FAFAFA] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#E8E8E8] bg-white px-4 py-3 text-sm font-medium text-[#0F1702] transition-all hover:bg-[#F7F7F7] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {googleLoading ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#E0E0E0] border-t-[#909090]" />

@@ -35,7 +35,7 @@ export function YoutubeBlock({ block }: { block: Block }) {
     <div className="overflow-hidden rounded-2xl">
       <iframe
         src={embedUrl}
-        className="aspect-video w-full pointer-events-none"
+        className="aspect-video w-full"
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen

@@ -11,7 +11,7 @@ export function AchievementsSection({ achievements }: AchievementsSectionProps) 
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
+      <h2 className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#909090]">
         Achievements
       </h2>
       <div className="grid gap-3">
@@ -32,7 +32,7 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
     : null
 
   const content = (
-    <div className="group flex gap-4 rounded-2xl border border-[#EBEBEB] bg-white p-4 transition-all hover:border-[#D5D5D5] hover:shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+    <div className="group flex gap-4 rounded-2xl border border-[#EBEBEB] bg-white p-4 transition-all duration-200 ease-out hover:border-[#D5D5D5] hover:shadow-[0_4px_12px_rgba(15,23,2,0.08)] hover:-translate-y-0.5">
       <div className="flex-shrink-0">
         {achievement.image_url ? (
           <div className="relative h-12 w-12 overflow-hidden rounded-xl">
@@ -45,8 +45,8 @@ function AchievementCard({ achievement }: { achievement: Achievement }) {
             />
           </div>
         ) : (
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 border border-amber-100">
-            <Trophy className="h-5 w-5 text-amber-500" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5F5F5] border border-[#EBEBEB]">
+            <Trophy className="h-5 w-5 text-[#0F1702]/40" />
           </div>
         )}
       </div>

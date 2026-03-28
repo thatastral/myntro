@@ -22,6 +22,13 @@ function useInView(threshold = 0.12) {
   return { ref, inView }
 }
 
+// ── Hero mount animation ──────────────────────────────────────────────────────
+function useMounted() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  return mounted
+}
+
 // ── Feature illustrations ─────────────────────────────────────────────────────
 
 function IllustrationIdentity() {
@@ -59,16 +66,18 @@ function IllustrationTipping() {
   return (
     <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
       <style>{`
-        @keyframes coinFloat {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-6px); }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes coinFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+          }
+          @keyframes trailFade {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+          }
+          .coin-anim { animation: coinFloat 2.4s ease-in-out infinite; transform-origin: 100px 70px; }
+          .trail-anim { animation: trailFade 2.4s ease-in-out infinite; }
         }
-        @keyframes trailFade {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.7; }
-        }
-        .coin-anim { animation: coinFloat 2.4s ease-in-out infinite; transform-origin: 100px 70px; }
-        .trail-anim { animation: trailFade 2.4s ease-in-out infinite; }
       `}</style>
       {/* Left wallet */}
       <rect x="18" y="50" width="44" height="40" rx="10" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
@@ -100,15 +109,17 @@ function IllustrationAI() {
   return (
     <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
       <style>{`
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        @keyframes dotPop {
-          0%, 80%, 100% { transform: scaleY(0.4); opacity: 0.4; }
-          40% { transform: scaleY(1); opacity: 1; }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+          @keyframes dotPop {
+            0%, 80%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+            40% { transform: scaleY(1); opacity: 1; }
+          }
+          .cursor-blink { animation: blink 1s step-end infinite; }
+          .dot1 { animation: dotPop 1.2s ease-in-out infinite; transform-origin: center; }
+          .dot2 { animation: dotPop 1.2s ease-in-out 0.2s infinite; transform-origin: center; }
+          .dot3 { animation: dotPop 1.2s ease-in-out 0.4s infinite; transform-origin: center; }
         }
-        .cursor-blink { animation: blink 1s step-end infinite; }
-        .dot1 { animation: dotPop 1.2s ease-in-out infinite; transform-origin: center; }
-        .dot2 { animation: dotPop 1.2s ease-in-out 0.2s infinite; transform-origin: center; }
-        .dot3 { animation: dotPop 1.2s ease-in-out 0.4s infinite; transform-origin: center; }
       `}</style>
       {/* User bubble (right) */}
       <rect x="72" y="20" width="104" height="30" rx="12" fill="rgba(15,23,2,0.08)" stroke="rgba(15,23,2,0.06)" strokeWidth="1" />
@@ -137,13 +148,15 @@ function IllustrationBadges() {
   return (
     <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="w-full h-full">
       <style>{`
-        @keyframes badgePulse {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
+        @media (prefers-reduced-motion: no-preference) {
+          @keyframes badgePulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+          }
+          .badge-pulse { animation: badgePulse 3s ease-in-out infinite; }
+          .badge-pulse-2 { animation: badgePulse 3s ease-in-out 1s infinite; }
+          .badge-pulse-3 { animation: badgePulse 3s ease-in-out 2s infinite; }
         }
-        .badge-pulse { animation: badgePulse 3s ease-in-out infinite; }
-        .badge-pulse-2 { animation: badgePulse 3s ease-in-out 1s infinite; }
-        .badge-pulse-3 { animation: badgePulse 3s ease-in-out 2s infinite; }
       `}</style>
       {/* Connection lines */}
       <line x1="100" y1="70" x2="58" y2="44" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
@@ -221,7 +234,7 @@ function FeaturesSection() {
           style={{ opacity: inView ? 1 : 0, transform: inView ? 'translateY(0)' : 'translateY(24px)' }}
         >
           <h2
-            className="mb-3 text-3xl font-bold tracking-tight text-[#0F1702] sm:text-4xl"
+            className="mb-3 text-3xl font-extrabold tracking-[-0.02em] text-[#0F1702] sm:text-4xl"
             style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
           >
             Everything in one place
@@ -253,18 +266,27 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-700"
+      className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-200 ease-out"
       style={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(32px)',
-        transitionDelay: `${delay}ms`,
+        transition: `opacity 700ms ease, transform 700ms cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, box-shadow 200ms ease-out, translate 200ms ease-out`,
         background: 'white',
         border: '1px solid rgba(15,23,2,0.07)',
+        willChange: 'transform',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-4px)'
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(15,23,2,0.10)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
       }}
     >
       {/* Illustration area */}
       <div
-        className="relative flex items-center justify-center overflow-hidden transition-transform duration-500 group-hover:scale-[1.02]"
+        className="relative flex items-center justify-center overflow-hidden"
         style={{ height: 148, padding: '16px 12px 8px', background: '#F7F7F5' }}
       >
         {feature.illustration}
@@ -295,6 +317,8 @@ function FeatureCard({
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const mounted = useMounted()
+
   return (
     <div
       className="flex min-h-[100dvh] flex-col bg-white"
@@ -313,7 +337,12 @@ export default function HomePage() {
             </Link>
             <Link
               href="/signup"
-              className="rounded-full bg-[#0F1702] px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-[#1A2E03] active:scale-[0.98]"
+              className="group inline-flex h-9 items-center gap-1.5 rounded-full px-5 text-sm font-semibold text-[#0F1702] transition-all hover:opacity-90 active:scale-[0.97]"
+              style={{
+                background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
+                boxShadow: '0 2px 8px rgba(142,230,0,0.25)',
+                willChange: 'transform',
+              }}
             >
               Get started
             </Link>
@@ -322,8 +351,17 @@ export default function HomePage() {
       </header>
 
       {/* Hero */}
-      <main className="flex flex-1 flex-col items-center justify-center px-6 pb-20 pt-24 text-center">
-        <div className="mx-auto max-w-3xl">
+      <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-6 pb-20 pt-24 text-center">
+        {/* Radial green glow */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: 600,
+            height: 400,
+            background: 'radial-gradient(ellipse at center, rgba(142,230,0,0.08) 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative mx-auto max-w-3xl">
           <Link
             href="/waitlist"
             className="group mb-8 inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-sm"
@@ -331,11 +369,12 @@ export default function HomePage() {
               background: '#F0F7E0',
               border: '1px solid #C6F135',
               color: '#3A6200',
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'translateY(0)' : 'translateY(12px)',
+              transition: 'opacity 500ms ease 50ms, transform 500ms cubic-bezier(0.25,0.46,0.45,0.94) 50ms',
             }}
           >
-            <span
-              className="relative flex h-2 w-2 flex-shrink-0"
-            >
+            <span className="relative flex h-2 w-2 flex-shrink-0">
               <span
                 className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
                 style={{ background: '#8EE600' }}
@@ -348,7 +387,12 @@ export default function HomePage() {
 
           <h1
             className="mb-6 text-5xl font-bold leading-[1.12] tracking-tight text-[#0F1702] sm:text-6xl lg:text-7xl"
-            style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+            style={{
+              fontFamily: 'var(--font-funnel-display), sans-serif',
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'translateY(0)' : 'translateY(16px)',
+              transition: 'opacity 600ms ease 150ms, transform 600ms cubic-bezier(0.25,0.46,0.45,0.94) 150ms',
+            }}
           >
             Your Web3 identity,{' '}
             <span className="relative inline-block">
@@ -360,19 +404,39 @@ export default function HomePage() {
             </span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#909090]">
+          <p
+            className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#909090]"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'translateY(0)' : 'translateY(16px)',
+              transition: 'opacity 600ms ease 250ms, transform 600ms cubic-bezier(0.25,0.46,0.45,0.94) 250ms',
+            }}
+          >
             Share your links, showcase achievements, display community affiliations,
             and let visitors tip you in SOL — all with an AI assistant that knows your story.
           </p>
 
-          <div className="flex justify-center">
+          <div
+            className="flex justify-center"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transform: mounted ? 'translateY(0)' : 'translateY(12px)',
+              transition: 'opacity 600ms ease 400ms, transform 600ms cubic-bezier(0.25,0.46,0.45,0.94) 400ms',
+            }}
+          >
             <GreenCTA href="/signup">
               Create Your Page — It&apos;s Free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </GreenCTA>
           </div>
 
-          <p className="mt-12 text-xs text-[#C0C0C0]">
+          <p
+            className="mt-12 text-xs text-[#C0C0C0]"
+            style={{
+              opacity: mounted ? 1 : 0,
+              transition: 'opacity 600ms ease 500ms',
+            }}
+          >
             Free to create. No credit card required.
           </p>
         </div>
@@ -415,12 +479,28 @@ function GreenCTA({ href, children }: { href: string; children: React.ReactNode 
   return (
     <Link
       href={href}
-      className="group inline-flex h-12 items-center gap-2.5 rounded-xl px-8 font-semibold text-[#0F1702] transition-all hover:opacity-90 active:scale-[0.98]"
+      className="group inline-flex h-12 items-center gap-2.5 rounded-xl px-8 font-semibold text-[#0F1702]"
       style={{
         fontSize: '16px',
         lineHeight: 1,
         background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
         boxShadow: '0 2px 12px rgba(142,230,0,0.30)',
+        transition: 'transform 150ms ease-out, box-shadow 150ms ease-out',
+        willChange: 'transform',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.02) translateY(-1px)'
+        e.currentTarget.style.boxShadow = '0 6px 20px rgba(142,230,0,0.45)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1) translateY(0)'
+        e.currentTarget.style.boxShadow = '0 2px 12px rgba(142,230,0,0.30)'
+      }}
+      onMouseDown={(e) => {
+        e.currentTarget.style.transform = 'scale(0.97)'
+      }}
+      onMouseUp={(e) => {
+        e.currentTarget.style.transform = 'scale(1.02) translateY(-1px)'
       }}
     >
       {children}

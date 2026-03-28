@@ -62,7 +62,7 @@ function AchievementForm({
           placeholder="Won ETH Global Hackathon"
           required
           maxLength={120}
-          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+          className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
         />
       </div>
 
@@ -74,7 +74,7 @@ function AchievementForm({
           placeholder="Brief description of this achievement…"
           rows={2}
           maxLength={500}
-          className="resize-none rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+          className="resize-none rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
         />
       </div>
 
@@ -85,7 +85,7 @@ function AchievementForm({
             type="date"
             value={form.date}
             onChange={(e) => update('date', e.target.value)}
-            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
           />
         </div>
 
@@ -96,7 +96,7 @@ function AchievementForm({
             value={form.link}
             onChange={(e) => update('link', e.target.value)}
             placeholder="https://…"
-            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+            className="rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-sm text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
           />
         </div>
       </div>
@@ -192,7 +192,7 @@ export function AchievementEditor({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#909090]">
           Achievements
         </h3>
         <button

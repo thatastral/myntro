@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Geist_Mono, Architects_Daughter, Space_Grotesk, Funnel_Display, DM_Sans } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/components/ThemeProvider'
 
 const inter = Inter({
   variable: '--font-sans',
@@ -75,11 +74,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={`${inter.variable} ${geistMono.variable} ${architectsDaughter.variable} ${spaceGrotesk.variable} ${funnelDisplay.variable} ${dmSans.variable} font-sans antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
       </body>
     </html>
   )

@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                     autoFocus
                     autoComplete="off"
                     autoCapitalize="none"
-                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2">
                     {checkState === 'checking' && <CircleNotch className="h-4 w-4 animate-spin text-[#C0C0C0]" />}
@@ -389,7 +389,7 @@ export default function OnboardingPage() {
                   value={name}
                   onChange={e => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export default function OnboardingPage() {
                     onChange={e => setBio(e.target.value.slice(0, 300))}
                     placeholder="A short description of who you are…"
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                    className="w-full resize-none rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
                   />
                   <span className="absolute bottom-2.5 right-3 text-xs text-[#C0C0C0]">{300 - bio.length}</span>
                 </div>
@@ -414,7 +414,7 @@ export default function OnboardingPage() {
                   value={location}
                   onChange={e => setLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600] focus:bg-white focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] px-4 py-3 text-sm text-[#0F1702] outline-none transition placeholder:text-[#C0C0C0] focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
                 />
               </div>
 

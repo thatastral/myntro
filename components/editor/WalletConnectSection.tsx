@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { Wallet, CheckCircle, CircleNotch, LinkBreak, Warning, Copy } from '@phosphor-icons/react'
+import { Coins, CheckCircle, CircleNotch, LinkBreak, Warning, Copy } from '@phosphor-icons/react'
 import {
   ConnectionProvider,
   WalletProvider,
@@ -71,7 +71,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
   const handleSaveManualAddress = async () => {
     const trimmed = manualAddress.trim()
     if (!trimmed) return
-    
+
     if (!SOLANA_ADDRESS_REGEX.test(trimmed)) {
       setManualError('Invalid Solana address format')
       return
@@ -111,26 +111,26 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
   return (
     <div>
       <div className="mb-3 flex items-center gap-2">
-        <Wallet className="h-4 w-4 text-gray-400" />
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+        <Coins className="h-4 w-4 text-[#C0C0C0]" />
+        <h3 className="text-sm font-semibold text-[#0F1702]">
           Tip wallet
         </h3>
       </div>
 
-      <p className="mb-4 text-xs text-gray-400 dark:text-gray-500">
+      <p className="mb-4 text-xs text-[#909090]">
         Connect your Solana wallet or paste your address so visitors can tip you.
       </p>
 
       {localSaved ? (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex items-center justify-between rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-4 py-3">
             <div className="flex items-center gap-2.5">
-              <CheckCircle className="h-4 w-4 flex-shrink-0 text-green-500" />
+              <CheckCircle className="h-4 w-4 flex-shrink-0 text-[#4A7A00]" />
               <div>
-                <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                <p className="text-xs font-medium text-[#0F1702]">
                   Wallet saved
                 </p>
-                <p className="font-mono text-xs text-gray-400 dark:text-gray-500">
+                <p className="font-mono text-xs text-[#C0C0C0]">
                   {localSaved.slice(0, 6)}…{localSaved.slice(-4)}
                 </p>
               </div>
@@ -139,14 +139,14 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               <button
                 onClick={handleCopyAddress}
                 title="Copy address"
-                className="flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-700"
+                className="flex items-center gap-1 rounded-lg border border-[#EBEBEB] px-2 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#F5F5F5]"
               >
-                {copied ? <CheckCircle className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                {copied ? <CheckCircle className="h-3 w-3 text-[#4A7A00]" /> : <Copy className="h-3 w-3" />}
               </button>
               <button
                 onClick={handleDisconnect}
                 disabled={saving}
-                className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-50 dark:border-gray-700 dark:hover:border-red-900 dark:hover:bg-red-950/20 dark:hover:text-red-400"
+                className="flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] px-2.5 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
               >
                 {saving ? (
                   <CircleNotch className="h-3 w-3 animate-spin" />
@@ -156,19 +156,19 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               </button>
             </div>
           </div>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">
+          <p className="text-[10px] text-[#C0C0C0]">
             You can update your wallet address at any time.
           </p>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          <div className="flex rounded-lg border border-gray-200 bg-gray-50 p-0.5 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex rounded-lg border border-[#EBEBEB] bg-[#FAFAFA] p-0.5">
             <button
               onClick={() => setInputMode('connect')}
               className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
                 inputMode === 'connect'
-                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                  ? 'bg-white text-[#0F1702] shadow-sm'
+                  : 'text-[#C0C0C0] hover:text-[#909090]'
               }`}
             >
               Connect wallet
@@ -177,8 +177,8 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               onClick={() => setInputMode('manual')}
               className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
                 inputMode === 'manual'
-                  ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-100'
-                  : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+                  ? 'bg-white text-[#0F1702] shadow-sm'
+                  : 'text-[#C0C0C0] hover:text-[#909090]'
               }`}
             >
               Use address
@@ -194,7 +194,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
                 fontSize: '13px',
                 fontWeight: 600,
                 justifyContent: 'center',
-                background: '#18181b',
+                background: '#0F1702',
               }}
             />
           ) : (
@@ -205,7 +205,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
                 onChange={(e) => { setManualAddress(e.target.value); setManualError(null) }}
                 onKeyDown={(e) => e.key === 'Enter' && handleSaveManualAddress()}
                 placeholder="Paste your Solana address"
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-50"
+                className="w-full rounded-xl border border-[#EBEBEB] bg-white px-4 py-2.5 text-sm text-[#0F1702] outline-none transition-all duration-150 placeholder:text-[#C0C0C0] focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
               />
               {manualError && (
                 <p className="text-xs text-red-500">{manualError}</p>
@@ -213,7 +213,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               <button
                 onClick={handleSaveManualAddress}
                 disabled={saving || !manualAddress.trim()}
-                className="flex items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#1A2E03] disabled:opacity-40"
               >
                 {saving ? (
                   <>
@@ -228,7 +228,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
           )}
 
           {saving && inputMode === 'connect' && (
-            <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="flex items-center gap-2 text-xs text-[#909090]">
               <CircleNotch className="h-3 w-3 animate-spin" />
               Saving wallet…
             </div>
@@ -237,9 +237,9 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
       )}
 
       {error && (
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900 dark:bg-red-950/20">
+        <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5">
           <Warning className="h-4 w-4 flex-shrink-0 text-red-500" />
-          <p className="text-xs text-red-700 dark:text-red-400">{error}</p>
+          <p className="text-xs text-red-600">{error}</p>
         </div>
       )}
     </div>

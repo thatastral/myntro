@@ -34,7 +34,7 @@ export function SpotifyBlock({ block }: { block: Block }) {
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         title="Spotify player"
-        className="pointer-events-none"
+        className="block"
       />
     </div>
   )

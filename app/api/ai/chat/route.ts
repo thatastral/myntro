@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
         lines.push(`- ${parts.join(' ')}`)
         const sc = a.scraped_content as Record<string, string> | null
         if (sc?.description) lines.push(`  About: ${sc.description}`)
-        if (sc?.text) lines.push(`  Details: ${sc.text.slice(0, 400)}`)
+        if (sc?.text) lines.push(`  Details: ${sc.text.slice(0, 800)}`)
       }
     }
 
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
         if (a.link) lines.push(`  Link: ${a.link}`)
         const sc = a.scraped_content as Record<string, string> | null
         if (sc?.description) lines.push(`  Page summary: ${sc.description}`)
-        if (sc?.text) lines.push(`  Page content: ${sc.text.slice(0, 500)}`)
+        if (sc?.text) lines.push(`  Page content: ${sc.text.slice(0, 1000)}`)
       }
     }
 
@@ -224,7 +224,7 @@ function appendBlocks(lines: string[], blocks: RawBlock[]) {
         const title = c.scraped_title || c.title || c.url
         lines.push(`- Link: ${title} — ${c.url}`)
         if (c.scraped_description) lines.push(`  Description: ${c.scraped_description}`)
-        if (c.scraped_text) lines.push(`  Page content: ${c.scraped_text.slice(0, 500)}`)
+        if (c.scraped_text) lines.push(`  Page content: ${c.scraped_text.slice(0, 2000)}`)
         break
       }
       case 'spotify':

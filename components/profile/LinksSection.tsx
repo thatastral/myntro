@@ -1,27 +1,41 @@
 'use client'
 
-import { ArrowSquareOut, Globe, XLogo, GithubLogo, LinkedinLogo, YoutubeLogo, InstagramLogo, EnvelopeSimple } from '@phosphor-icons/react'
+import { Globe } from '@phosphor-icons/react'
+import {
+  SiX, SiInstagram, SiGithub, SiYoutube, SiTiktok,
+  SiFacebook, SiSnapchat, SiPinterest, SiMedium,
+} from 'react-icons/si'
+import { FaLinkedinIn } from 'react-icons/fa'
 import type { Link } from '@/types'
 
-interface LinksSectionProps {
-  links: Link[]
+const PLATFORM_ICON_MAP: Record<string, React.ElementType> = {
+  x:         SiX,
+  twitter:   SiX,
+  instagram: SiInstagram,
+  linkedin:  FaLinkedinIn,
+  github:    SiGithub,
+  youtube:   SiYoutube,
+  tiktok:    SiTiktok,
+  facebook:  SiFacebook,
+  snapchat:  SiSnapchat,
+  pinterest: SiPinterest,
+  medium:    SiMedium,
 }
 
-export function LinksSection({ links }: LinksSectionProps) {
-  if (!links.length) return null
-
-  return (
-    <div className="flex flex-col gap-2">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
-        Links
-      </h2>
-      <div className="flex flex-col gap-2">
-        {links.map((link) => (
-          <LinkCard key={link.id} link={link} />
-        ))}
-      </div>
-    </div>
-  )
+function getPlatformIcon(link: Link): React.ElementType {
+  if (link.icon) {
+    const found = PLATFORM_ICON_MAP[link.icon.toLowerCase()]
+    if (found) return found
+  }
+  try {
+    const hostname = new URL(link.url).hostname.replace('www.', '')
+    for (const [key, Icon] of Object.entries(PLATFORM_ICON_MAP)) {
+      if (hostname.includes(key)) return Icon
+    }
+  } catch {
+    // ignore
+  }
+  return Globe
 }
 
 function formatCount(n: number | null | undefined): string | null {
@@ -31,58 +45,36 @@ function formatCount(n: number | null | undefined): string | null {
   return String(n)
 }
 
-function LinkCard({ link }: { link: Link }) {
-  const Icon = getLinkIcon(link.url, link.icon)
-  const count = formatCount(link.follower_count)
-
-  return (
-    <a
-      href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-center gap-3 rounded-xl border border-[#EBEBEB] bg-white px-4 py-3 transition-all hover:border-[#C0C0C0]"
-    >
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#F5F5F5] text-[#909090]">
-        <Icon className="h-4 w-4" />
-      </div>
-      <div className="flex flex-1 flex-col min-w-0">
-        <span className="text-sm font-medium text-[#0F1702]">{link.title}</span>
-        {count && (
-          <span className="text-xs text-[#C0C0C0]">{count} followers</span>
-        )}
-      </div>
-      <ArrowSquareOut className="h-3.5 w-3.5 flex-shrink-0 text-[#D0D0D0] transition-colors group-hover:text-[#909090]" />
-    </a>
-  )
+interface LinksSectionProps {
+  links: Link[]
 }
 
-function getLinkIcon(url: string, iconOverride?: string | null) {
-  if (iconOverride) {
-    const iconMap: Record<string, typeof Globe> = {
-      twitter: XLogo,
-      x: XLogo,
-      github: GithubLogo,
-      linkedin: LinkedinLogo,
-      youtube: YoutubeLogo,
-      instagram: InstagramLogo,
-      mail: EnvelopeSimple,
-      globe: Globe,
-    }
-    const found = iconMap[iconOverride.toLowerCase()]
-    if (found) return found
-  }
+export function LinksSection({ links }: LinksSectionProps) {
+  if (!links.length) return null
 
-  try {
-    const hostname = new URL(url).hostname.replace('www.', '')
-    if (hostname.includes('twitter.com') || hostname.includes('x.com')) return XLogo
-    if (hostname.includes('github.com')) return GithubLogo
-    if (hostname.includes('linkedin.com')) return LinkedinLogo
-    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) return YoutubeLogo
-    if (hostname.includes('instagram.com')) return InstagramLogo
-    if (url.startsWith('mailto:')) return EnvelopeSimple
-  } catch {
-    // ignore invalid URLs
-  }
-
-  return Globe
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {links.map((link) => {
+        const Icon = getPlatformIcon(link)
+        const count = formatCount(link.follower_count)
+        return (
+          <a
+            key={link.id}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={link.title}
+            className="group flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] px-2.5 py-1.5 text-[#909090] transition-all duration-150 hover:border-[#D5D5D5] hover:bg-[#FAFAFA] hover:text-[#0F1702]"
+          >
+            <Icon size={13} className="flex-shrink-0" />
+            <span className="text-[11px] font-medium">{link.title}</span>
+            {count && (
+              <span className="text-[10px] text-[#C0C0C0] leading-none">{count}</span>
+            )}
+            <span className="sr-only">(opens in new tab)</span>
+          </a>
+        )
+      })}
+    </div>
+  )
 }

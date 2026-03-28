@@ -122,7 +122,7 @@ export function InlineEditor({
             'cursor-text rounded-md px-1 -mx-1',
             'hover:bg-[#FAFAFA]',
             'focus:bg-[#FAFAFA]',
-            'focus:ring-2 focus:ring-[#8EE600]/20',
+            'focus:ring-1 focus:ring-[#8EE600]/20',
           ],
           saving && 'opacity-60',
           // Placeholder via CSS when empty

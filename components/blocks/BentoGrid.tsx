@@ -52,7 +52,7 @@ function ReadOnlySectionBlock({ section, blocks, username }: { section: Section;
   if (blocks.length === 0) return null
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
+      <h3 className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[#909090]">
         {section.title}
       </h3>
       <div className="grid grid-cols-2 gap-3">
@@ -155,7 +155,7 @@ function SortableBlockItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group/block relative ${block.span === 2 ? 'col-span-2' : 'col-span-1'} ${isDragging ? 'scale-[1.02] shadow-xl' : ''}`}
+      className={`group/block relative ${block.span === 2 ? 'col-span-2' : 'col-span-1'} ${isDragging ? 'scale-[1.02] shadow-xl' : ''} rounded-xl transition-all duration-150`}
     >
       {/* Drag handle */}
       <div
@@ -187,12 +187,13 @@ function EmptyDropZone({ id }: { id: string }) {
   return (
     <div
       ref={setNodeRef}
-      className={`col-span-2 flex h-16 items-center justify-center rounded-xl border-2 border-dashed text-xs transition-colors ${
+      className={`col-span-2 flex h-16 items-center justify-center gap-2 rounded-xl border-2 border-dashed text-xs transition-all duration-150 ${
         isOver
           ? 'border-[#8EE600]/60 bg-[#F0FBE0] text-[#4A7A00]'
-          : 'border-[#EBEBEB] text-[#C0C0C0]'
+          : 'border-[#EBEBEB] text-[#C0C0C0] hover:border-[#D5D5D5]'
       }`}
     >
+      <Plus className="h-3.5 w-3.5 opacity-60" />
       Drop blocks here
     </div>
   )
@@ -288,7 +289,7 @@ function SortableSectionItem({
               onBlur={commitRename}
               onKeyDown={(e) => { if (e.key === 'Enter') commitRename(); if (e.key === 'Escape') { setTitleDraft(section.title); setEditing(false) } }}
               maxLength={60}
-              className="flex-1 rounded-lg border border-[#EBEBEB] bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#0F1702] outline-none transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+              className="flex-1 rounded-lg border border-[#EBEBEB] bg-white px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
             />
             <button onClick={commitRename} className="text-[#C0C0C0] hover:text-[#0F1702]">
               <Check className="h-3.5 w-3.5" />
@@ -296,7 +297,7 @@ function SortableSectionItem({
           </div>
         ) : (
           <div className="flex flex-1 items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#909090]">
               {section.title}
             </span>
             <button
@@ -709,7 +710,7 @@ export function BlocksEditor({
                 placeholder="Write your note…"
                 rows={4}
                 autoFocus
-                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -717,7 +718,7 @@ export function BlocksEditor({
                   <select
                     value={noteFont}
                     onChange={(e) => setNoteFont(e.target.value)}
-                    className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]"
+                    className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#0F1702] outline-none transition-colors focus:border-[#8EE600]/50"
                     style={{ fontFamily: noteFont }}
                   >
                     <option value="sans-serif">Sans-serif</option>
@@ -744,24 +745,24 @@ export function BlocksEditor({
           {activeBlockType === 'link' && (
             <div className="space-y-2">
               <input type="url" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="https://…" autoFocus
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkTitle} onChange={(e) => setLinkTitle(e.target.value)} placeholder="Title (optional)"
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
               <input type="text" value={linkDesc} onChange={(e) => setLinkDesc(e.target.value)} placeholder="Description (optional)"
-                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+                className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
             </div>
           )}
 
           {activeBlockType === 'spotify' && (
             <input type="url" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)}
               placeholder="https://open.spotify.com/track/… or playlist/…" autoFocus
-              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
           )}
 
           {activeBlockType === 'youtube' && (
             <input type="url" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=… or youtu.be/…" autoFocus
-              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20" />
+              className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
           )}
 
           <div className="mt-3 flex items-center justify-end gap-2">
@@ -807,7 +808,7 @@ export function BlocksEditor({
                   }}
                   placeholder="Section name…"
                   autoFocus
-                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600] focus:ring-2 focus:ring-[#8EE600]/20"
+                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
                 />
                 <button
                   onClick={() => { if (sectionTitle.trim()) handleAddSection(sectionTitle.trim()) }}
