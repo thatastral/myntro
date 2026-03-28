@@ -15,6 +15,16 @@ npm test -- --no-coverage            # skip coverage report
 
 Tests live in `__tests__/`. Jest config: `jest.config.ts`. Currently covers: auth/password validation, username validation, block container resolution, OG image extraction.
 
+If Turbopack doesn't pick up a changed `NEXT_PUBLIC_*` env var, delete `.next/` and restart.
+
+## Design system
+
+Color tokens: `#182403` (dark headings), `#0F1702` (near-black), `#909090` (subtext), `#C0C0C0` (muted), `#EBEBEB` (borders), `#FAFAFA` (surface), `#8EE600` (green accent).
+
+Primary CTA gradient: `linear-gradient(160deg, #FDFDFD 0%, #C6F135 45%, #8EE600 100%)` with `boxShadow: 0 3px 16px rgba(142,230,0,0.35)`.
+
+Fonts: **Funnel Display** (headings/display), **DM Sans** (body). Both loaded via `next/font/google` in the root layout.
+
 ## Architecture
 
 Single Next.js 16 app (App Router) — no monorepo. Everything lives at the root.
@@ -30,6 +40,8 @@ Browser → proxy.ts → App Router page or API route → Supabase
 - `/`, `/login`, `/signup` — redirect authenticated users to `/{username}/edit` (queries `users` table for username, falls back to `/onboarding`)
 - `/forgot-password`, `/reset-password` — always passthrough even when authenticated
 - `/admin/*` — restricted to emails listed in `ADMIN_EMAILS` env var; non-admins redirected to `/`
+
+`/api/rpc` is excluded from the middleware matcher entirely (no Supabase session overhead on RPC calls).
 
 ### Auth
 
@@ -49,7 +61,7 @@ After OAuth the browser hits `/api/auth/callback` → checks if user has a profi
 
 All data lives in Supabase Postgres. Schema in `supabase/migrations/`. Always apply new migrations via the **Supabase dashboard SQL editor** — the Management API token has been unreliable.
 
-Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`.
+Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`, `embeddings` (pgvector), `analytics_events`, `blocks`, `sections`, `tips`, `waitlist`, `beta_testers`.
 
 Key columns:
 - `users.featured_affiliation_id UUID` references `affiliations(id) ON DELETE SET NULL` — controls which verified affiliation badge shows publicly.
@@ -57,6 +69,7 @@ Key columns:
 - `achievements.scraped_content JSONB` — page content scraped from `link` URL at save time. Migration: `007_scraped_content.sql`.
 - `affiliations.scraped_content JSONB` — page content scraped from `proof_link` at save time. Migration: `007_scraped_content.sql`.
 - `blocks.content JSONB` — for `link` type blocks, includes `scraped_title`, `scraped_description`, `scraped_text` populated at save time via `lib/scrape.ts`.
+- `tips` — `recipient_user_id`, `sender_wallet`, `amount`, `token`, `tx_signature` (UNIQUE). RLS: recipient can read own rows. Migration: `009_tips.sql`.
 
 Storage buckets: `avatars` (public), `documents` (public). All storage uploads must use `createAdminClient()` — RLS blocks the anon/user client from inserting into `storage.objects`.
 
@@ -99,9 +112,31 @@ Events tracked via `POST /api/analytics` — captures IP, resolves to country vi
 
 ### Solana / tipping
 
-`TipModal` (`components/profile/TipModal.tsx`) and `/{username}/tip` both use the full Solana wallet adapter — tipper connects their own wallet and sends SOL/USDC/USDT. Both wrap `ConnectionProvider` + `WalletProvider` + `WalletModalProvider` internally. `TipModal` is dynamically imported with `ssr: false` in `ProfileHeader`. Any component importing `@solana/wallet-adapter-react-ui` **must** use `dynamic(..., { ssr: false })`.
+`TipModal` (`components/profile/TipModal.tsx`) uses the full Solana wallet adapter — tipper connects their own wallet and sends SOL/USDC/USDT. It wraps `ConnectionProvider` + `WalletProvider` + `WalletModalProvider` internally. `TipModal` is dynamically imported with `ssr: false` in `ProfileHeader`. Any component importing `@solana/wallet-adapter-react-ui` **must** use `dynamic(..., { ssr: false })`.
+
+**RPC proxy** (`app/api/rpc/route.ts`): Proxies all Solana JSON-RPC requests to `SOLANA_RPC_URL` (server env var, defaults to `https://api.mainnet-beta.solana.com`). CORS headers for `solana-client` requests are set in both the route handler and `next.config.ts` headers config. The route is excluded from `proxy.ts` middleware to avoid Supabase auth overhead on every RPC call. On production, set `SOLANA_RPC_URL` to a dedicated provider (e.g. Helius) to avoid mainnet rate limits.
+
+**RPC endpoint** (`lib/solana/wallet.ts`): `SOLANA_ENDPOINT` uses `NEXT_PUBLIC_SOLANA_RPC_URL` if set, otherwise falls back to `window.location.origin + '/api/rpc'` in the browser (so it works on any host without the env var). SSR fallback is `clusterApiUrl()` but TipModal is `ssr: false` so this never fires.
+
+**Transaction flow**: `handleSend` uses `signTransaction` + `connection.sendRawTransaction` (not `sendTransaction`) to bypass StandardWalletAdapter chain-detection issues with custom RPC URLs. `skipPreflight: true` avoids a second RPC round-trip.
+
+**Tip logging**: after tx confirms, the browser fires `POST /api/tips` (no auth required) with `{ username, sender_wallet, amount, token, tx_signature }`. The route logs to the `tips` table (upsert on `tx_signature`) and fires a Resend email to the recipient from `tips@myntro.me`.
+
+**`/{username}/tip`** — standalone full-page tip flow (for mobile / direct links). Dynamically imports `TipFlow` component with `ssr: false`. Fetches wallet address via `/api/profile?username=x` on mount. Same wallet adapter stack as TipModal.
 
 **Tip wallet** (`components/editor/WalletConnectSection.tsx`): Users connect via wallet adapter or paste a Solana address manually. Address saved to `wallets` table with `network: 'solana'`.
+
+### Email (Resend)
+
+Requires `RESEND_API_KEY`. Two sender addresses:
+- `RESEND_FROM_INFO` (falls back to `RESEND_FROM`) — waitlist confirmation emails from `info@myntro.me`
+- `RESEND_FROM` — tip notification emails from `tips@myntro.me`
+
+**Important**: Resend SDK's `emails.send()` returns `{ data, error }` and **never throws**. Always check the returned `error` field — `catch` blocks will not fire on API errors.
+
+All transactional emails include both `html` and `text` bodies (improves deliverability) and `List-Unsubscribe` headers.
+
+Admin route `POST /api/admin/email-beta-testers` sends a custom email to all rows in `beta_testers` table in batches of 50. `GET` returns the count.
 
 ### Bento blocks + sections
 
@@ -147,7 +182,15 @@ Note blocks are editable inline: text, font family (Space Grotesk, Georgia, Arch
   - "Share my Myntro" button lives inside `BlocksEditor`'s floating toolbar (passed via `onShare` prop from the edit page)
   - "Identity & Background" is a bold section header grouping Affiliations, Resume/CV, and Wallet — each sub-section has an `Info` icon tooltip using the `group/tip` + `group-hover/tip:opacity-100` pattern; tooltips are `left-0` anchored (not centered) to prevent left-edge clipping
   - Location + social links row uses `flex flex-col gap-2` so the add-link form opens below without pushing the location text
+- `/{username}/analytics` (client) — analytics dashboard for the profile owner; reads from `/api/analytics`
 - `/admin/affiliations` (client) — fetches via `/api/admin/affiliations` which uses `users!affiliations_user_id_fkey` join hint to resolve the ambiguous FK
+
+### Non-obvious gotchas
+
+- **Username availability check** (`/api/username` + onboarding): must use `createAdminClient()` (service role) for both the availability count query AND the upsert — the anon/user client is blocked by RLS on those operations.
+- **Onboarding Step 1 back button**: calls `supabase.auth.signOut()` before `router.push('/login')`. Using a plain `<Link href="/login">` creates a proxy redirect loop (auth'd user → proxy redirects back to edit page).
+- **`LinksSection`** has `'use client'` — needed to avoid `createContext is not a function` SSR error on the public profile page.
+- **`proxy.ts` `getUserProfilePath`** uses service role key (`SUPABASE_SERVICE_ROLE_KEY`) so RLS on `profile_visibility` or other policies can never block the username lookup during redirects.
 
 ### Key conventions
 
@@ -179,9 +222,10 @@ Standalone pre-launch page — no auth required, no Supabase session needed.
 
 ### Maintenance mode
 
-`proxy.ts` checks `process.env.MAINTENANCE_MODE === 'true'` at the top of every request. When enabled, all traffic redirects to `/waitlist` except `/waitlist`, `/api/waitlist/*`, and `/_next/*`. Set this env var in Vercel **Production** only to keep the waitlist public while blocking the rest of the app. Local dev is unaffected.
+`proxy.ts` checks `process.env.MAINTENANCE_MODE === 'true'` at the top of every request. When enabled, all traffic redirects to `/waitlist` except `/waitlist`, `/api/waitlist/*`, `/api/admin/*`, and `/_next/*`. Set this env var in Vercel **Production** only to keep the waitlist public while blocking the rest of the app.
 
 ### Environment variables
 
-Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, `ADMIN_EMAILS`.
-Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL`, `NEXT_PUBLIC_APP_URL` (used for OG image URLs in `app/waitlist/layout.tsx`; defaults to `https://myntro.me`), `MAINTENANCE_MODE` (set to `true` to redirect all traffic to `/waitlist`).
+Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, `ADMIN_EMAILS`, `RESEND_API_KEY`, `RESEND_FROM`, `RESEND_FROM_INFO`.
+
+Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL` (client-side RPC endpoint; if unset, defaults to `window.location.origin + '/api/rpc'`), `SOLANA_RPC_URL` (server-side upstream for the RPC proxy; defaults to `https://api.mainnet-beta.solana.com`), `NEXT_PUBLIC_APP_URL` (defaults to `https://myntro.me`), `MAINTENANCE_MODE` (set to `true` to redirect all traffic to `/waitlist`).

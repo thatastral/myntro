@@ -77,7 +77,7 @@ function TipInner({ ownerName, walletAddress, username, onClose }: TipInnerProps
   const { connection } = useConnection()
   const { publicKey, connected, sendTransaction, signTransaction } = useWallet()
 
-  const [token, setToken] = useState<SupportedToken>('SOL')
+const [token, setToken] = useState<SupportedToken>('SOL')
   const [amount, setAmount] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -572,7 +572,7 @@ export function TipModal({ open, onClose, ownerName, walletAddress, username }: 
           </button>
         </div>
 
-        <ConnectionProvider endpoint={SOLANA_ENDPOINT} config={{ wsEndpoint: SOLANA_WS_ENDPOINT }}>
+        <ConnectionProvider endpoint={SOLANA_ENDPOINT} config={{ commitment: 'confirmed', wsEndpoint: SOLANA_WS_ENDPOINT }}>
           <WalletProvider wallets={wallets} autoConnect={false}>
             <WalletModalProvider>
               <TipInner

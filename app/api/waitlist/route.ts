@@ -96,61 +96,153 @@ export async function POST(request: NextRequest) {
       const { error: emailError } = await resend.emails.send({
         from: `Myntro <${from}>`,
         to: cleanEmail,
-        subject: `@${cleanUsername} is yours on Myntro`,
+        subject: `✓ @${cleanUsername} is yours on Myntro`,
         headers: {
           'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
-        text: `Hey! @${cleanUsername} is yours on Myntro.\n\nYour username is reserved. We'll email you the moment Myntro opens — you'll be one of the first in.\n\nWhat is Myntro? Your digital identity — one link that tells your whole story. Share your work, communities, and achievements. Let people tip you in crypto. Chat with an AI version of you.\n\nShare the waitlist: ${appUrl}/waitlist\n\nYou're receiving this because you joined the Myntro waitlist.`,
-        html: `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#F7F7F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
-    <tr><td align="center">
-      <table width="100%" style="max-width:480px;background:#ffffff;border-radius:20px;border:1px solid #EBEBEB;overflow:hidden;">
+        text: `Your spot is secured.\n\n@${cleanUsername} is reserved for you on Myntro.\n\nWe'll email you the moment Myntro opens. Expect something worth the wait.\n\nWhat you're getting:\n· One link. Your whole story.\n· Tip-enabled. Crypto-native.\n· An AI that speaks for you.\n\nInvite a friend: ${appUrl}/waitlist\n\nYou're receiving this because you reserved @${cleanUsername} on the Myntro waitlist.`,
+        html: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Your spot is secured</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F7F7F5;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 
-        <!-- Header -->
-        <tr><td style="padding:28px 32px 0;text-align:center;">
-          <p style="margin:0;font-size:13px;font-weight:700;letter-spacing:0.08em;color:#8EE600;text-transform:uppercase;">Myntro</p>
-        </td></tr>
+<!-- Preheader -->
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">@${cleanUsername} is yours — you're one of the first in to Myntro.&#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847; &#847;</div>
 
-        <!-- Hero -->
-        <tr><td style="padding:24px 32px 20px;text-align:center;">
-          <div style="display:inline-block;background:#F0F7E0;border-radius:12px;padding:10px 20px;margin-bottom:16px;">
-            <p style="margin:0;font-size:22px;font-weight:800;color:#0F1702;letter-spacing:-0.5px;">@${cleanUsername}</p>
-          </div>
-          <p style="margin:0;font-size:15px;font-weight:600;color:#0F1702;">You're on the list.</p>
-          <p style="margin:8px 0 0;font-size:13px;color:#909090;line-height:1.5;">Your username is reserved. We'll email you the moment Myntro opens — you'll be one of the first in.</p>
-        </td></tr>
+<!-- Wrapper -->
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F7F5;">
+<tr><td align="center" style="padding:40px 20px;">
 
-        <!-- Divider -->
-        <tr><td style="padding:0 32px;"><div style="height:1px;background:#F0F0F0;"></div></td></tr>
+  <!-- Container -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+  <tr><td style="background-color:#ffffff;border-radius:20px;border:1px solid #EBEBEB;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
 
-        <!-- What is Myntro -->
-        <tr><td style="padding:20px 32px;">
-          <p style="margin:0 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#C0C0C0;">What is Myntro?</p>
-          <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">Your digital identity — one link that tells your whole story. Share your work, communities, and achievements. Let people tip you in crypto. Chat with an AI version of you.</p>
-        </td></tr>
-
-        <!-- Divider -->
-        <tr><td style="padding:0 32px;"><div style="height:1px;background:#F0F0F0;"></div></td></tr>
-
-        <!-- CTA -->
-        <tr><td style="padding:24px 32px;text-align:center;">
-          <p style="margin:0 0 16px;font-size:13px;color:#909090;">Know someone who'd want early access?</p>
-          <a href="${appUrl}/waitlist" style="display:inline-block;background:#0F1702;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:12px 28px;border-radius:12px;">Share the waitlist →</a>
-        </td></tr>
-
-        <!-- Footer -->
-        <tr><td style="padding:16px 32px 28px;text-align:center;background:#F7F7F5;border-top:1px solid #F0F0F0;">
-          <p style="margin:0;font-size:11px;color:#C0C0C0;">You're receiving this because you joined the Myntro waitlist with this email.</p>
-        </td></tr>
-
+    <!-- ── HEADER ── -->
+    <tr><td align="center" style="padding:26px 32px 22px;border-bottom:1px solid #F0F0F0;">
+      <table cellpadding="0" cellspacing="0" border="0" align="center">
+      <tr>
+        <td valign="middle" style="padding-right:7px;">
+          <img src="${appUrl}/logo.svg" width="22" height="22" alt="M" style="display:block;border-radius:5px;">
+        </td>
+        <td valign="middle">
+          <span style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:700;color:#0F1702;letter-spacing:-0.2px;">Myntro</span>
+        </td>
+        <td valign="middle" style="padding-left:7px;">
+          <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:500;color:#0F1702;border:0.5px solid rgba(15,23,2,0.3);border-radius:999px;padding:2px 6px;letter-spacing:0.04em;">Beta</span>
+        </td>
+      </tr>
       </table>
     </td></tr>
+
+    <!-- ── HEADLINE ── -->
+    <tr><td align="center" style="padding:28px 32px 4px;">
+      <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
+      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#5A9900;">@${cleanUsername} is reserved for you.</p>
+    </td></tr>
+
+    <!-- ── CARD ── -->
+    <tr><td style="padding:20px 24px 24px;">
+
+      <!-- Card outer shell (green-tinted surface, creates visual inset) -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="background-color:#F0F7E0;border-radius:14px;padding:9px;">
+
+        <!-- Card inner (white face, dashed border) -->
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="background-color:#ffffff;border-radius:10px;border:1.5px dashed #D4D9CE;padding:14px 18px 10px;">
+
+          <!-- "reserved!" pill -->
+          <table cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="background-color:#D0ED99;border-radius:999px;padding:3px 9px;">
+            <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:700;color:#3A6B00;text-transform:uppercase;letter-spacing:0.1em;">reserved!</span>
+          </td></tr>
+          </table>
+
+          <!-- URL + checkmark row -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;margin-bottom:8px;">
+          <tr>
+            <td valign="middle">
+              <span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#B0AFA8;letter-spacing:-0.3px;">myntro.me/</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">${cleanUsername}</span>
+            </td>
+            <td valign="middle" align="right" style="padding-left:10px;white-space:nowrap;">
+              <!-- Checkmark badge (table-cell approach for Gmail compat) -->
+              <table cellpadding="0" cellspacing="0" border="0">
+              <tr><td align="center" valign="middle" style="width:22px;height:22px;background-color:#8EE600;border-radius:11px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:22px;">✓</td></tr>
+              </table>
+            </td>
+          </tr>
+          </table>
+
+          <!-- Watermark -->
+          <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:700;color:#E8E8E4;text-align:center;letter-spacing:0.28em;line-height:1;">MYNTRO</p>
+
+        </td></tr>
+        </table>
+
+      </td></tr>
+      </table>
+    </td></tr>
+
+    <!-- ── BODY COPY ── -->
+    <tr><td align="center" style="padding:0 32px 24px;">
+      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#666666;line-height:1.7;">We'll email you the moment Myntro opens.<br>Expect something worth the wait.</p>
+    </td></tr>
+
+    <!-- ── DIVIDER ── -->
+    <tr><td style="padding:0 32px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="background-color:#F0F0F0;font-size:0;line-height:0;">&nbsp;</td></tr></table></td></tr>
+
+    <!-- ── WHAT YOU'RE GETTING ── -->
+    <tr><td style="padding:20px 32px;">
+      <p style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#C0C0C0;">What you're getting</p>
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="padding-bottom:8px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">One link. Your whole story.</td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="padding-bottom:8px;">
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">Tip-enabled. Crypto-native.</td>
+          </tr></table>
+        </td></tr>
+        <tr><td>
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">An AI that speaks for you.</td>
+          </tr></table>
+        </td></tr>
+      </table>
+    </td></tr>
+
+    <!-- ── DIVIDER ── -->
+    <tr><td style="padding:0 32px;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="1" style="background-color:#F0F0F0;font-size:0;line-height:0;">&nbsp;</td></tr></table></td></tr>
+
+    <!-- ── CTA ── -->
+    <tr><td align="center" style="padding:24px 32px;">
+      <p style="margin:0 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#909090;">Know someone who'd want early access?</p>
+      <a href="${appUrl}/waitlist" style="display:inline-block;background-color:#0F1702;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;padding:13px 30px;border-radius:12px;letter-spacing:0.01em;">Invite a friend &rarr;</a>
+    </td></tr>
+
+    <!-- ── FOOTER ── -->
+    <tr><td align="center" style="padding:16px 32px 28px;background-color:#F7F7F5;border-top:1px solid #F0F0F0;border-radius:0 0 20px 20px;">
+      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#C0C0C0;line-height:1.6;">You're receiving this because you reserved <span style="color:#909090;">@${cleanUsername}</span> on the Myntro waitlist with this email.</p>
+    </td></tr>
+
   </table>
+  </td></tr>
+  </table>
+
+</td></tr>
+</table>
 </body>
 </html>`,
       })
