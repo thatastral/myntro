@@ -11,7 +11,8 @@ export const SOLANA_NETWORK =
     : WalletAdapterNetwork.Devnet
 
 export const SOLANA_ENDPOINT =
-  process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? clusterApiUrl(SOLANA_NETWORK)
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL ??
+  (typeof window !== 'undefined' ? `${window.location.origin}/api/rpc` : clusterApiUrl(SOLANA_NETWORK))
 
 // Always use the real Solana WebSocket endpoint for subscriptions (our HTTP proxy doesn't support WS)
 export const SOLANA_WS_ENDPOINT =

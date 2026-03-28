@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
             'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
             'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
           },
+          text: `You just received ${amount} ${token} on Myntro!\n\nFrom: ${truncate(sender_wallet)}\nNetwork: Solana\n\nView your profile: ${appUrl}/${user.username}\nView transaction: https://solscan.io/tx/${tx_signature}`,
           html: `
 <!DOCTYPE html>
 <html>

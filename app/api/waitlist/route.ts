@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       const cleanUsername = username.toLowerCase().trim()
       const cleanEmail = email.toLowerCase().trim()
 
-      resend.emails.send({
+      const { error: emailError } = await resend.emails.send({
         from: `Myntro <${from}>`,
         to: cleanEmail,
         subject: `@${cleanUsername} is yours on Myntro`,
@@ -101,6 +101,7 @@ export async function POST(request: NextRequest) {
           'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
+        text: `Hey! @${cleanUsername} is yours on Myntro.\n\nYour username is reserved. We'll email you the moment Myntro opens — you'll be one of the first in.\n\nWhat is Myntro? Your digital identity — one link that tells your whole story. Share your work, communities, and achievements. Let people tip you in crypto. Chat with an AI version of you.\n\nShare the waitlist: ${appUrl}/waitlist\n\nYou're receiving this because you joined the Myntro waitlist.`,
         html: `
 <!DOCTYPE html>
 <html>
@@ -152,8 +153,8 @@ export async function POST(request: NextRequest) {
   </table>
 </body>
 </html>`,
-      }).then(({ error }) => { if (error) console.error('[api/waitlist] Email failed:', error) })
-        .catch((err) => console.error('[api/waitlist] Email exception:', err))
+      })
+      if (emailError) console.error('[api/waitlist] Email failed:', emailError)
     }
 
     return NextResponse.json({ success: true, username }, { status: 201 })
