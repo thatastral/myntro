@@ -147,50 +147,11 @@ export async function POST(request: NextRequest) {
     <!-- ── HEADLINE ── -->
     <tr><td align="center" style="padding:28px 32px 4px;">
       <p style="margin:0 0 6px;font-family:'Funnel Display',Georgia,serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
-      <p style="margin:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#5A9900;">@${cleanUsername} is reserved for you.</p>
     </td></tr>
 
-    <!-- ── CARD ── -->
-    <tr><td style="padding:20px 24px 24px;">
-
-      <!-- Card outer shell (green-tinted surface, creates visual inset) -->
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr><td style="background-color:#F0F7E0;border-radius:14px;padding:9px;">
-
-        <!-- Card inner (white face, dashed border) -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr><td style="background-color:#ffffff;border-radius:10px;border:1.5px dashed #D4D9CE;padding:14px 18px 10px;">
-
-          <!-- "reserved!" pill -->
-          <table cellpadding="0" cellspacing="0" border="0">
-          <tr><td style="background-color:#D0ED99;border-radius:999px;padding:3px 9px;">
-            <span style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:700;color:#3A6B00;text-transform:uppercase;letter-spacing:0.1em;">reserved!</span>
-          </td></tr>
-          </table>
-
-          <!-- URL + checkmark row -->
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;margin-bottom:8px;">
-          <tr>
-            <td valign="middle">
-              <span style="font-family:'Funnel Display',Georgia,serif;font-size:21px;font-weight:700;color:#B0AFA8;letter-spacing:-0.3px;">myntro.me/</span><span style="font-family:'Funnel Display',Georgia,serif;font-size:21px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">${cleanUsername}</span>
-            </td>
-            <td valign="middle" align="right" style="padding-left:10px;white-space:nowrap;">
-              <!-- Checkmark badge (table-cell approach for Gmail compat) -->
-              <table cellpadding="0" cellspacing="0" border="0">
-              <tr><td align="center" valign="middle" style="width:22px;height:22px;background-color:#8EE600;border-radius:11px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:22px;">✓</td></tr>
-              </table>
-            </td>
-          </tr>
-          </table>
-
-          <!-- Watermark -->
-          <p style="margin:0;font-family:'Funnel Display',Georgia,serif;font-size:32px;font-weight:700;color:#E8E8E4;text-align:center;letter-spacing:0.28em;line-height:1;">MYNTRO</p>
-
-        </td></tr>
-        </table>
-
-      </td></tr>
-      </table>
+    <!-- ── CARD IMAGE ── -->
+    <tr><td style="padding:0 24px 24px;">
+      <img src="${appUrl}/api/email/card?username=${cleanUsername}" width="440" height="250" alt="myntro.me/${cleanUsername}" style="display:block;width:100%;max-width:440px;height:auto;border-radius:14px;">
     </td></tr>
 
     <!-- ── BODY COPY ── -->
