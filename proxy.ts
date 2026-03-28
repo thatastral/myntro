@@ -18,7 +18,7 @@ export default async function proxy(request: NextRequest) {
   // Maintenance mode — redirect everything to /waitlist except the waitlist page and its API
   const { pathname } = request.nextUrl
   if (process.env.MAINTENANCE_MODE === 'true') {
-    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/_next')
+    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/api/admin') || pathname.startsWith('/_next')
     if (!allowed) {
       const url = request.nextUrl.clone()
       url.pathname = '/waitlist'
