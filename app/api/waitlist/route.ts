@@ -149,9 +149,13 @@ export async function POST(request: NextRequest) {
       <p style="margin:0 0 6px;font-family:'Funnel Display',Georgia,serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
     </td></tr>
 
-    <!-- ── CARD IMAGE ── -->
-    <tr><td style="padding:0 24px 24px;">
-      <img src="${appUrl}/api/email/card?username=${cleanUsername}" width="440" height="250" alt="myntro.me/${cleanUsername}" style="display:block;width:100%;max-width:440px;height:auto;border-radius:14px;">
+    <!-- ── USERNAME PILL ── -->
+    <tr><td align="center" style="padding:16px 24px 28px;">
+      <table cellpadding="0" cellspacing="0" border="0">
+      <tr><td style="background-color:#E8F5C8;border-radius:14px;padding:18px 36px;">
+        <span style="font-family:'Funnel Display',Georgia,serif;font-size:28px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">@${cleanUsername}</span>
+      </td></tr>
+      </table>
     </td></tr>
 
     <!-- ── BODY COPY ── -->
