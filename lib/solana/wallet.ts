@@ -13,6 +13,12 @@ export const SOLANA_NETWORK =
 export const SOLANA_ENDPOINT =
   process.env.NEXT_PUBLIC_SOLANA_RPC_URL ?? clusterApiUrl(SOLANA_NETWORK)
 
+// Always use the real Solana WebSocket endpoint for subscriptions (our HTTP proxy doesn't support WS)
+export const SOLANA_WS_ENDPOINT =
+  SOLANA_NETWORK === WalletAdapterNetwork.Mainnet
+    ? 'wss://api.mainnet-beta.solana.com'
+    : 'wss://api.devnet.solana.com'
+
 export function getSupportedWallets() {
   return [
     new PhantomWalletAdapter(),

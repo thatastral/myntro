@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Gear, Eye, EyeSlash, ArrowSquareOut, CircleNotch, ChartBar, Camera, Lightning, TrendUp, TrendDown, Plus, X, Globe, ArrowClockwise, MapPin, ArrowLeft } from '@phosphor-icons/react'
+import { Gear, Eye, EyeSlash, ArrowSquareOut, CircleNotch, ChartBar, Camera, Coins, TrendUp, TrendDown, Plus, X, Globe, ArrowClockwise, MapPin, ArrowLeft, Info, Sliders } from '@phosphor-icons/react'
 import Link from 'next/link'
 import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
@@ -68,9 +68,10 @@ export default function EditPage({ params }: EditPageProps) {
     views: number; tips: number; prevViews: number; prevTips: number
   } | null>(null)
   const [activeTab, setActiveTab] = useState<'me' | 'achievements'>('me')
+  const [recentTips, setRecentTips] = useState<{ id: string; sender_wallet: string; amount: number; token: string; tx_signature: string; created_at: string }[]>([])
   const [addingLink, setAddingLink] = useState(false)
-  const [newLinkPlatform, setNewLinkPlatform] = useState('')
-  const [newLinkUrl, setNewLinkUrl] = useState('')
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
+  const [platformUrls, setPlatformUrls] = useState<Record<string, string>>({})
   const [savingLink, setSavingLink] = useState(false)
 
   useEffect(() => {
@@ -112,6 +113,14 @@ export default function EditPage({ params }: EditPageProps) {
           prevTips: d.prev_counts?.tip_sent ?? 0,
         })
       })
+      .catch(() => {})
+  }, [username, authUser])
+
+  useEffect(() => {
+    if (!username || !authUser) return
+    fetch(`/api/tips?username=${encodeURIComponent(username)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.tips) setRecentTips(d.tips) })
       .catch(() => {})
   }, [username, authUser])
 
@@ -197,14 +206,32 @@ export default function EditPage({ params }: EditPageProps) {
     return <p.Icon size={14} />
   }
 
-  const handleSaveLink = async () => {
-    if (!newLinkPlatform || !newLinkUrl.trim()) return
-    setSavingLink(true)
-    const p = LINK_PLATFORMS.find(pl => pl.id === newLinkPlatform)
-    await addLink({ title: p?.label ?? newLinkPlatform, url: newLinkUrl.trim(), icon: newLinkPlatform })
-    setNewLinkPlatform('')
-    setNewLinkUrl('')
+  const closeLinkPopover = () => {
     setAddingLink(false)
+    setSelectedPlatforms([])
+    setPlatformUrls({})
+  }
+
+  const handleTogglePlatform = (id: string) => {
+    setSelectedPlatforms(prev => {
+      if (prev.includes(id)) {
+        // Deselect — remove from list and clear its URL
+        setPlatformUrls(urls => { const next = { ...urls }; delete next[id]; return next })
+        return prev.filter(p => p !== id)
+      }
+      return [...prev, id]
+    })
+  }
+
+  const handleSaveAll = async () => {
+    const toSave = selectedPlatforms.filter(id => platformUrls[id]?.trim())
+    if (!toSave.length) return
+    setSavingLink(true)
+    await Promise.all(toSave.map(id => {
+      const p = LINK_PLATFORMS.find(pl => pl.id === id)
+      return addLink({ title: p?.label ?? id, url: platformUrls[id].trim(), icon: id })
+    }))
+    closeLinkPopover()
     setSavingLink(false)
   }
 
@@ -260,11 +287,11 @@ export default function EditPage({ params }: EditPageProps) {
             <div className="flex items-start justify-between">
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]"
+                className="group relative h-[58px] w-[58px] flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]"
                 title="Change profile photo"
               >
                 {avatarUrl ? (
-                  <Image src={avatarUrl} alt={user.name || user.username} fill className="object-cover" sizes="80px" />
+                  <Image src={avatarUrl} alt={user.name || user.username} fill className="object-cover" sizes="58px" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#C0C0C0]">
                     {(user.name || user.username).charAt(0).toUpperCase()}
@@ -382,93 +409,169 @@ export default function EditPage({ params }: EditPageProps) {
                   <span>{user.location}</span>
                 </div>
               )}
-              <div className="ml-auto flex items-center gap-1 shrink-0">
-                    {links.map(link => {
-                      const cnt = link.follower_count
-                      const fmtCount = cnt === null || cnt === undefined ? null
-                        : cnt >= 1_000_000 ? `${(cnt / 1_000_000).toFixed(1)}M`
-                        : cnt >= 1_000 ? `${(cnt / 1_000).toFixed(1)}K`
-                        : String(cnt)
-                      return (
-                        <div key={link.id} className="group/link relative flex items-center gap-0.5">
-                          <a
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={link.title}
-                            className="flex h-6 w-6 items-center justify-center rounded-md text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
-                          >
-                            <PlatformIcon id={link.icon} />
-                          </a>
-                          {fmtCount && (
-                            <span className="text-[10px] text-[#C0C0C0] leading-none">{fmtCount}</span>
-                          )}
-                          <button
-                            onClick={() => deleteLink(link.id)}
-                            title="Remove link"
-                            className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-[#E8E8E8] text-[#909090] hover:bg-red-100 hover:text-red-600 group-hover/link:flex"
-                          >
-                            <X className="h-2 w-2" />
-                          </button>
-                        </div>
-                      )
-                    })}
-                    <button
-                      onClick={() => setAddingLink(v => !v)}
-                      title="Add link"
-                      className="flex h-6 w-6 items-center justify-center rounded-md text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+              {/* Icon pills + add button — relative so popover anchors here */}
+              <div className="relative ml-auto flex shrink-0 items-center gap-1">
+                {links.map(link => {
+                  const cnt = link.follower_count
+                  const fmtCount = cnt === null || cnt === undefined ? null
+                    : cnt >= 1_000_000 ? `${(cnt / 1_000_000).toFixed(1)}M`
+                    : cnt >= 1_000 ? `${(cnt / 1_000).toFixed(1)}K`
+                    : String(cnt)
+                  return (
+                    <div key={link.id} className="group/link relative flex items-center gap-0.5">
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={link.title}
+                        className="flex h-6 w-6 items-center justify-center rounded-md text-[#909090] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
+                      >
+                        <PlatformIcon id={link.icon} />
+                      </a>
+                      {fmtCount && (
+                        <span className="text-[10px] text-[#C0C0C0] leading-none">{fmtCount}</span>
+                      )}
+                      <button
+                        onClick={() => deleteLink(link.id)}
+                        title="Remove link"
+                        className="absolute -right-1 -top-1 hidden h-3.5 w-3.5 items-center justify-center rounded-full bg-[#E8E8E8] text-[#909090] hover:bg-red-100 hover:text-red-600 group-hover/link:flex"
+                      >
+                        <X className="h-2 w-2" />
+                      </button>
+                    </div>
+                  )
+                })}
+                <button
+                  onClick={() => addingLink ? closeLinkPopover() : setAddingLink(true)}
+                  title="Add link"
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-[#C0C0C0] transition-colors hover:bg-[#F5F5F5] hover:text-[#0F1702]"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
 
+                {/* Floating popover — anchored to this container, no layout shift */}
                 {addingLink && (
-                  <div className="flex items-center gap-2 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2">
-                    <select
-                      value={newLinkPlatform}
-                      onChange={e => setNewLinkPlatform(e.target.value)}
-                      className="bg-transparent text-xs text-[#909090] outline-none"
-                    >
-                      <option value="">Platform</option>
-                      {LINK_PLATFORMS.map(p => (
-                        <option key={p.id} value={p.id}>{p.label}</option>
-                      ))}
-                    </select>
-                    <div className="h-3 w-px bg-[#EBEBEB]" />
-                    <input
-                      type="url"
-                      value={newLinkUrl}
-                      onChange={e => setNewLinkUrl(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleSaveLink()}
-                      placeholder="https://..."
-                      className="flex-1 bg-transparent text-xs text-[#0F1702] outline-none placeholder:text-[#C0C0C0]"
-                    />
-                    <button
-                      onClick={handleSaveLink}
-                      disabled={savingLink || !newLinkPlatform || !newLinkUrl.trim()}
-                      className="text-xs font-semibold text-[#0F1702] disabled:opacity-40"
-                    >
-                      {savingLink ? <CircleNotch className="h-3 w-3 animate-spin" /> : 'Save'}
-                    </button>
-                    <button onClick={() => setAddingLink(false)} className="text-[#C0C0C0] hover:text-[#0F1702]">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={closeLinkPopover} />
+                    <div className="absolute right-0 top-full z-50 mt-2 w-76 rounded-2xl border border-[#EBEBEB] bg-white p-4 shadow-xl" style={{ width: 304 }}>
+                      <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-wider text-[#C0C0C0]">
+                        Select platforms
+                      </p>
+
+                      {/* Platform grid — multi-select */}
+                      <div className="mb-4 grid grid-cols-4 gap-1.5">
+                        {LINK_PLATFORMS.map(p => {
+                          const alreadyAdded = links.some(l => l.icon === p.id)
+                          const isSelected = selectedPlatforms.includes(p.id)
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              disabled={alreadyAdded}
+                              onClick={() => handleTogglePlatform(p.id)}
+                              className={`flex flex-col items-center gap-1.5 rounded-xl px-1 py-2.5 text-[10px] font-medium transition-colors ${
+                                alreadyAdded
+                                  ? 'cursor-not-allowed bg-[#FAFAFA] text-[#D5D5D5]'
+                                  : isSelected
+                                    ? 'bg-[#0F1702] text-white'
+                                    : 'bg-[#F5F5F5] text-[#909090] hover:bg-[#EBEBEB] hover:text-[#0F1702]'
+                              }`}
+                            >
+                              <p.Icon size={15} />
+                              <span className="w-full truncate text-center leading-tight">
+                                {p.label.split(' ')[0]}
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {/* URL fields — one per selected platform, in selection order */}
+                      {selectedPlatforms.length > 0 && (
+                        <div className="mb-4 flex flex-col gap-2">
+                          {selectedPlatforms.map(id => {
+                            const p = LINK_PLATFORMS.find(pl => pl.id === id)
+                            if (!p) return null
+                            return (
+                              <div key={id} className="flex items-center gap-2">
+                                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#F5F5F5] text-[#909090]">
+                                  <p.Icon size={13} />
+                                </div>
+                                <input
+                                  type="url"
+                                  value={platformUrls[id] ?? ''}
+                                  onChange={e => setPlatformUrls(prev => ({ ...prev, [id]: e.target.value }))}
+                                  onKeyDown={e => e.key === 'Enter' && handleSaveAll()}
+                                  placeholder={`${p.label} URL…`}
+                                  autoFocus={selectedPlatforms.indexOf(id) === 0 && !platformUrls[id]}
+                                  className="flex-1 rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-xs text-[#0F1702] outline-none placeholder:text-[#C0C0C0] focus:border-[#D5D5D5]"
+                                />
+                              </div>
+                            )
+                          })}
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={closeLinkPopover}
+                          className="rounded-lg px-3 py-1.5 text-xs font-medium text-[#909090] hover:bg-[#F5F5F5]"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleSaveAll}
+                          disabled={savingLink || !selectedPlatforms.some(id => platformUrls[id]?.trim())}
+                          className="flex items-center gap-1.5 rounded-lg bg-[#0F1702] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1A2E03] disabled:opacity-40"
+                        >
+                          {savingLink ? <CircleNotch className="h-3 w-3 animate-spin" /> : 'Save all'}
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
+              </div>
               </div>
             </div>
 
+            {/* Recent Tips */}
+            {recentTips.length > 0 && (
+              <div className="flex w-full flex-col gap-2">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-[#C0C0C0]">Recent Tips</p>
+                {recentTips.slice(0, 5).map((tip) => (
+                  <div key={tip.id} className="flex items-center justify-between rounded-xl bg-[#F7F7F5] px-3.5 py-2.5">
+                    <span className="font-mono text-xs text-[#909090]">
+                      {tip.sender_wallet.slice(0, 6)}…{tip.sender_wallet.slice(-4)}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-[#0F1702]">{tip.amount} {tip.token}</span>
+                      <a
+                        href={`https://solscan.io/tx/${tip.tx_signature}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ArrowSquareOut className="h-3.5 w-3.5 text-[#C0C0C0] hover:text-[#0F1702]" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Tab switcher + content wrapper */}
-            <div className="flex w-full max-w-full flex-col gap-4 overflow-hidden">
-            <div className="flex w-full items-center gap-1 self-start rounded-full border border-[#EBEBEB] bg-[#FAFAFA] p-1">
+            <div className="mt-6 flex w-full max-w-full flex-col gap-4 overflow-hidden">
+            <div className="inline-flex items-center gap-0.5 self-start rounded-full border border-[#E0E0E0] bg-[#F5F5F5] p-1">
               {(['me', 'achievements'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
                     activeTab === tab
-                      ? 'bg-[#0F1702] text-white shadow-sm'
-                      : 'text-[#909090] hover:text-[#0F1702]'
+                      ? 'bg-[#0F1702] text-white'
+                      : 'text-[#909090] hover:text-[#555]'
                   }`}
                 >
                   {tab === 'me' ? 'Me' : 'Achievements'}
@@ -495,36 +598,34 @@ export default function EditPage({ params }: EditPageProps) {
 
                 <div className="h-px bg-[#F0F0F0]" />
 
-                {/* Affiliations */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
-                    Affiliations
-                  </h2>
+                {/* Identity & Background */}
+                <div className="flex flex-col gap-4">
+                  {/* Section header */}
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-[#0F1702]">
+                      Identity &amp; Background
+                    </h2>
+                    <div className="group/tip relative">
+                      <Info className="h-3.5 w-3.5 text-[#C0C0C0] cursor-default" />
+                      <div className="pointer-events-none absolute left-0 top-5 z-10 w-52 rounded-lg border border-[#EBEBEB] bg-white px-3 py-2 text-xs text-[#909090] shadow-md opacity-0 transition-opacity duration-150 group-hover/tip:opacity-100">
+                        Your community affiliations, resume, and Solana tip wallet.
+                      </div>
+                    </div>
+                  </div>
+
                   <AffiliationEditor
                     affiliations={profile.affiliations}
                     onAdd={addAffiliation}
                     onUpdate={updateAffiliation}
                     onDelete={deleteAffiliation}
                   />
-                </div>
 
-                <div className="h-px bg-[#F0F0F0]" />
+                  <div className="h-px bg-[#F5F5F5]" />
 
-                {/* CV / Resume */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
-                    Resume / CV
-                  </h2>
                   <CVUpload />
-                </div>
 
-                <div className="h-px bg-[#F0F0F0]" />
+                  <div className="h-px bg-[#F5F5F5]" />
 
-                {/* Wallet */}
-                <div className="flex flex-col gap-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-[#4A7A00]">
-                    Wallet
-                  </h2>
                   <WalletConnectSection
                     savedAddress={walletAddress}
                     onSaved={setWalletAddress}
@@ -557,7 +658,7 @@ export default function EditPage({ params }: EditPageProps) {
           {/* Tips — left */}
           <a href={`/${username}/analytics`} className="flex items-center gap-2 group">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5F5F5]">
-              <Lightning className="h-3.5 w-3.5 text-[#909090]" />
+              <Coins className="h-3.5 w-3.5 text-[#909090]" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold leading-none text-[#0F1702]">
@@ -620,6 +721,19 @@ export default function EditPage({ params }: EditPageProps) {
         onProfileUpdate={updateProfile}
         onWalletDisconnect={() => setWalletAddress(null)}
       />
+
+      {/* Customisation coming soon badge — fixed bottom-left */}
+      <div className="fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-2xl border border-[#E8E8E8] bg-white px-3.5 py-2.5 shadow-md">
+        <Sliders className="h-3.5 w-3.5 shrink-0 text-[#182403]" weight="bold" />
+        <span className="text-[13px] font-semibold text-[#182403]">Customisation</span>
+        <span
+          className="flex items-center gap-1.5 rounded-full border border-white/60 px-2.5 py-0.5 text-[11px] font-semibold text-[#2D4A00]"
+          style={{ background: 'linear-gradient(to right, #f0f0f0, #C5F135)' }}
+        >
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#6BBF00]" />
+          Coming Soon
+        </span>
+      </div>
     </>
   )
 }

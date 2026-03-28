@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -82,6 +83,77 @@ export async function POST(request: NextRequest) {
       }
       console.error('[api/waitlist] Insert error:', error)
       return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
+    }
+
+    // Send confirmation email (fire-and-forget — never block the response)
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://myntro.me'
+      const from = process.env.RESEND_FROM_INFO ?? process.env.RESEND_FROM ?? 'onboarding@resend.dev'
+      const cleanUsername = username.toLowerCase().trim()
+      const cleanEmail = email.toLowerCase().trim()
+
+      resend.emails.send({
+        from: `Myntro <${from}>`,
+        to: cleanEmail,
+        subject: `@${cleanUsername} is yours on Myntro`,
+        headers: {
+          'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+        html: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F7F7F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:480px;background:#ffffff;border-radius:20px;border:1px solid #EBEBEB;overflow:hidden;">
+
+        <!-- Header -->
+        <tr><td style="padding:28px 32px 0;text-align:center;">
+          <p style="margin:0;font-size:13px;font-weight:700;letter-spacing:0.08em;color:#8EE600;text-transform:uppercase;">Myntro</p>
+        </td></tr>
+
+        <!-- Hero -->
+        <tr><td style="padding:24px 32px 20px;text-align:center;">
+          <div style="display:inline-block;background:#F0F7E0;border-radius:12px;padding:10px 20px;margin-bottom:16px;">
+            <p style="margin:0;font-size:22px;font-weight:800;color:#0F1702;letter-spacing:-0.5px;">@${cleanUsername}</p>
+          </div>
+          <p style="margin:0;font-size:15px;font-weight:600;color:#0F1702;">You're on the list.</p>
+          <p style="margin:8px 0 0;font-size:13px;color:#909090;line-height:1.5;">Your username is reserved. We'll email you the moment Myntro opens — you'll be one of the first in.</p>
+        </td></tr>
+
+        <!-- Divider -->
+        <tr><td style="padding:0 32px;"><div style="height:1px;background:#F0F0F0;"></div></td></tr>
+
+        <!-- What is Myntro -->
+        <tr><td style="padding:20px 32px;">
+          <p style="margin:0 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#C0C0C0;">What is Myntro?</p>
+          <p style="margin:0;font-size:13px;color:#555;line-height:1.6;">Your digital identity — one link that tells your whole story. Share your work, communities, and achievements. Let people tip you in crypto. Chat with an AI version of you.</p>
+        </td></tr>
+
+        <!-- Divider -->
+        <tr><td style="padding:0 32px;"><div style="height:1px;background:#F0F0F0;"></div></td></tr>
+
+        <!-- CTA -->
+        <tr><td style="padding:24px 32px;text-align:center;">
+          <p style="margin:0 0 16px;font-size:13px;color:#909090;">Know someone who'd want early access?</p>
+          <a href="${appUrl}/waitlist" style="display:inline-block;background:#0F1702;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:12px 28px;border-radius:12px;">Share the waitlist →</a>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:16px 32px 28px;text-align:center;background:#F7F7F5;border-top:1px solid #F0F0F0;">
+          <p style="margin:0;font-size:11px;color:#C0C0C0;">You're receiving this because you joined the Myntro waitlist with this email.</p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+      }).then(({ error }) => { if (error) console.error('[api/waitlist] Email failed:', error) })
+        .catch((err) => console.error('[api/waitlist] Email exception:', err))
     }
 
     return NextResponse.json({ success: true, username }, { status: 201 })

@@ -5,6 +5,11 @@
       "source": "darasoba/design-engineer-plugin",
       "sourceType": "github",
       "computedHash": "9af9a91f5469cae4162e05df312af0a9641d63cdfd174a696ccfd757a18ad481"
+    },
+    "web-haptics": {
+      "source": "lochie/web-haptics",
+      "sourceType": "github",
+      "computedHash": "a6dce0fce9dc37f4dac87cd9ed2dc0e32e1ec3a5d8c860e1af07fee670295b7b"
     }
   }
 }

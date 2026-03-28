@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { MapPin, Sparkle, Lightning } from '@phosphor-icons/react'
+import { MapPin, Sparkle, Coins } from '@phosphor-icons/react'
 import { AIChatSidebar } from '@/components/profile/AIChatWidget'
 import dynamic from 'next/dynamic'
 import type { User, Affiliation } from '@/types'
@@ -27,14 +27,14 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
       <div className="flex flex-col gap-4">
         {/* Top row: Avatar + actions */}
         <div className="flex items-start justify-between">
-          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]">
+          <div className="relative h-[58px] w-[58px] flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]">
             {user.avatar_url ? (
               <Image
                 src={user.avatar_url}
                 alt={user.name || user.username}
                 fill
                 className="object-cover"
-                sizes="80px"
+                sizes="58px"
                 priority
               />
             ) : (
@@ -51,7 +51,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
                 onClick={() => setTipOpen(true)}
                 className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2 text-xs font-semibold text-[#0F1702] transition-all hover:border-[#D0D0D0] hover:bg-[#FAFAFA]"
               >
-                <Lightning className="h-3.5 w-3.5 text-[#909090]" />
+                <Coins className="h-3.5 w-3.5 text-[#909090]" />
                 <span className="hidden sm:inline">Tip</span>
               </button>
             )}
@@ -136,6 +136,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
           onClose={() => setTipOpen(false)}
           ownerName={user.name || user.username}
           walletAddress={walletAddress}
+          username={user.username}
         />
       )}
     </>
