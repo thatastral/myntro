@@ -109,6 +109,9 @@ export async function POST(request: NextRequest) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
 <title>Your spot is secured</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap');
+</style>
 </head>
 <body style="margin:0;padding:0;background-color:#F7F7F5;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
 
@@ -132,10 +135,10 @@ export async function POST(request: NextRequest) {
           <img src="${appUrl}/logo.svg" width="22" height="22" alt="M" style="display:block;border-radius:5px;">
         </td>
         <td valign="middle">
-          <span style="font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:700;color:#0F1702;letter-spacing:-0.2px;">Myntro</span>
+          <span style="font-family:'Funnel Display',Georgia,serif;font-size:16px;font-weight:700;color:#0F1702;letter-spacing:-0.2px;">Myntro</span>
         </td>
         <td valign="middle" style="padding-left:7px;">
-          <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:500;color:#0F1702;border:0.5px solid rgba(15,23,2,0.3);border-radius:999px;padding:2px 6px;letter-spacing:0.04em;">Beta</span>
+          <span style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:500;color:#0F1702;border:0.5px solid rgba(15,23,2,0.3);border-radius:999px;padding:2px 6px;letter-spacing:0.04em;">Beta</span>
         </td>
       </tr>
       </table>
@@ -143,8 +146,8 @@ export async function POST(request: NextRequest) {
 
     <!-- ── HEADLINE ── -->
     <tr><td align="center" style="padding:28px 32px 4px;">
-      <p style="margin:0 0 6px;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
-      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#5A9900;">@${cleanUsername} is reserved for you.</p>
+      <p style="margin:0 0 6px;font-family:'Funnel Display',Georgia,serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
+      <p style="margin:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;font-weight:600;color:#5A9900;">@${cleanUsername} is reserved for you.</p>
     </td></tr>
 
     <!-- ── CARD ── -->
@@ -161,7 +164,7 @@ export async function POST(request: NextRequest) {
           <!-- "reserved!" pill -->
           <table cellpadding="0" cellspacing="0" border="0">
           <tr><td style="background-color:#D0ED99;border-radius:999px;padding:3px 9px;">
-            <span style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:700;color:#3A6B00;text-transform:uppercase;letter-spacing:0.1em;">reserved!</span>
+            <span style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:700;color:#3A6B00;text-transform:uppercase;letter-spacing:0.1em;">reserved!</span>
           </td></tr>
           </table>
 
@@ -169,19 +172,19 @@ export async function POST(request: NextRequest) {
           <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;margin-bottom:8px;">
           <tr>
             <td valign="middle">
-              <span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#B0AFA8;letter-spacing:-0.3px;">myntro.me/</span><span style="font-family:Georgia,'Times New Roman',serif;font-size:21px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">${cleanUsername}</span>
+              <span style="font-family:'Funnel Display',Georgia,serif;font-size:21px;font-weight:700;color:#B0AFA8;letter-spacing:-0.3px;">myntro.me/</span><span style="font-family:'Funnel Display',Georgia,serif;font-size:21px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">${cleanUsername}</span>
             </td>
             <td valign="middle" align="right" style="padding-left:10px;white-space:nowrap;">
               <!-- Checkmark badge (table-cell approach for Gmail compat) -->
               <table cellpadding="0" cellspacing="0" border="0">
-              <tr><td align="center" valign="middle" style="width:22px;height:22px;background-color:#8EE600;border-radius:11px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:22px;">✓</td></tr>
+              <tr><td align="center" valign="middle" style="width:22px;height:22px;background-color:#8EE600;border-radius:11px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:700;color:#ffffff;line-height:22px;">✓</td></tr>
               </table>
             </td>
           </tr>
           </table>
 
           <!-- Watermark -->
-          <p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:700;color:#E8E8E4;text-align:center;letter-spacing:0.28em;line-height:1;">MYNTRO</p>
+          <p style="margin:0;font-family:'Funnel Display',Georgia,serif;font-size:32px;font-weight:700;color:#E8E8E4;text-align:center;letter-spacing:0.28em;line-height:1;">MYNTRO</p>
 
         </td></tr>
         </table>
@@ -192,7 +195,7 @@ export async function POST(request: NextRequest) {
 
     <!-- ── BODY COPY ── -->
     <tr><td align="center" style="padding:0 32px 24px;">
-      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#666666;line-height:1.7;">We'll email you the moment Myntro opens.<br>Expect something worth the wait.</p>
+      <p style="margin:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#666666;line-height:1.7;">We'll email you the moment Myntro opens.<br>Expect something worth the wait.</p>
     </td></tr>
 
     <!-- ── DIVIDER ── -->
@@ -200,24 +203,24 @@ export async function POST(request: NextRequest) {
 
     <!-- ── WHAT YOU'RE GETTING ── -->
     <tr><td style="padding:20px 32px;">
-      <p style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#C0C0C0;">What you're getting</p>
+      <p style="margin:0 0 12px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:#C0C0C0;">What you're getting</p>
       <table cellpadding="0" cellspacing="0" border="0">
         <tr><td style="padding-bottom:8px;">
           <table cellpadding="0" cellspacing="0" border="0"><tr>
-            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
-            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">One link. Your whole story.</td>
+            <td valign="top" style="padding-right:8px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">One link. Your whole story.</td>
           </tr></table>
         </td></tr>
         <tr><td style="padding-bottom:8px;">
           <table cellpadding="0" cellspacing="0" border="0"><tr>
-            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
-            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">Tip-enabled. Crypto-native.</td>
+            <td valign="top" style="padding-right:8px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">Tip-enabled. Crypto-native.</td>
           </tr></table>
         </td></tr>
         <tr><td>
           <table cellpadding="0" cellspacing="0" border="0"><tr>
-            <td valign="top" style="padding-right:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
-            <td style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">An AI that speaks for you.</td>
+            <td valign="top" style="padding-right:8px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#8EE600;line-height:1.5;">·</td>
+            <td style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#555555;line-height:1.5;">An AI that speaks for you.</td>
           </tr></table>
         </td></tr>
       </table>
@@ -228,13 +231,13 @@ export async function POST(request: NextRequest) {
 
     <!-- ── CTA ── -->
     <tr><td align="center" style="padding:24px 32px;">
-      <p style="margin:0 0 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#909090;">Know someone who'd want early access?</p>
-      <a href="${appUrl}/waitlist" style="display:inline-block;background-color:#0F1702;color:#ffffff;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;padding:13px 30px;border-radius:12px;letter-spacing:0.01em;">Invite a friend &rarr;</a>
+      <p style="margin:0 0 16px;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;color:#909090;">Know someone who'd want early access?</p>
+      <a href="${appUrl}/waitlist" style="display:inline-block;background-color:#0F1702;color:#ffffff;text-decoration:none;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;font-weight:600;padding:13px 30px;border-radius:12px;letter-spacing:0.01em;">Invite a friend &rarr;</a>
     </td></tr>
 
     <!-- ── FOOTER ── -->
     <tr><td align="center" style="padding:16px 32px 28px;background-color:#F7F7F5;border-top:1px solid #F0F0F0;border-radius:0 0 20px 20px;">
-      <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#C0C0C0;line-height:1.6;">You're receiving this because you reserved <span style="color:#909090;">@${cleanUsername}</span> on the Myntro waitlist with this email.</p>
+      <p style="margin:0;font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:11px;color:#C0C0C0;line-height:1.6;">You're receiving this because you reserved <span style="color:#909090;">@${cleanUsername}</span> on the Myntro waitlist with this email.</p>
     </td></tr>
 
   </table>
