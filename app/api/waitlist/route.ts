@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
           <img src="${appUrl}/logo.svg" width="22" height="22" alt="M" style="display:block;border-radius:5px;">
         </td>
         <td valign="middle">
-          <span style="font-family:'Funnel Display',Georgia,serif;font-size:16px;font-weight:700;color:#0F1702;letter-spacing:-0.2px;">Myntro</span>
+          <span style="font-family:'Funnel Display','DM Sans',sans-serif;font-size:16px;font-weight:700;color:#0F1702;letter-spacing:-0.2px;">Myntro</span>
         </td>
         <td valign="middle" style="padding-left:7px;">
           <span style="font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:9px;font-weight:500;color:#0F1702;border:0.5px solid rgba(15,23,2,0.3);border-radius:999px;padding:2px 6px;letter-spacing:0.04em;">Beta</span>
@@ -146,14 +146,14 @@ export async function POST(request: NextRequest) {
 
     <!-- ── HEADLINE ── -->
     <tr><td align="center" style="padding:28px 32px 4px;">
-      <p style="margin:0 0 6px;font-family:'Funnel Display',Georgia,serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
+      <p style="margin:0 0 6px;font-family:'Funnel Display','DM Sans',sans-serif;font-size:26px;font-weight:700;color:#0F1702;letter-spacing:-0.5px;line-height:1.2;">Your spot is secured.</p>
     </td></tr>
 
     <!-- ── USERNAME PILL ── -->
     <tr><td align="center" style="padding:16px 24px 28px;">
       <table cellpadding="0" cellspacing="0" border="0">
       <tr><td style="background-color:#E8F5C8;border-radius:14px;padding:18px 36px;">
-        <span style="font-family:'Funnel Display',Georgia,serif;font-size:28px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">@${cleanUsername}</span>
+        <span style="font-family:'Funnel Display','DM Sans',sans-serif;font-size:28px;font-weight:700;color:#0F1702;letter-spacing:-0.3px;">@${cleanUsername}</span>
       </td></tr>
       </table>
     </td></tr>
