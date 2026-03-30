@@ -57,7 +57,7 @@ export default function HomePage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <MyntroLogo size="md" showBeta />
+          <MyntroLogo size="sm" showBeta />
           <div className="flex items-center gap-5">
             <Link
               href="/login"
@@ -67,11 +67,8 @@ export default function HomePage() {
             </Link>
             <Link
               href="/signup"
-              className="group inline-flex h-9 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold text-[#0F1702] transition-all hover:opacity-90 active:scale-[0.97]"
-              style={{
-                background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
-                boxShadow: '0 2px 8px rgba(142,230,0,0.25)',
-              }}
+              className="group inline-flex h-9 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold text-[#0F1702] transition-all hover:brightness-95 active:scale-[0.97]"
+              style={{ background: '#EEFED4' }}
             >
               Get started
             </Link>
