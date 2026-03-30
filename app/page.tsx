@@ -68,7 +68,7 @@ export default function HomePage() {
             <Link
               href="/signup"
               className="group inline-flex h-9 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold text-[#0F1702] transition-all hover:brightness-95 active:scale-[0.97]"
-              style={{ background: '#EEFED4' }}
+              style={{ background: '#F5F5F5' }}
             >
               Get started
             </Link>
@@ -92,9 +92,9 @@ export default function HomePage() {
           {/* Waitlist pill */}
           <Link
             href="/waitlist"
-            className="group mb-8 inline-flex items-center gap-2 rounded-full px-3 py-[5px] text-xs font-medium transition-all hover:opacity-80"
+            className="group mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80"
             style={{
-              border: '0.35px solid #0F1702',
+              background: '#F5F5F5',
               color: '#3A6200',
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'translateY(0)' : 'translateY(12px)',
@@ -108,13 +108,12 @@ export default function HomePage() {
               />
               <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: '#8EE600' }} />
             </span>
-            Beta is open — secure your username
-            <span className="opacity-50 transition-opacity group-hover:opacity-100">→</span>
+            Secure your username →
           </Link>
 
           {/* Heading */}
           <h1
-            className="mb-6 text-5xl font-bold leading-[1.12] tracking-tight text-[#0F1702] sm:text-6xl lg:text-7xl"
+            className="mb-4 text-5xl font-bold leading-[1.12] tracking-tight text-[#0F1702] sm:text-6xl lg:text-7xl"
             style={{
               fontFamily: 'var(--font-funnel-display), sans-serif',
               opacity: mounted ? 1 : 0,
@@ -129,7 +128,7 @@ export default function HomePage() {
 
           {/* Subheading */}
           <p
-            className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#909090]"
+            className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-[#909090]"
             style={{
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'translateY(0)' : 'translateY(16px)',
