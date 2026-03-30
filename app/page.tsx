@@ -34,7 +34,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/signup"
-              className="group inline-flex h-9 items-center gap-1.5 rounded-full px-5 text-sm font-semibold text-[#0F1702] transition-all hover:opacity-90 active:scale-[0.97]"
+              className="group inline-flex h-9 items-center gap-1.5 rounded-xl px-5 text-sm font-semibold text-[#0F1702] transition-all hover:opacity-90 active:scale-[0.97]"
               style={{
                 background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
                 boxShadow: '0 2px 8px rgba(142,230,0,0.25)',
@@ -61,10 +61,9 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-3xl">
           <Link
             href="/waitlist"
-            className="group mb-8 inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:shadow-sm"
+            className="group mb-8 inline-flex items-center gap-2 rounded-full px-3 py-[5px] text-xs font-medium transition-all hover:opacity-80"
             style={{
-              background: '#F0F7E0',
-              border: '1px solid #C6F135',
+              border: '0.35px solid #0F1702',
               color: '#3A6200',
               opacity: mounted ? 1 : 0,
               transform: mounted ? 'translateY(0)' : 'translateY(12px)',
@@ -92,13 +91,7 @@ export default function HomePage() {
             }}
           >
             Your Web3 identity,{' '}
-            <span className="relative inline-block">
-              all in one link.
-              <span
-                className="absolute -bottom-1 left-0 h-[3px] w-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #FDFDFD 0%, #8EE600 100%)' }}
-              />
-            </span>
+            all in one link.
           </h1>
 
           <p
