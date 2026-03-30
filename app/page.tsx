@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { ArrowRight } from '@phosphor-icons/react'
 import { MyntroLogo } from '@/components/MyntroLogo'
@@ -29,11 +30,69 @@ function useInView(threshold = 0.12) {
   return { ref, inView }
 }
 
+// ── Cursor-following profile preview ─────────────────────────────────────────
+function ProfilePreview({ x, y }: { x: number; y: number }) {
+  const W = 360
+  const H = 300
+  const PAD = 24
+
+  const left = Math.min(x + 20, window.innerWidth - W - PAD)
+  const top = Math.max(y - H - 20, PAD)
+
+  return createPortal(
+    <div
+      className="pointer-events-none fixed z-[9999]"
+      style={{
+        top,
+        left,
+        width: W,
+        height: H,
+        borderRadius: 20,
+        overflow: 'hidden',
+        boxShadow: '0 24px 64px rgba(15,23,2,0.18), 0 4px 16px rgba(15,23,2,0.10)',
+        border: '1px solid rgba(15,23,2,0.07)',
+        background: '#fff',
+      }}
+    >
+      <iframe
+        src="https://myntro.me/thatastral"
+        title="Profile preview"
+        scrolling="no"
+        style={{
+          width: 1200,
+          height: 1000,
+          border: 'none',
+          transform: 'scale(0.3)',
+          transformOrigin: 'top left',
+          pointerEvents: 'none',
+        }}
+      />
+    </div>,
+    document.body,
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   const mounted = useMounted()
   const card = useInView(0.08)
+
+  // Card hover preview
+  const [previewPos, setPreviewPos] = useState<{ x: number; y: number } | null>(null)
+  const previewTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleCardMouseEnter = (e: React.MouseEvent) => {
+    const { clientX: x, clientY: y } = e
+    previewTimeout.current = setTimeout(() => setPreviewPos({ x, y }), 220)
+  }
+  const handleCardMouseMove = (e: React.MouseEvent) => {
+    setPreviewPos({ x: e.clientX, y: e.clientY })
+  }
+  const handleCardMouseLeave = () => {
+    if (previewTimeout.current) clearTimeout(previewTimeout.current)
+    setPreviewPos(null)
+  }
 
   return (
     <div
@@ -57,7 +116,7 @@ export default function HomePage() {
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <MyntroLogo size="sm" showBeta />
+          <MyntroLogo size="footer" showBeta />
           <div className="flex items-center gap-5">
             <Link
               href="/login"
@@ -89,7 +148,7 @@ export default function HomePage() {
         />
 
         <div className="relative mx-auto max-w-3xl w-full">
-          {/* Waitlist pill */}
+          {/* Pill */}
           <Link
             href="/waitlist"
             className="group mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-all hover:opacity-80"
@@ -101,13 +160,6 @@ export default function HomePage() {
               transition: 'opacity 500ms ease 50ms, transform 500ms cubic-bezier(0.25,0.46,0.45,0.94) 50ms',
             }}
           >
-            <span className="relative flex h-2 w-2 flex-shrink-0">
-              <span
-                className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75"
-                style={{ background: '#8EE600' }}
-              />
-              <span className="relative inline-flex h-2 w-2 rounded-full" style={{ background: '#8EE600' }} />
-            </span>
             Secure your username →
           </Link>
 
@@ -154,7 +206,7 @@ export default function HomePage() {
             </GreenCTA>
           </div>
 
-          {/* Profile card — scroll-triggered */}
+          {/* Profile card — scroll-triggered + hover preview */}
           <div
             ref={card.ref}
             className="mt-24 w-full"
@@ -168,11 +220,11 @@ export default function HomePage() {
             <img
               src="/myntro-card.svg"
               alt="Myntro profile card preview"
-              className={`mx-auto w-full ${card.inView ? 'card-float' : ''}`}
-              style={{
-                maxWidth: 900,
-                animationDelay: '900ms',
-              }}
+              className={`mx-auto w-full cursor-none ${card.inView ? 'card-float' : ''}`}
+              style={{ maxWidth: 900, animationDelay: '900ms' }}
+              onMouseEnter={handleCardMouseEnter}
+              onMouseMove={handleCardMouseMove}
+              onMouseLeave={handleCardMouseLeave}
             />
           </div>
         </div>
@@ -195,6 +247,9 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
+
+      {/* Cursor-following profile preview */}
+      {mounted && previewPos && <ProfilePreview x={previewPos.x} y={previewPos.y} />}
     </div>
   )
 }

@@ -3,12 +3,13 @@
 import { useId } from 'react'
 
 interface MyntroLogoProps {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'footer'
   showBeta?: boolean
 }
 
 const SIZE_MAP = {
   sm: { icon: 20, textClass: 'text-sm', gap: 'gap-1.5' },
+  footer: { icon: 24, textClass: 'text-base', gap: 'gap-1.5' },
   md: { icon: 32, textClass: 'text-lg', gap: 'gap-2' },
   lg: { icon: 44, textClass: 'text-2xl', gap: 'gap-2.5' },
 }
