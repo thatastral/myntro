@@ -39,9 +39,9 @@ function IllustrationIdentity() {
       {/* Card body */}
       <rect x="26" y="24" width="140" height="92" rx="14" fill="white" stroke="rgba(15,23,2,0.08)" strokeWidth="1" />
       {/* Avatar */}
-      <circle cx="57" cy="52" r="16" fill="rgba(15,23,2,0.07)" />
-      <circle cx="57" cy="48" r="7" fill="rgba(15,23,2,0.18)" />
-      <circle cx="57" cy="62" r="10" fill="rgba(15,23,2,0.1)" />
+      <circle cx="57" cy="52" r="16" fill="#F0F7E0" />
+      <circle cx="57" cy="48" r="7" fill="#8EE600" opacity="0.7" />
+      <circle cx="57" cy="62" r="10" fill="#8EE600" opacity="0.25" />
       {/* Name line */}
       <rect x="81" y="44" width="56" height="7" rx="3.5" fill="rgba(15,23,2,0.35)" />
       {/* Handle */}
@@ -55,9 +55,10 @@ function IllustrationIdentity() {
       <rect x="40" y="104" width="26" height="8" rx="4" fill="rgba(15,23,2,0.07)" />
       <rect x="70" y="104" width="26" height="8" rx="4" fill="rgba(15,23,2,0.07)" />
       <rect x="100" y="104" width="26" height="8" rx="4" fill="rgba(15,23,2,0.07)" />
-      {/* Verified badge */}
-      <circle cx="144" cy="108" r="7" fill="rgba(15,23,2,0.1)" />
-      <path d="M141 108l2 2 4-4" stroke="rgba(15,23,2,0.55)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Verified badge — green */}
+      <circle cx="144" cy="108" r="7" fill="#8EE600" opacity="0.2" />
+      <circle cx="144" cy="108" r="7" stroke="#8EE600" strokeWidth="1" />
+      <path d="M141 108l2 2 4-4" stroke="#4A7A00" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -72,10 +73,10 @@ function IllustrationTipping() {
             50% { transform: translateY(-6px); }
           }
           @keyframes trailFade {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
           }
-          .coin-anim { animation: coinFloat 2.4s ease-in-out infinite; transform-origin: 100px 70px; }
+          .coin-anim { animation: coinFloat 2.4s ease-in-out infinite; transform-origin: 100px 62px; }
           .trail-anim { animation: trailFade 2.4s ease-in-out infinite; }
         }
       `}</style>
@@ -87,16 +88,16 @@ function IllustrationTipping() {
       <rect x="138" y="50" width="44" height="40" rx="10" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
       <rect x="146" y="62" width="28" height="5" rx="2.5" fill="rgba(15,23,2,0.2)" />
       <rect x="146" y="71" width="18" height="4" rx="2" fill="rgba(15,23,2,0.1)" />
-      {/* Trail dots */}
-      <circle className="trail-anim" cx="80" cy="70" r="3" fill="rgba(15,23,2,0.15)" />
-      <circle className="trail-anim" cx="95" cy="68" r="2.5" fill="rgba(15,23,2,0.1)" style={{ animationDelay: '0.2s' }} />
-      <circle className="trail-anim" cx="110" cy="70" r="2" fill="rgba(15,23,2,0.07)" style={{ animationDelay: '0.4s' }} />
-      {/* Arrow */}
-      <path d="M68 70 Q100 52 132 70" stroke="rgba(15,23,2,0.08)" strokeWidth="1" strokeDasharray="4 3" />
-      {/* SOL coin */}
+      {/* Trail dots — green */}
+      <circle className="trail-anim" cx="80" cy="70" r="3" fill="#8EE600" />
+      <circle className="trail-anim" cx="95" cy="68" r="2.5" fill="#8EE600" style={{ animationDelay: '0.2s' }} />
+      <circle className="trail-anim" cx="110" cy="70" r="2" fill="#8EE600" style={{ animationDelay: '0.4s' }} />
+      {/* Arc path */}
+      <path d="M68 70 Q100 52 132 70" stroke="#C6F135" strokeWidth="1.5" strokeDasharray="4 3" />
+      {/* SOL coin — green tinted */}
       <g className="coin-anim">
-        <circle cx="100" cy="62" r="14" fill="rgba(15,23,2,0.07)" stroke="rgba(15,23,2,0.18)" strokeWidth="1" />
-        <text x="100" y="67" textAnchor="middle" fontSize="11" fill="rgba(15,23,2,0.55)" fontWeight="700">◎</text>
+        <circle cx="100" cy="62" r="14" fill="#F0F7E0" stroke="#8EE600" strokeWidth="1.5" />
+        <text x="100" y="67" textAnchor="middle" fontSize="12" fill="#4A7A00" fontWeight="700">◎</text>
       </g>
       {/* Labels */}
       <rect x="22" y="96" width="36" height="5" rx="2.5" fill="rgba(15,23,2,0.07)" />
@@ -121,25 +122,25 @@ function IllustrationAI() {
           .dot3 { animation: dotPop 1.2s ease-in-out 0.4s infinite; transform-origin: center; }
         }
       `}</style>
-      {/* User bubble (right) */}
-      <rect x="72" y="20" width="104" height="30" rx="12" fill="rgba(15,23,2,0.08)" stroke="rgba(15,23,2,0.06)" strokeWidth="1" />
-      <rect x="82" y="30" width="60" height="5" rx="2.5" fill="rgba(15,23,2,0.3)" />
-      <rect x="82" y="38" width="42" height="4" rx="2" fill="rgba(15,23,2,0.15)" />
-      {/* Bubble tail right */}
-      <path d="M170 50 L178 54 L170 50" fill="rgba(15,23,2,0.08)" />
+      {/* User bubble (right) — dark */}
+      <rect x="72" y="20" width="104" height="30" rx="12" fill="#0F1702" />
+      <rect x="82" y="30" width="60" height="5" rx="2.5" fill="rgba(255,255,255,0.6)" />
+      <rect x="82" y="38" width="42" height="4" rx="2" fill="rgba(255,255,255,0.3)" />
+      {/* Bubble tail */}
+      <path d="M170 50 L178 54 L170 50" fill="#0F1702" />
 
-      {/* AI bubble (left) */}
-      <rect x="24" y="62" width="116" height="36" rx="12" fill="white" stroke="rgba(15,23,2,0.08)" strokeWidth="1" />
-      <rect x="34" y="72" width="76" height="5" rx="2.5" fill="rgba(15,23,2,0.22)" />
-      <rect x="34" y="81" width="56" height="4" rx="2" fill="rgba(15,23,2,0.12)" />
-      {/* Cursor */}
-      <rect className="cursor-blink" x="92" y="81" width="2" height="4" rx="1" fill="rgba(15,23,2,0.5)" />
+      {/* AI bubble (left) — green tint */}
+      <rect x="24" y="62" width="116" height="36" rx="12" fill="#F0F7E0" stroke="#C6F135" strokeWidth="1" />
+      <rect x="34" y="72" width="76" height="5" rx="2.5" fill="rgba(15,23,2,0.3)" />
+      <rect x="34" y="81" width="56" height="4" rx="2" fill="rgba(15,23,2,0.15)" />
+      {/* Cursor — green */}
+      <rect className="cursor-blink" x="92" y="81" width="2" height="4" rx="1" fill="#4A7A00" />
 
       {/* Thinking bubble */}
-      <rect x="24" y="108" width="56" height="22" rx="10" fill="rgba(15,23,2,0.04)" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
-      <circle className="dot1" cx="40" cy="119" r="3" fill="rgba(15,23,2,0.3)" />
-      <circle className="dot2" cx="52" cy="119" r="3" fill="rgba(15,23,2,0.3)" />
-      <circle className="dot3" cx="64" cy="119" r="3" fill="rgba(15,23,2,0.3)" />
+      <rect x="24" y="108" width="56" height="22" rx="10" fill="#F0F7E0" stroke="#C6F135" strokeWidth="1" />
+      <circle className="dot1" cx="40" cy="119" r="3" fill="#8EE600" />
+      <circle className="dot2" cx="52" cy="119" r="3" fill="#8EE600" />
+      <circle className="dot3" cx="64" cy="119" r="3" fill="#8EE600" />
     </svg>
   )
 }
@@ -150,7 +151,7 @@ function IllustrationBadges() {
       <style>{`
         @media (prefers-reduced-motion: no-preference) {
           @keyframes badgePulse {
-            0%, 100% { opacity: 0.7; }
+            0%, 100% { opacity: 0.65; }
             50% { opacity: 1; }
           }
           .badge-pulse { animation: badgePulse 3s ease-in-out infinite; }
@@ -158,35 +159,35 @@ function IllustrationBadges() {
           .badge-pulse-3 { animation: badgePulse 3s ease-in-out 2s infinite; }
         }
       `}</style>
-      {/* Connection lines */}
-      <line x1="100" y1="70" x2="58" y2="44" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
-      <line x1="100" y1="70" x2="142" y2="44" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
-      <line x1="100" y1="70" x2="58" y2="96" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
-      <line x1="100" y1="70" x2="142" y2="96" stroke="rgba(15,23,2,0.07)" strokeWidth="1" />
+      {/* Connection lines — green tint */}
+      <line x1="100" y1="70" x2="58" y2="44" stroke="#C6F135" strokeWidth="1" />
+      <line x1="100" y1="70" x2="142" y2="44" stroke="#C6F135" strokeWidth="1" />
+      <line x1="100" y1="70" x2="58" y2="96" stroke="#C6F135" strokeWidth="1" />
+      <line x1="100" y1="70" x2="142" y2="96" stroke="#C6F135" strokeWidth="1" />
 
-      {/* Center badge */}
-      <circle cx="100" cy="70" r="22" fill="rgba(15,23,2,0.07)" stroke="rgba(15,23,2,0.14)" strokeWidth="1.5" />
-      <path d="M91 70l5 5 12-12" stroke="rgba(15,23,2,0.65)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Center badge — green */}
+      <circle cx="100" cy="70" r="22" fill="#F0F7E0" stroke="#8EE600" strokeWidth="1.5" />
+      <path d="M91 70l5 5 12-12" stroke="#4A7A00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 
       {/* Outer badges */}
       <g className="badge-pulse">
-        <circle cx="58" cy="40" r="16" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
-        <path d="M52 40l3.5 3.5 8-8" stroke="rgba(15,23,2,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="58" cy="40" r="16" fill="white" stroke="rgba(15,23,2,0.12)" strokeWidth="1" />
+        <path d="M52 40l3.5 3.5 8-8" stroke="rgba(15,23,2,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
       <g className="badge-pulse-2">
-        <circle cx="142" cy="40" r="16" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
-        <path d="M136 40l3.5 3.5 8-8" stroke="rgba(15,23,2,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="142" cy="40" r="16" fill="white" stroke="rgba(15,23,2,0.12)" strokeWidth="1" />
+        <path d="M136 40l3.5 3.5 8-8" stroke="rgba(15,23,2,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
       <g className="badge-pulse-3">
-        <circle cx="58" cy="100" r="16" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
-        <path d="M52 100l3.5 3.5 8-8" stroke="rgba(15,23,2,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="58" cy="100" r="16" fill="white" stroke="rgba(15,23,2,0.12)" strokeWidth="1" />
+        <path d="M52 100l3.5 3.5 8-8" stroke="rgba(15,23,2,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
       <g className="badge-pulse">
-        <circle cx="142" cy="100" r="16" fill="white" stroke="rgba(15,23,2,0.1)" strokeWidth="1" />
-        <path d="M136 100l3.5 3.5 8-8" stroke="rgba(15,23,2,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="142" cy="100" r="16" fill="white" stroke="rgba(15,23,2,0.12)" strokeWidth="1" />
+        <path d="M136 100l3.5 3.5 8-8" stroke="rgba(15,23,2,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </g>
 
-      {/* Logo text below each outer badge */}
+      {/* Label bars */}
       <rect x="44" y="60" width="28" height="4" rx="2" fill="rgba(15,23,2,0.07)" />
       <rect x="128" y="60" width="28" height="4" rx="2" fill="rgba(15,23,2,0.07)" />
     </svg>
@@ -266,22 +267,13 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="group flex flex-col overflow-hidden rounded-2xl transition-all duration-200 ease-out"
+      className="group flex flex-col overflow-hidden rounded-2xl hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(15,23,2,0.10)]"
       style={{
         opacity: inView ? 1 : 0,
         transform: inView ? 'translateY(0)' : 'translateY(32px)',
-        transition: `opacity 700ms ease, transform 700ms cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, box-shadow 200ms ease-out, translate 200ms ease-out`,
+        transition: `opacity 700ms ease ${delay}ms, transform 700ms cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, box-shadow 200ms ease-out`,
         background: 'white',
         border: '1px solid rgba(15,23,2,0.07)',
-        willChange: 'transform',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)'
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(15,23,2,0.10)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
       }}
     >
       {/* Illustration area */}
