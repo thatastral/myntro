@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Fetch user profile
     const { data: profile } = await supabase
       .from('users')
-      .select('id, name, bio, location, profile_visibility')
+      .select('id, name, bio, location, profile_visibility, ai_enabled')
       .eq('username', username)
       .single()
 
@@ -37,6 +37,10 @@ export async function POST(request: NextRequest) {
 
     if (profile.profile_visibility === 'private') {
       return NextResponse.json({ error: 'This profile is private.' }, { status: 403 })
+    }
+
+    if (!profile.ai_enabled) {
+      return NextResponse.json({ error: 'AI chat is not enabled for this profile.' }, { status: 403 })
     }
 
     // Fetch all profile data in parallel

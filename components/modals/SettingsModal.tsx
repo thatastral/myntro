@@ -90,6 +90,8 @@ export function SettingsModal({
         supabase.from('wallets').delete().eq('user_id', user.id),
         supabase.from('embeddings').delete().eq('user_id', user.id),
         supabase.from('documents').delete().eq('user_id', user.id),
+        supabase.from('blocks').delete().eq('user_id', user.id),
+        supabase.from('sections').delete().eq('user_id', user.id),
       ])
 
       await supabase.from('users').delete().eq('id', user.id)
