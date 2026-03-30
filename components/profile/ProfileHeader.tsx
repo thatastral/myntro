@@ -21,6 +21,7 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ user, walletAddress, affiliations = [] }: ProfileHeaderProps) {
   const [aiOpen, setAiOpen] = useState(false)
   const [tipOpen, setTipOpen] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
   return (
     <>
@@ -28,7 +29,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
         {/* Top row: Avatar + actions */}
         <div className="flex items-start justify-between">
           <div className="relative h-[58px] w-[58px] flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]">
-            {user.avatar_url ? (
+            {user.avatar_url && !imgError ? (
               <Image
                 src={user.avatar_url}
                 alt={user.name || user.username}
@@ -36,6 +37,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
                 className="object-cover"
                 sizes="58px"
                 priority
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#C0C0C0]">
@@ -46,7 +48,7 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
 
           {/* Action buttons */}
           <div className="flex items-center gap-2">
-            {walletAddress && (
+            {walletAddress && user.tips_enabled && (
               <button
                 onClick={() => setTipOpen(true)}
                 className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-2 text-xs font-semibold text-[#0F1702] transition-all hover:border-[#D0D0D0] hover:bg-[#FAFAFA]"
@@ -56,14 +58,23 @@ export function ProfileHeader({ user, walletAddress, affiliations = [] }: Profil
               </button>
             )}
 
-            <button
-              onClick={() => setAiOpen(true)}
-              aria-label="Ask AI about this profile"
-              className="flex items-center gap-2 rounded-xl bg-[#0F1702] px-3 py-2 text-xs font-semibold text-[#F1FCDF] transition-all hover:bg-[#1A2E03] hover:-translate-y-0.5 active:scale-[0.97]"
-            >
-              <Sparkle className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Ask AI</span>
-            </button>
+            {user.ai_enabled && (
+              <button
+                onClick={() => {
+                  setAiOpen(true)
+                  fetch('/api/analytics', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user.username, event_type: 'ai_chat' }),
+                  }).catch(() => {})
+                }}
+                aria-label="Ask AI about this profile"
+                className="flex items-center gap-2 rounded-xl bg-[#0F1702] px-3 py-2 text-xs font-semibold text-[#F1FCDF] transition-all hover:bg-[#1A2E03] hover:-translate-y-0.5 active:scale-[0.97]"
+              >
+                <Sparkle className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Ask AI</span>
+              </button>
+            )}
           </div>
         </div>
 

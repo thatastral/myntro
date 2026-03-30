@@ -8,6 +8,7 @@ import { LinksSection } from '@/components/profile/LinksSection'
 import { ProfileTabs } from '@/components/profile/ProfileTabs'
 import { EditFab } from '@/components/profile/EditFab'
 import { JoinCTA } from '@/components/profile/JoinCTA'
+import { ProfileTracker } from '@/components/profile/ProfileTracker'
 import type { ProfileData } from '@/types'
 
 interface ProfilePageProps {
@@ -20,11 +21,13 @@ async function getProfileData(username: string): Promise<ProfileData | null> {
   const admin = createAdminClient()
   const supabase = await createClient()
 
-  const { data: user, error } = await admin
-    .from('users')
-    .select('*')
-    .eq('username', username)
-    .single()
+  // Parallelize user lookup + session refresh — saves one round-trip
+  const [userResult, { data: { user: authUser } }] = await Promise.all([
+    admin.from('users').select('*').eq('username', username).single(),
+    supabase.auth.getUser(),
+  ])
+
+  const { data: user, error } = userResult
 
   if (error) {
     // PGRST116 = no rows found — genuine 404
@@ -36,7 +39,6 @@ async function getProfileData(username: string): Promise<ProfileData | null> {
   if (!user) throw new ProfileNotFoundError()
 
   // Check visibility
-  const { data: { user: authUser } } = await supabase.auth.getUser()
   const isOwner = authUser?.id === user.id
 
   if (user.profile_visibility === 'private' && !isOwner) throw new ProfileNotFoundError()
@@ -136,7 +138,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
           {/* Links */}
           {links.length > 0 && (
-            <LinksSection links={links} />
+            <LinksSection links={links} username={user.username} />
           )}
 
           {/* Me / Achievements tabs with bento grid */}
@@ -146,6 +148,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
           {/* Join CTA — visitors only */}
           <JoinCTA username={user.username} userId={user.id} />
+          <ProfileTracker username={user.username} />
 
           {/* Footer */}
           <div className="pb-4 pt-2 text-center">

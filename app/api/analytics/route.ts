@@ -33,13 +33,18 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const { data: user } = await supabase
-      .from('users')
-      .select('id')
-      .eq('username', username)
-      .single()
+    const [userResult, authResult] = await Promise.all([
+      supabase.from('users').select('id').eq('username', username).single(),
+      supabase.auth.getUser(),
+    ])
 
+    const user = userResult.data
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    // Don't record profile_view events from the profile owner themselves
+    if (event_type === 'profile_view' && authResult.data.user?.id === user.id) {
+      return NextResponse.json({ ok: true, skipped: true })
+    }
 
     // Grab IP from headers
     const ip =
@@ -178,14 +183,31 @@ export async function GET(request: NextRequest) {
   const since = new Date(now.getTime() - periodToMs(period)).toISOString()
 
   const admin = createAdminClient()
-  const { data: events } = await admin
-    .from('analytics_events')
-    .select('event_type, created_at, metadata')
-    .eq('user_id', profile.id)
-    .gte('created_at', since)
-    .order('created_at', { ascending: true })
+  const prevSince = new Date(now.getTime() - periodToMs(period) * 2).toISOString()
 
-  const all = events ?? []
+  // Run all three queries in parallel
+  const [eventsResult, allTimeResult, prevResult] = await Promise.all([
+    admin
+      .from('analytics_events')
+      .select('event_type, created_at, metadata')
+      .eq('user_id', profile.id)
+      .gte('created_at', since)
+      .order('created_at', { ascending: true }),
+    admin
+      .from('analytics_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', profile.id),
+    admin
+      .from('analytics_events')
+      .select('event_type')
+      .eq('user_id', profile.id)
+      .gte('created_at', prevSince)
+      .lt('created_at', since),
+  ])
+
+  const all = eventsResult.data ?? []
+  const allTimeTotal = allTimeResult.count ?? 0
+  const prevEvents = prevResult.data ?? []
 
   // Counts per event type
   const counts = { profile_view: 0, link_click: 0, ai_chat: 0, tip_sent: 0 }
@@ -207,21 +229,6 @@ export async function GET(request: NextRequest) {
     geoMap[cc].count++
   }
   const geo = Object.values(geoMap).sort((a, b) => b.count - a.count).slice(0, 10)
-
-  // All-time totals (separate query, no date filter)
-  const { count: allTimeTotal } = await admin
-    .from('analytics_events')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', profile.id)
-
-  // Previous period counts for % change comparison
-  const prevSince = new Date(now.getTime() - periodToMs(period) * 2).toISOString()
-  const { data: prevEvents } = await admin
-    .from('analytics_events')
-    .select('event_type')
-    .eq('user_id', profile.id)
-    .gte('created_at', prevSince)
-    .lt('created_at', since)
 
   const prevCounts = { profile_view: 0, link_click: 0, ai_chat: 0, tip_sent: 0 }
   for (const e of prevEvents ?? []) {

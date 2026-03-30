@@ -2,7 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 
-async function getUserProfilePath(_request: NextRequest, userId: string): Promise<string> {
+async function getUserProfilePath(request: NextRequest, userId: string): Promise<{ path: string; username: string | null }> {
+  // Check cookie cache first — avoids a DB query on repeat visits
+  const cached = request.cookies.get('myntro-u')?.value
+  if (cached) return { path: `/${cached}/edit`, username: null } // null = already cached, no need to re-set
+
   // Use service role key to bypass RLS — ensures we can always read the user's
   // own row regardless of profile_visibility or any other policy.
   const admin = createSupabaseClient(
@@ -11,7 +15,8 @@ async function getUserProfilePath(_request: NextRequest, userId: string): Promis
     { global: { fetch: (url, opts = {}) => fetch(url, { ...opts, cache: 'no-store' }) } },
   )
   const { data } = await admin.from('users').select('username').eq('id', userId).single()
-  return data?.username ? `/${data.username}/edit` : '/onboarding'
+  const username = data?.username ?? null
+  return { path: username ? `/${username}/edit` : '/onboarding', username }
 }
 
 export default async function proxy(request: NextRequest) {
@@ -63,10 +68,13 @@ export default async function proxy(request: NextRequest) {
 
   // Authenticated users who already have a username should not see onboarding
   if (pathname.startsWith('/onboarding') && user) {
-    const dest = request.nextUrl.clone()
-    dest.pathname = await getUserProfilePath(request, user.id)
-    if (dest.pathname !== '/onboarding') {
-      return NextResponse.redirect(dest)
+    const { path, username } = await getUserProfilePath(request, user.id)
+    if (path !== '/onboarding') {
+      const dest = request.nextUrl.clone()
+      dest.pathname = path
+      const res = NextResponse.redirect(dest)
+      if (username) res.cookies.set('myntro-u', username, { path: '/', maxAge: 60 * 60 * 24 * 7, sameSite: 'lax' })
+      return res
     }
 
     // Private beta gate — user is authenticated but has no username yet.
@@ -107,9 +115,12 @@ export default async function proxy(request: NextRequest) {
   // Redirect authenticated users from landing / login / signup to their profile
   // Allow /forgot-password and /reset-password through even when authenticated
   if (user && (pathname === '/' || pathname === '/login' || pathname === '/signup') && !pathname.startsWith('/forgot-password') && !pathname.startsWith('/reset-password')) {
+    const { path, username } = await getUserProfilePath(request, user.id)
     const dest = request.nextUrl.clone()
-    dest.pathname = await getUserProfilePath(request, user.id)
-    return NextResponse.redirect(dest)
+    dest.pathname = path
+    const res = NextResponse.redirect(dest)
+    if (username) res.cookies.set('myntro-u', username, { path: '/', maxAge: 60 * 60 * 24 * 7, sameSite: 'lax' })
+    return res
   }
 
   // Protect /admin — must be logged in with an admin email

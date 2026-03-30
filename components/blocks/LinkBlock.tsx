@@ -8,9 +8,8 @@ export function LinkBlock({ block }: { block: Block }) {
   let hostname = ''
   try { hostname = new URL(url).hostname.replace('www.', '') } catch { hostname = url }
 
-  // Fallback: Google Favicon API (always available)
   const faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`
-  const previewImage = og_image || null
+  const previewImage = og_image || `https://s.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=600&h=312`
 
   return (
     <a
@@ -21,21 +20,21 @@ export function LinkBlock({ block }: { block: Block }) {
     >
       {/* Preview image */}
       <div className="relative w-full bg-[#FAFAFA]" style={{ paddingBottom: '52%' }}>
-        {previewImage ? (
-          <Image
-            src={previewImage}
-            alt={title || hostname}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, 300px"
-            unoptimized
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={faviconUrl} alt="" className="h-10 w-10 opacity-40" />
-          </div>
-        )}
+        <Image
+          src={previewImage}
+          alt={title || hostname}
+          fill
+          className="object-cover"
+          sizes="(max-width: 640px) 100vw, 300px"
+          unoptimized
+          onError={(e) => {
+            // If screenshot service fails, fall back to favicon
+            const img = e.currentTarget as HTMLImageElement
+            img.src = faviconUrl
+            img.className = 'absolute left-1/2 top-1/2 h-10 w-10 -translate-x-1/2 -translate-y-1/2 opacity-40 object-contain'
+            img.style.fill = 'none'
+          }}
+        />
       </div>
 
       {/* Content */}

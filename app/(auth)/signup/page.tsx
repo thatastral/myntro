@@ -41,9 +41,21 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null)
   const [passwordFocused, setPasswordFocused] = useState(false)
   const router = useRouter()
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const betaError = searchParams?.get('error') === 'beta_required'
 
   const requirements = useMemo(() => validatePassword(password), [password])
   const allRequirementsMet = useMemo(() => isPasswordValid(password), [password])
+
+  const checkBetaAccess = async (emailToCheck: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/beta-check?email=${encodeURIComponent(emailToCheck)}`)
+      const data = await res.json()
+      return data.allowed === true
+    } catch {
+      return false
+    }
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -59,6 +71,14 @@ export default function SignupPage() {
     }
 
     setLoading(true)
+
+    const allowed = await checkBetaAccess(email)
+    if (!allowed) {
+      setError("You're not on the beta list yet. Join the waitlist at myntro.me/waitlist to get access.")
+      setLoading(false)
+      return
+    }
+
     const supabase = createClient()
 
     const { error } = await supabase.auth.signUp({
@@ -146,12 +166,12 @@ export default function SignupPage() {
             <p className="mt-1 text-sm text-[#909090]">Free forever. No credit card required.</p>
           </div>
 
-          {error && (
+          {(error || betaError) && (
             <div
               role="alert"
               className="mb-5 rounded-xl border border-red-100 border-l-4 border-l-red-400 bg-red-50 px-4 py-3 text-sm text-red-600"
             >
-              {error}
+              {error ?? "Your Google account isn't on the beta list yet. Join the waitlist at myntro.me/waitlist to get access."}
             </div>
           )}
 

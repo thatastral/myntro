@@ -91,7 +91,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
 
     // Whitelist updatable fields
-    const allowed = ['name', 'bio', 'location', 'avatar_url', 'profile_visibility', 'featured_affiliation_id'] as const
+    const allowed = ['name', 'bio', 'location', 'avatar_url', 'profile_visibility', 'featured_affiliation_id', 'tips_enabled', 'ai_enabled', 'tour_seen'] as const
     type AllowedField = typeof allowed[number]
     const updates: Partial<Record<AllowedField, unknown>> = {}
 

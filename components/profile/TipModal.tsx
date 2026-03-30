@@ -345,7 +345,7 @@ const [token, setToken] = useState<SupportedToken>('SOL')
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-5">
+    <div className="flex flex-col gap-4 pt-4 pb-5">
 
       {/* Sender row (connected wallet) */}
       {connected && publicKey && (

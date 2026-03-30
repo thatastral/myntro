@@ -28,37 +28,37 @@ export async function POST(request: NextRequest) {
 
     if (!user) return NextResponse.json({ error: 'User not found.' }, { status: 404 })
 
-    // Log to tips table (ignore duplicate tx — idempotent)
-    await admin.from('tips').upsert(
-      { recipient_user_id: user.id, sender_wallet, amount, token, tx_signature },
-      { onConflict: 'tx_signature', ignoreDuplicates: true },
-    )
+    // Log tip + analytics event in parallel
+    await Promise.all([
+      admin.from('tips').upsert(
+        { recipient_user_id: user.id, sender_wallet, amount, token, tx_signature },
+        { onConflict: 'tx_signature', ignoreDuplicates: true },
+      ),
+      admin.from('analytics_events').insert({
+        user_id: user.id,
+        event_type: 'tip_sent',
+        metadata: { sender_wallet, amount, token, tx_signature },
+      }),
+    ])
 
-    // Log to analytics_events so the existing Tips counter works
-    await admin.from('analytics_events').insert({
-      user_id: user.id,
-      event_type: 'tip_sent',
-      metadata: { sender_wallet, amount, token, tx_signature },
-    })
-
-    // Send email notification
+    // Send email notification — fire and forget, never block the response
     if (process.env.RESEND_API_KEY) {
-      try {
-        const resend = new Resend(process.env.RESEND_API_KEY)
-        const recipientName = user.name || user.username
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://myntro.me'
-        const from = process.env.RESEND_FROM ?? 'onboarding@resend.dev'
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const recipientName = user.name || user.username
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://myntro.me'
+      const from = process.env.RESEND_FROM ?? 'onboarding@resend.dev'
+      void recipientName // used in template
 
-        const { error: emailError } = await resend.emails.send({
-          from: `Myntro <${from}>`,
-          to: user.email,
-          subject: `You received ${amount} ${token} on Myntro`,
-          headers: {
-            'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-          },
-          text: `You just received ${amount} ${token} on Myntro!\n\nFrom: ${truncate(sender_wallet)}\nNetwork: Solana\n\nView your profile: ${appUrl}/${user.username}\nView transaction: https://solscan.io/tx/${tx_signature}`,
-          html: `
+      resend.emails.send({
+        from: `Myntro <${from}>`,
+        to: user.email,
+        subject: `You received ${amount} ${token} on Myntro`,
+        headers: {
+          'List-Unsubscribe': `<mailto:${from}?subject=unsubscribe>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+        text: `You just received ${amount} ${token} on Myntro!\n\nFrom: ${truncate(sender_wallet)}\nNetwork: Solana\n\nView your profile: ${appUrl}/${user.username}\nView transaction: https://solscan.io/tx/${tx_signature}`,
+        html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -116,13 +116,7 @@ export async function POST(request: NextRequest) {
   </table>
 </body>
 </html>`,
-        })
-        if (emailError) {
-          console.error('[api/tips] Email failed:', emailError)
-        }
-      } catch (emailErr) {
-        console.error('[api/tips] Email exception:', emailErr)
-      }
+      }).catch((err) => console.error('[api/tips] Email failed:', err))
     }
 
     return NextResponse.json({ ok: true })
@@ -156,14 +150,45 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden.' }, { status: 403 })
     }
 
-    const { data: tips } = await admin
-      .from('tips')
-      .select('id, sender_wallet, amount, token, tx_signature, created_at')
-      .eq('recipient_user_id', profile.id)
-      .order('created_at', { ascending: false })
-      .limit(10)
+    const [tipsResult, allTipsResult] = await Promise.all([
+      admin
+        .from('tips')
+        .select('id, sender_wallet, amount, token, tx_signature, created_at')
+        .eq('recipient_user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      admin
+        .from('tips')
+        .select('amount, token')
+        .eq('recipient_user_id', profile.id),
+    ])
 
-    return NextResponse.json({ tips: tips ?? [] })
+    // Aggregate token totals
+    const totals = { sol: 0, usdc: 0, usdt: 0 }
+    for (const tip of allTipsResult.data ?? []) {
+      const t = tip.token?.toLowerCase()
+      if (t === 'sol') totals.sol += Number(tip.amount)
+      else if (t === 'usdc') totals.usdc += Number(tip.amount)
+      else if (t === 'usdt') totals.usdt += Number(tip.amount)
+    }
+
+    // Fetch live SOL price (fire-and-forget fallback to 0)
+    let solPrice = 0
+    try {
+      const priceRes = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd',
+        { signal: AbortSignal.timeout(3000) },
+      )
+      const priceData = await priceRes.json()
+      solPrice = priceData?.solana?.usd ?? 0
+    } catch { /* use 0 if unavailable */ }
+
+    const totalUsd = totals.sol * solPrice + totals.usdc + totals.usdt
+
+    return NextResponse.json({
+      tips: tipsResult.data ?? [],
+      summary: { sol: totals.sol, usdc: totals.usdc, usdt: totals.usdt, sol_price: solPrice, total_usd: totalUsd },
+    })
   } catch (err) {
     console.error('[api/tips] GET error:', err)
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 })

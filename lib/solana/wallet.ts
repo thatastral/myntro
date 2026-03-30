@@ -6,13 +6,21 @@ import {
 } from '@solana/wallet-adapter-wallets'
 
 export const SOLANA_NETWORK =
-  process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'mainnet-beta'
-    ? WalletAdapterNetwork.Mainnet
-    : WalletAdapterNetwork.Devnet
+  process.env.NEXT_PUBLIC_SOLANA_NETWORK === 'devnet'
+    ? WalletAdapterNetwork.Devnet
+    : WalletAdapterNetwork.Mainnet
 
-export const SOLANA_ENDPOINT =
-  process.env.NEXT_PUBLIC_SOLANA_RPC_URL ??
-  (typeof window !== 'undefined' ? `${window.location.origin}/api/rpc` : clusterApiUrl(SOLANA_NETWORK))
+// Prefer an explicit RPC URL, but only if it looks like a real external endpoint
+// (not a localhost URL that might have the wrong port in dev).
+// Always fall back to the same-origin /api/rpc proxy so the server-side SOLANA_RPC_URL
+// (Helius) is used regardless of the client host/port.
+const _explicitRpc = process.env.NEXT_PUBLIC_SOLANA_RPC_URL
+const _useExplicit = _explicitRpc && !_explicitRpc.includes('localhost') && !_explicitRpc.includes('127.0.0.1')
+
+export const SOLANA_ENDPOINT: string =
+  _useExplicit
+    ? _explicitRpc!
+    : (typeof window !== 'undefined' ? `${window.location.origin}/api/rpc` : 'https://api.mainnet-beta.solana.com')
 
 // Always use the real Solana WebSocket endpoint for subscriptions (our HTTP proxy doesn't support WS)
 export const SOLANA_WS_ENDPOINT =

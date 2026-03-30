@@ -4,7 +4,7 @@ import { use, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft, Eye, CursorClick, Robot, Lightning,
+  ArrowLeft, Eye, CursorClick, Robot, Coins,
   TrendUp, CircleNotch, Globe, ArrowClockwise,
 } from '@phosphor-icons/react'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,10 +34,10 @@ const PERIODS: { value: Period; label: string }[] = [
 ]
 
 const STATS = [
-  { key: 'profile_view' as const, label: 'Profile Views', icon: Eye, dot: '#4285F4' },
-  { key: 'link_click' as const, label: 'Link Clicks', icon: CursorClick, dot: '#8B5CF6' },
-  { key: 'ai_chat' as const, label: 'AI Chats', icon: Robot, dot: '#10B981' },
-  { key: 'tip_sent' as const, label: 'Tips Received', icon: Lightning, dot: '#F59E0B' },
+  { key: 'profile_view' as const, label: 'Profile Views', icon: Eye, dot: '#909090' },
+  { key: 'link_click' as const, label: 'Link Clicks', icon: CursorClick, dot: '#909090' },
+  { key: 'ai_chat' as const, label: 'AI Chats', icon: Robot, dot: '#909090' },
+  { key: 'tip_sent' as const, label: 'Tips Received', icon: Coins, dot: '#909090' },
 ]
 
 function flag(cc: string) {
@@ -219,7 +219,7 @@ export default function AnalyticsPage({ params }: AnalyticsPageProps) {
               className="rounded-2xl border border-[#EBEBEB] bg-white p-4"
             >
               <div className="mb-3 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: dot }} />
+                <Icon className="h-3.5 w-3.5 flex-shrink-0" style={{ color: dot }} />
                 <span className="text-xs text-[#909090]">{label}</span>
               </div>
               <div

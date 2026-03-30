@@ -14,6 +14,18 @@ const TipFlow = dynamic(() => import('./_TipFlow').then((m) => m.TipFlow), {
   ),
 })
 
+// eslint-disable-next-line @next/next/no-img-element
+function TokenLogo({ token, size = 11 }: { token: string; size?: number }) {
+  const logos: Record<string, string> = {
+    SOL:  'https://media.solana-cdn.com/image/width=100/https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/solana/info/logo.png',
+    USDC: 'https://media.solana-cdn.com/image/width=100/https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
+    USDT: 'https://media.solana-cdn.com/image/width=100/https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB/logo.svg',
+  }
+  const src = logos[token]
+  if (!src) return null
+  return <img src={src} alt={token} width={size} height={size} className="shrink-0 rounded-full object-cover" style={{ width: size, height: size }} />
+}
+
 interface TipPageProps {
   params: Promise<{ username: string }>
 }
@@ -75,7 +87,7 @@ export default function TipPage({ params }: TipPageProps) {
 
   return (
     <div className="min-h-[100dvh] bg-white" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
-      <div className="mx-auto max-w-sm px-4 py-12">
+      <div className="mx-auto max-w-[400px] px-4 py-12">
         <button
           onClick={() => router.push(`/${username}`)}
           className="mb-8 flex items-center gap-1.5 text-sm text-[#909090] transition-colors hover:text-[#0F1702]"
@@ -85,38 +97,31 @@ export default function TipPage({ params }: TipPageProps) {
         </button>
 
         <div
-          className="rounded-2xl border border-[#EBEBEB] bg-white"
-          style={{
-            boxShadow: '0 2px 16px rgba(15,23,2,0.08)',
-            borderTop: '2px solid #8EE600',
-            animation: 'tipCardIn 400ms cubic-bezier(0.25,0.46,0.45,0.94) forwards',
-          }}
+          className="overflow-hidden rounded-2xl border border-[#E8E8E8] bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5"
         >
-          <style>{`
-            @keyframes tipCardIn {
-              from { opacity: 0; transform: translateY(12px) scale(0.99); }
-              to { opacity: 1; transform: translateY(0) scale(1); }
-            }
-          `}</style>
-          <div className="border-b border-[#F5F5F5] px-6 py-5 text-center">
-            <div className="mb-3 flex justify-center">
-              <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl"
-                style={{ background: 'linear-gradient(135deg, #C6F135 0%, #8EE600 100%)', boxShadow: '0 3px 12px rgba(142,230,0,0.30)' }}
-              >
-                <Coins className="h-6 w-6 text-[#0F1702]" />
+          {/* Header — matches TipModal */}
+          <div className="flex items-start justify-between border-b border-[#F0F0F0] px-5 py-4">
+            <div>
+              <p className="text-[15px] font-semibold text-[#0F1702]">Send to {ownerName}</p>
+              <div className="mt-0.5 flex items-center gap-1 text-xs text-[#C0C0C0]">
+                <TokenLogo token="SOL" size={11} />
+                <span>SOL</span>
+                <span>·</span>
+                <TokenLogo token="USDC" size={11} />
+                <span>USDC</span>
+                <span>·</span>
+                <TokenLogo token="USDT" size={11} />
+                <span>USDT via Solana</span>
               </div>
             </div>
-            <h1
-              className="text-lg font-bold text-[#0F1702]"
-              style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
-            >
-              Tip {ownerName}
-            </h1>
-            <p className="mt-1 text-sm text-[#909090]">Send SOL, USDC, or USDT via Solana</p>
           </div>
 
-          <TipFlow ownerName={ownerName} walletAddress={walletAddress} />
+          <TipFlow
+            ownerName={ownerName}
+            walletAddress={walletAddress}
+            username={username}
+            onDone={() => router.push(`/${username}`)}
+          />
         </div>
       </div>
     </div>

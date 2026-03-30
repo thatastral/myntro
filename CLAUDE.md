@@ -55,6 +55,8 @@ After OAuth the browser hits `/api/auth/callback` → checks if user has a profi
 
 **Signup page** (`app/(auth)/signup/page.tsx`):
 - Password requirements: 8+ chars, uppercase, number, special character (`!@#$%^&*`), no common passwords
+- **Beta-gated**: before `signUp()`, calls `GET /api/beta-check?email=...`. If the email is not in `beta_testers`, blocks with an error. Google OAuth is gated in the callback: after `exchangeCodeForSession`, new users (no profile yet) are checked against `beta_testers`; if not found, signed out + redirected to `/signup?error=beta_required`.
+- `GET /api/beta-check` returns `{ allowed: boolean, reservedUsername: string | null }` — also checks `waitlist` for a reserved username.
 - Immediate redirect to `/onboarding` after signup
 
 ### Data layer
@@ -66,6 +68,8 @@ Tables: `users`, `links`, `achievements`, `affiliations`, `wallets`, `documents`
 Key columns:
 - `users.featured_affiliation_id UUID` references `affiliations(id) ON DELETE SET NULL` — controls which verified affiliation badge shows publicly.
 - `users.avatar_position JSONB` — stores avatar image position ({x, y} percentages).
+- `users.tips_enabled BOOLEAN NOT NULL DEFAULT true`, `users.ai_enabled BOOLEAN NOT NULL DEFAULT true` — feature flags. Migration: `010_user_feature_flags.sql`.
+- `users.tour_seen BOOLEAN NOT NULL DEFAULT false` — whether the user has completed or skipped the first-visit guided tour. Migration: run `ALTER TABLE users ADD COLUMN IF NOT EXISTS tour_seen BOOLEAN NOT NULL DEFAULT false;` in Supabase dashboard.
 - `achievements.scraped_content JSONB` — page content scraped from `link` URL at save time. Migration: `007_scraped_content.sql`.
 - `affiliations.scraped_content JSONB` — page content scraped from `proof_link` at save time. Migration: `007_scraped_content.sql`.
 - `blocks.content JSONB` — for `link` type blocks, includes `scraped_title`, `scraped_description`, `scraped_text` populated at save time via `lib/scrape.ts`.
@@ -110,13 +114,17 @@ The prompt uses markdown section headers (`## About`, `## Social & Website Links
 
 Events tracked via `POST /api/analytics` — captures IP, resolves to country via `ip-api.com` (free, 45 req/min), stores in `metadata` JSONB. On Vercel, uses `x-vercel-ip-country` header instead. `GET /api/analytics` accepts `period` param (`1h|24h|7d|30d|90d`), returns time-bucketed chart data, per-event-type counts, and top-10 country breakdown.
 
+**Self-view skip**: `POST /api/analytics` runs `supabase.auth.getUser()` in parallel with the username lookup. If `event_type === 'profile_view'` and the authenticated user's ID matches the profile owner's ID, the event is silently dropped (`{ ok: true, skipped: true }`). This prevents owners from inflating their own view counts.
+
+`ProfileTracker` (`components/profile/ProfileTracker.tsx`) is a client component that fires `profile_view` on mount — rendered in `/{username}/page.tsx`.
+
 ### Solana / tipping
 
 `TipModal` (`components/profile/TipModal.tsx`) uses the full Solana wallet adapter — tipper connects their own wallet and sends SOL/USDC/USDT. It wraps `ConnectionProvider` + `WalletProvider` + `WalletModalProvider` internally. `TipModal` is dynamically imported with `ssr: false` in `ProfileHeader`. Any component importing `@solana/wallet-adapter-react-ui` **must** use `dynamic(..., { ssr: false })`.
 
-**RPC proxy** (`app/api/rpc/route.ts`): Proxies all Solana JSON-RPC requests to `SOLANA_RPC_URL` (server env var, defaults to `https://api.mainnet-beta.solana.com`). CORS headers for `solana-client` requests are set in both the route handler and `next.config.ts` headers config. The route is excluded from `proxy.ts` middleware to avoid Supabase auth overhead on every RPC call. On production, set `SOLANA_RPC_URL` to a dedicated provider (e.g. Helius) to avoid mainnet rate limits.
+**RPC proxy** (`app/api/rpc/route.ts`): Proxies all Solana JSON-RPC requests to `SOLANA_RPC_URL` (server env var, defaults to `https://api.mainnet-beta.solana.com`). Has 8s timeout + two fallback endpoints (`extrnode`, `ankr`) — if primary fails, tries fallbacks before returning a proper JSON-RPC error. CORS headers set in route handler and `next.config.ts`. Excluded from `proxy.ts` middleware. Set `SOLANA_RPC_URL` to Helius in production.
 
-**RPC endpoint** (`lib/solana/wallet.ts`): `SOLANA_ENDPOINT` uses `NEXT_PUBLIC_SOLANA_RPC_URL` if set, otherwise falls back to `window.location.origin + '/api/rpc'` in the browser (so it works on any host without the env var). SSR fallback is `clusterApiUrl()` but TipModal is `ssr: false` so this never fires.
+**RPC endpoint** (`lib/solana/wallet.ts`): Defaults to **mainnet** (`NEXT_PUBLIC_SOLANA_NETWORK=devnet` to opt into devnet). `SOLANA_ENDPOINT` ignores `NEXT_PUBLIC_SOLANA_RPC_URL` if it contains `localhost` or `127.0.0.1` (avoids hardcoded port issues in `.env.local`). Falls back to `window.location.origin + '/api/rpc'` in the browser. Do not set `NEXT_PUBLIC_SOLANA_RPC_URL` in `.env.local` — set `SOLANA_RPC_URL` (server-side) to the Helius URL instead.
 
 **Transaction flow**: `handleSend` uses `signTransaction` + `connection.sendRawTransaction` (not `sendTransaction`) to bypass StandardWalletAdapter chain-detection issues with custom RPC URLs. `skipPreflight: true` avoids a second RPC round-trip.
 
@@ -146,14 +154,14 @@ The "Me" tab on the edit page is a bento grid of content blocks. Each block has 
 - **Sections** (`sections` table) are named groups. Deleting a section sets `section_id = null` on its blocks via `ON DELETE SET NULL`.
 - `BlocksEditor` (`components/blocks/BentoGrid.tsx`) handles drag-and-drop via `@dnd-kit/core` + `@dnd-kit/sortable`. Container keys are `'free'` or a section UUID. `resolveContainer()` maps any over-target ID (block ID, container key, or `droppable-*`) to a container key.
 - `EmptyDropZone` uses `useDroppable` (not `useSortable`) with id `droppable-${sectionId}`.
-- **Link blocks**: at save time `POST /api/blocks` calls `lib/scrape.ts` to fetch `scraped_title`, `scraped_description`, `scraped_text` (3,000 chars) and `og_image`, all stored in `content` JSONB.
+- **Link blocks**: at save time `POST /api/blocks` calls `lib/scrape.ts` to fetch `scraped_title`, `scraped_description`, `scraped_text` (3,000 chars) and `og_image`, all stored in `content` JSONB. `LinkBlock.tsx` always shows an image: uses `og_image` if scraped, otherwise falls back to a WordPress mshots screenshot (`s.wordpress.com/mshots/v1/{url}?w=600&h=312`).
 - `BlocksEditor` accepts an `onShare` prop — when provided, renders a "Share my Myntro" button at the right end of the floating toolbar that copies the profile URL to clipboard and shows a "Copied!" state for 2 seconds.
 - `follower_count` on `links` — column exists in schema but is not populated (feature removed).
 
 ### Onboarding flow
 
 `app/(onboarding)/onboarding/page.tsx` — 4 steps:
-1. **Username** — 3-30 chars, lowercase alphanumeric + underscores, checked against DB
+1. **Username** — 3-30 chars, lowercase alphanumeric + underscores, checked against DB. On mount, calls `GET /api/beta-check?email=...` to fetch any reserved username from the `waitlist` table. If found, the field is pre-filled and locked (`readOnly`, green tint), Continue is immediately enabled — no availability check needed.
 2. **Profile** — display name, bio (300 char limit), location
 3. **Links** — up to 5 social platforms; URL validation runs on blur per platform regex
 4. **Avatar** — optional photo upload (JPEG/PNG/WebP/GIF, max 5MB); drag to reposition, saved to `users.avatar_position` JSONB
@@ -173,16 +181,36 @@ Note blocks are editable inline: text, font family (Space Grotesk, Georgia, Arch
 
 `hooks/useProfile.ts` is the single source of truth for all profile mutations on the edit page. Uses optimistic updates with snapshot/revert. Covers: profile fields, links (with reorder), achievements, affiliations (add/update/delete), blocks (add/delete/reorder), sections (add/update/delete/reorder).
 
+### Guided tour + profile checklist
+
+First-time users (where `users.tour_seen = false`) see a guided tour on the edit page:
+- `GuidedTour` (`components/editor/GuidedTour.tsx`) — 8-step spotlight tour rendered via `createPortal` into `document.body`. Each step dims the page with a semi-transparent overlay, cuts a spotlight hole around the target element using `box-shadow: 0 0 0 9999px rgba(...)`, scrolls it into view, then shows a tooltip card (step count, title, body, dot progress, Back/Next/Done nav). Welcome step (no target) shows a centered card. Skip always available.
+- On finish or skip: `PATCH /api/profile { tour_seen: true }` — tour never shows again.
+- `ProfileChecklist` (`components/editor/ProfileChecklist.tsx`) — fixed bottom strip above the stats bar (`bottom: 56px`). Shows "X of 6 complete" + animated green progress bar. Expands to list 6 items (photo, bio, link, block, achievement, wallet) derived from live profile data. Tapping an incomplete item scrolls to the relevant `id="tour-*"` element. Dismissed via `×` → `localStorage` key `myntro-checklist-dismissed`. Auto-dismisses 2.5s after all 6 items are done.
+- Tour anchor IDs on the edit page: `tour-avatar`, `tour-profile`, `tour-links`, `tour-blocks`, `tour-achievements`, `tour-identity`, `tour-analytics`.
+
+### Achievement editor
+
+`components/editor/AchievementEditor.tsx`:
+- **Custom `DatePicker`** — fixed-position modal using `getBoundingClientRect()` to position at the button. Opens upward if there is more space above. Calendar is Monday-first 6×7 grid.
+- **Link field is required** — submit button disabled if link is empty.
+- **Inline link preview** — while typing a URL in the form, shows favicon (Google Favicon API) + full URL + open icon. Saved achievement cards also show a `LinkPreview` below the description.
+- **Card icon** matches the public profile exactly: `h-12 w-12 rounded-xl bg-[#F5F5F5] border border-[#EBEBEB]` with `Trophy h-5 w-5 text-[#0F1702]/40`.
+
+### AchievementsSection hover preview
+
+`components/profile/AchievementsSection.tsx` is a client component. On hover (250ms delay), achievement cards with a link show a `LinkPopup` rendered via `createPortal` that tracks the cursor position. The popup shows a live website screenshot via `s.wordpress.com/mshots/v1/` + favicon + domain. Must use `createPortal` — the card's `hover:-translate-y-0.5` CSS transform breaks `position: fixed` for children inside it.
+
 ### Page → component ownership
 
-- `/{username}` (Server Component) — fetches all profile data server-side via `getProfileData`, passes to client components. Social links rendered as icon pills via `LinksSection` (uses `react-icons/si` + `react-icons/fa`).
-- `ProfileHeader` (client) — avatar, name, featured affiliation badge (only if `verified`), AI chat sidebar, tip modal
+- `/{username}` (Server Component) — fetches all profile data server-side via `getProfileData`, passes to client components. Social links rendered as icon pills via `LinksSection` (uses `react-icons/si` + `react-icons/fa`). Fires `link_click` analytics via `navigator.sendBeacon` on each link.
+- `ProfileHeader` (client) — avatar (with `onError` fallback to initials), name, featured affiliation badge (only if `verified`), AI chat sidebar (fires `ai_chat` analytic on open), tip modal
 - `/{username}/edit` (client) — all hooks declared before any conditional returns (Rules of Hooks). Uses `useProfile` for all mutations. Key layout details:
   - Floating stats bar (Tips / Views) is constrained to `max-w-lg` via an inner wrapper to align with page content
-  - "Share my Myntro" button lives inside `BlocksEditor`'s floating toolbar (passed via `onShare` prop from the edit page)
+  - Recent Tips section is collapsible (caret toggle); each tip row shows wallet address + formatted date/time
   - "Identity & Background" is a bold section header grouping Affiliations, Resume/CV, and Wallet — each sub-section has an `Info` icon tooltip using the `group/tip` + `group-hover/tip:opacity-100` pattern; tooltips are `left-0` anchored (not centered) to prevent left-edge clipping
-  - Location + social links row uses `flex flex-col gap-2` so the add-link form opens below without pushing the location text
-- `/{username}/analytics` (client) — analytics dashboard for the profile owner; reads from `/api/analytics`
+  - Tour anchors (`id="tour-*"`) are placed on key elements; `GuidedTour` and `ProfileChecklist` render at the bottom of the page JSX
+- `/{username}/analytics` (client) — analytics dashboard for the profile owner; reads from `/api/analytics`. Stat cards use grey Phosphor icons (`Eye`, `CursorClick`, `Robot`, `Coins`) instead of colored dots.
 - `/admin/affiliations` (client) — fetches via `/api/admin/affiliations` which uses `users!affiliations_user_id_fkey` join hint to resolve the ambiguous FK
 
 ### Non-obvious gotchas
@@ -228,4 +256,4 @@ Standalone pre-launch page — no auth required, no Supabase session needed.
 
 Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GROQ_API_KEY`, `ADMIN_EMAILS`, `RESEND_API_KEY`, `RESEND_FROM`, `RESEND_FROM_INFO`.
 
-Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to devnet), `NEXT_PUBLIC_SOLANA_RPC_URL` (client-side RPC endpoint; if unset, defaults to `window.location.origin + '/api/rpc'`), `SOLANA_RPC_URL` (server-side upstream for the RPC proxy; defaults to `https://api.mainnet-beta.solana.com`), `NEXT_PUBLIC_APP_URL` (defaults to `https://myntro.me`), `MAINTENANCE_MODE` (set to `true` to redirect all traffic to `/waitlist`).
+Optional: `NEXT_PUBLIC_SOLANA_NETWORK` (defaults to **mainnet**; set to `devnet` to opt into devnet), `SOLANA_RPC_URL` (server-side upstream for the RPC proxy; set to Helius URL in production — do **not** use `NEXT_PUBLIC_SOLANA_RPC_URL` in `.env.local`), `NEXT_PUBLIC_APP_URL` (defaults to `https://myntro.me`), `MAINTENANCE_MODE` (set to `true` to redirect all traffic to `/waitlist`).

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { X, Globe, Lock, Wallet, Trash, CircleNotch, Warning, SignOut } from '@phosphor-icons/react'
+import { X, Globe, Lock, Wallet, Trash, CircleNotch, Warning, SignOut, Coins, Sparkle } from '@phosphor-icons/react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { User } from '@/types'
@@ -25,6 +25,8 @@ export function SettingsModal({
 }: SettingsModalProps) {
   const router = useRouter()
   const [visibilityLoading, setVisibilityLoading] = useState(false)
+  const [tipsLoading, setTipsLoading] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -42,6 +44,24 @@ export function SettingsModal({
       setVisibilityLoading(false)
     }
   }, [user.profile_visibility, onProfileUpdate])
+
+  const toggleTips = useCallback(async () => {
+    setTipsLoading(true)
+    try {
+      await onProfileUpdate({ tips_enabled: !user.tips_enabled })
+    } finally {
+      setTipsLoading(false)
+    }
+  }, [user.tips_enabled, onProfileUpdate])
+
+  const toggleAi = useCallback(async () => {
+    setAiLoading(true)
+    try {
+      await onProfileUpdate({ ai_enabled: !user.ai_enabled })
+    } finally {
+      setAiLoading(false)
+    }
+  }, [user.ai_enabled, onProfileUpdate])
 
   const handleDisconnectWallet = useCallback(async () => {
     if (!walletAddress) return
@@ -153,6 +173,58 @@ export function SettingsModal({
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${
                   user.profile_visibility === 'public' ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Tipping */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-3">
+              <Coins className="h-5 w-5 text-[#909090]" />
+              <div>
+                <p className="text-sm font-medium text-[#0F1702]">Tipping</p>
+                <p className="text-xs text-[#909090]">
+                  {user.tips_enabled ? 'Tip button visible on your profile' : 'Tip button hidden from your profile'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={toggleTips}
+              disabled={tipsLoading}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+                user.tips_enabled ? 'bg-[#0F1702]' : 'bg-[#E8E8E8]'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${
+                  user.tips_enabled ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Ask AI */}
+          <div className="flex items-center justify-between px-5 py-4">
+            <div className="flex items-center gap-3">
+              <Sparkle className="h-5 w-5 text-[#909090]" />
+              <div>
+                <p className="text-sm font-medium text-[#0F1702]">Ask AI</p>
+                <p className="text-xs text-[#909090]">
+                  {user.ai_enabled ? 'AI chat visible on your profile' : 'AI chat hidden from your profile'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={toggleAi}
+              disabled={aiLoading}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+                user.ai_enabled ? 'bg-[#0F1702]' : 'bg-[#E8E8E8]'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${
+                  user.ai_enabled ? 'translate-x-5' : 'translate-x-0'
                 }`}
               />
             </button>

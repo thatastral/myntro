@@ -16,9 +16,10 @@ const SOLANA_ADDRESS_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
 interface WalletConnectInnerProps {
   savedAddress: string | null
   onSaved: (address: string | null) => void
+  username: string
 }
 
-function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) {
+function WalletConnectInner({ savedAddress, onSaved, username }: WalletConnectInnerProps) {
   const { publicKey, connected, disconnect } = useWallet()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -27,6 +28,7 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
   const [manualAddress, setManualAddress] = useState('')
   const [manualError, setManualError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedTip, setCopiedTip] = useState(false)
 
   useEffect(() => {
     if (!connected || !publicKey) return
@@ -156,6 +158,23 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
               </button>
             </div>
           </div>
+          <div className="flex items-center justify-between rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-4 py-3">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-[#C0C0C0]">Tip link</span>
+              <span className="text-sm font-medium text-[#0F1702]">myntro.me/{username}/tip</span>
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`https://myntro.me/${username}/tip`)
+                setCopiedTip(true)
+                setTimeout(() => setCopiedTip(false), 2000)
+              }}
+              className="flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:border-[#0F1702]/20 hover:text-[#0F1702]"
+            >
+              {copiedTip ? <CheckCircle className="h-3.5 w-3.5 text-[#4A7A00]" /> : <Copy className="h-3.5 w-3.5" />}
+              {copiedTip ? 'Copied' : 'Copy'}
+            </button>
+          </div>
           <p className="text-[10px] text-[#C0C0C0]">
             You can update your wallet address at any time.
           </p>
@@ -249,16 +268,17 @@ function WalletConnectInner({ savedAddress, onSaved }: WalletConnectInnerProps) 
 interface WalletConnectSectionProps {
   savedAddress: string | null
   onSaved: (address: string | null) => void
+  username: string
 }
 
-export function WalletConnectSection({ savedAddress, onSaved }: WalletConnectSectionProps) {
+export function WalletConnectSection({ savedAddress, onSaved, username }: WalletConnectSectionProps) {
   const wallets = getSupportedWallets()
 
   return (
     <ConnectionProvider endpoint={SOLANA_ENDPOINT}>
       <WalletProvider wallets={wallets} autoConnect={false}>
         <WalletModalProvider>
-          <WalletConnectInner savedAddress={savedAddress} onSaved={onSaved} />
+          <WalletConnectInner savedAddress={savedAddress} onSaved={onSaved} username={username} />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

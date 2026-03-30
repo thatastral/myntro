@@ -47,9 +47,10 @@ function formatCount(n: number | null | undefined): string | null {
 
 interface LinksSectionProps {
   links: Link[]
+  username: string
 }
 
-export function LinksSection({ links }: LinksSectionProps) {
+export function LinksSection({ links, username }: LinksSectionProps) {
   if (!links.length) return null
 
   return (
@@ -64,6 +65,13 @@ export function LinksSection({ links }: LinksSectionProps) {
             target="_blank"
             rel="noopener noreferrer"
             title={link.title}
+            onClick={() => {
+              const blob = new Blob(
+                [JSON.stringify({ username, event_type: 'link_click', metadata: { platform: link.icon } })],
+                { type: 'application/json' },
+              )
+              navigator.sendBeacon('/api/analytics', blob)
+            }}
             className="group flex items-center gap-1.5 rounded-lg border border-[#EBEBEB] px-2.5 py-1.5 text-[#909090] transition-all duration-150 hover:border-[#D5D5D5] hover:bg-[#FAFAFA] hover:text-[#0F1702]"
           >
             <Icon size={13} className="flex-shrink-0" />

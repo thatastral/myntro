@@ -3,7 +3,7 @@
 import { use, useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Gear, Eye, EyeSlash, ArrowSquareOut, CircleNotch, ChartBar, Camera, Coins, TrendUp, TrendDown, Plus, X, Globe, ArrowClockwise, MapPin, ArrowLeft, Info, Sliders } from '@phosphor-icons/react'
+import { Gear, Eye, EyeSlash, ArrowSquareOut, CircleNotch, ChartBar, Camera, Coins, TrendUp, TrendDown, Plus, X, Globe, ArrowClockwise, MapPin, ArrowLeft, Info, Sliders, CaretDown } from '@phosphor-icons/react'
 import Link from 'next/link'
 import { useProfile } from '@/hooks/useProfile'
 import { useAuth } from '@/hooks/useAuth'
@@ -18,12 +18,24 @@ import { AffiliationEditor } from '@/components/editor/AffiliationEditor'
 import { BlocksEditor } from '@/components/blocks/BentoGrid'
 import { CVUpload } from '@/components/editor/CVUpload'
 import { SettingsModal } from '@/components/modals/SettingsModal'
+import { FeedbackFab } from '@/components/editor/FeedbackFab'
+import { GuidedTour } from '@/components/editor/GuidedTour'
+import { ProfileChecklist } from '@/components/editor/ProfileChecklist'
 import dynamic from 'next/dynamic'
 
 const WalletConnectSection = dynamic(
   () => import('@/components/editor/WalletConnectSection').then((m) => m.WalletConnectSection),
   { ssr: false, loading: () => <div className="h-16 animate-pulse rounded-xl bg-[#F0F0F0]" /> },
 )
+
+function formatTipDate(iso: string) {
+  const d = new Date(iso)
+  return (
+    d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) +
+    ' · ' +
+    d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+  )
+}
 
 interface EditPageProps {
   params: Promise<{ username: string }>
@@ -60,15 +72,19 @@ export default function EditPage({ params }: EditPageProps) {
   } = useProfile(username)
   // All hooks must be at the top — no hooks after conditional returns
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [showTour, setShowTour] = useState(false)
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarImgError, setAvatarImgError] = useState(false)
   const [avatarUploading, setAvatarUploading] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const [quickStats, setQuickStats] = useState<{
-    views: number; tips: number; prevViews: number; prevTips: number
+    views: number; prevViews: number; tips: number; prevTips: number
   } | null>(null)
+  const [tipsTotalUsd, setTipsTotalUsd] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<'me' | 'achievements'>('me')
   const [recentTips, setRecentTips] = useState<{ id: string; sender_wallet: string; amount: number; token: string; tx_signature: string; created_at: string }[]>([])
+  const [tipsOpen, setTipsOpen] = useState(true)
   const [addingLink, setAddingLink] = useState(false)
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
   const [platformUrls, setPlatformUrls] = useState<Record<string, string>>({})
@@ -108,8 +124,8 @@ export default function EditPage({ params }: EditPageProps) {
         if (!d) return
         setQuickStats({
           views: d.counts?.profile_view ?? 0,
-          tips: d.counts?.tip_sent ?? 0,
           prevViews: d.prev_counts?.profile_view ?? 0,
+          tips: d.counts?.tip_sent ?? 0,
           prevTips: d.prev_counts?.tip_sent ?? 0,
         })
       })
@@ -120,13 +136,29 @@ export default function EditPage({ params }: EditPageProps) {
     if (!username || !authUser) return
     fetch(`/api/tips?username=${encodeURIComponent(username)}`)
       .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.tips) setRecentTips(d.tips) })
+      .then((d) => {
+        if (d?.tips) setRecentTips(d.tips)
+        if (typeof d?.summary?.total_usd === 'number') setTipsTotalUsd(d.summary.total_usd)
+      })
       .catch(() => {})
   }, [username, authUser])
 
   useEffect(() => {
-    if (profile?.user?.avatar_url) setAvatarUrl(profile.user.avatar_url)
+    if (profile?.user?.avatar_url) { setAvatarUrl(profile.user.avatar_url); setAvatarImgError(false) }
   }, [profile?.user?.avatar_url])
+
+  useEffect(() => {
+    if (profile && !profile.user.tour_seen) setShowTour(true)
+  }, [profile?.user?.tour_seen])
+
+  const handleTourFinish = useCallback(() => {
+    setShowTour(false)
+    fetch('/api/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tour_seen: true }),
+    }).catch(() => {})
+  }, [])
 
   const handleAvatarChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -137,7 +169,7 @@ export default function EditPage({ params }: EditPageProps) {
     try {
       const res = await fetch('/api/avatar', { method: 'POST', body: form })
       const data = await res.json()
-      if (data.avatar_url) setAvatarUrl(data.avatar_url)
+      if (data.avatar_url) { setAvatarUrl(data.avatar_url); setAvatarImgError(false) }
     } finally {
       setAvatarUploading(false)
       e.target.value = ''
@@ -266,6 +298,7 @@ export default function EditPage({ params }: EditPageProps) {
                 <ArrowSquareOut className="h-3 w-3 text-[#C0C0C0]" />
               </a>
               <a
+                id="tour-analytics"
                 href={`/${username}/analytics`}
                 className="flex items-center gap-1.5 rounded-xl border border-[#EBEBEB] bg-white px-3 py-1.5 text-xs font-medium text-[#909090] transition-colors hover:bg-[#FAFAFA] hover:text-[#0F1702]"
               >
@@ -286,12 +319,20 @@ export default function EditPage({ params }: EditPageProps) {
             {/* Avatar + actions row */}
             <div className="flex items-start justify-between">
               <button
+                id="tour-avatar"
                 onClick={() => avatarInputRef.current?.click()}
                 className="group relative h-[58px] w-[58px] flex-shrink-0 overflow-hidden rounded-full bg-[#F0F0F0]"
                 title="Change profile photo"
               >
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt={user.name || user.username} fill className="object-cover" sizes="58px" />
+                {avatarUrl && !avatarImgError ? (
+                  <Image
+                    src={avatarUrl}
+                    alt={user.name || user.username}
+                    fill
+                    className="object-cover"
+                    sizes="58px"
+                    onError={() => setAvatarImgError(true)}
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#C0C0C0]">
                     {(user.name || user.username).charAt(0).toUpperCase()}
@@ -320,7 +361,7 @@ export default function EditPage({ params }: EditPageProps) {
             </div>
 
             {/* Name + affiliation + handle */}
-            <div>
+            <div id="tour-profile">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <InlineEditor
                   value={user.name}
@@ -402,7 +443,7 @@ export default function EditPage({ params }: EditPageProps) {
             />
 
             {/* Location + social link icons */}
-            <div className="flex items-start gap-2">
+            <div id="tour-links" className="flex items-start gap-2">
               {user.location && (
                 <div className="flex items-center gap-1.5 text-xs text-[#909090]">
                   <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
@@ -539,13 +580,24 @@ export default function EditPage({ params }: EditPageProps) {
 
             {/* Recent Tips */}
             {recentTips.length > 0 && (
-              <div className="flex w-full flex-col gap-2">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-[#C0C0C0]">Recent Tips</p>
-                {recentTips.slice(0, 5).map((tip) => (
+              <div className="flex w-full flex-col gap-2 mt-4">
+                <button
+                  onClick={() => setTipsOpen((v) => !v)}
+                  className="flex items-center justify-between"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-[#C0C0C0]">Recent Tips</p>
+                  <CaretDown
+                    className={`h-3 w-3 text-[#C0C0C0] transition-transform duration-200 ${tipsOpen ? 'rotate-0' : '-rotate-90'}`}
+                  />
+                </button>
+                {tipsOpen && recentTips.slice(0, 5).map((tip) => (
                   <div key={tip.id} className="flex items-center justify-between rounded-xl bg-[#F7F7F5] px-3.5 py-2.5">
-                    <span className="font-mono text-xs text-[#909090]">
-                      {tip.sender_wallet.slice(0, 6)}…{tip.sender_wallet.slice(-4)}
-                    </span>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-mono text-xs text-[#909090]">
+                        {tip.sender_wallet.slice(0, 6)}…{tip.sender_wallet.slice(-4)}
+                      </span>
+                      <span className="text-[10px] text-[#C0C0C0]">{formatTipDate(tip.created_at)}</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-[#0F1702]">{tip.amount} {tip.token}</span>
                       <a
@@ -567,6 +619,7 @@ export default function EditPage({ params }: EditPageProps) {
               {(['me', 'achievements'] as const).map(tab => (
                 <button
                   key={tab}
+                  id={tab === 'achievements' ? 'tour-achievements' : undefined}
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-150 ${
                     activeTab === tab
@@ -582,6 +635,7 @@ export default function EditPage({ params }: EditPageProps) {
             {/* Tab content */}
             {activeTab === 'me' && (
               <>
+                <div id="tour-blocks">
                 <BlocksEditor
                   blocks={profile.blocks}
                   sections={profile.sections}
@@ -595,13 +649,14 @@ export default function EditPage({ params }: EditPageProps) {
                   onReorderBlocks={reorderBlocks}
                   onReorderSections={reorderSections}
                 />
+                </div>
 
                 <div className="h-px bg-[#F0F0F0]" />
 
                 {/* Identity & Background */}
                 <div className="flex flex-col gap-4">
                   {/* Section header */}
-                  <div className="flex items-center gap-2">
+                  <div id="tour-identity" className="flex items-center gap-2">
                     <h2 className="text-xs font-bold uppercase tracking-wider text-[#0F1702]">
                       Identity &amp; Background
                     </h2>
@@ -629,6 +684,7 @@ export default function EditPage({ params }: EditPageProps) {
                   <WalletConnectSection
                     savedAddress={walletAddress}
                     onSaved={setWalletAddress}
+                    username={username}
                   />
                 </div>
 
@@ -655,22 +711,31 @@ export default function EditPage({ params }: EditPageProps) {
       {/* Floating stats bar */}
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-lg items-center justify-between px-4 py-3">
-          {/* Tips — left */}
+          {/* Tips earned — left */}
           <a href={`/${username}/analytics`} className="flex items-center gap-2 group">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#F5F5F5]">
               <Coins className="h-3.5 w-3.5 text-[#909090]" />
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold leading-none text-[#0F1702]">
-                {quickStats ? quickStats.tips.toLocaleString() : '—'}
+                {tipsTotalUsd !== null
+                  ? tipsTotalUsd === 0
+                    ? '$0'
+                    : tipsTotalUsd < 1
+                      ? `$${tipsTotalUsd.toFixed(2)}`
+                      : `$${tipsTotalUsd.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+                  : '—'}
               </span>
-              <span className="text-[10px] text-[#C0C0C0]">Tips · 7d</span>
+              <span className="text-[10px] text-[#C0C0C0]">Earned · all time</span>
             </div>
             {quickStats && (() => {
               const prev = quickStats.prevTips
               const curr = quickStats.tips
-              if (prev === 0 && curr === 0) return null
-              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
+              if (curr === 0) return null
+              if (prev === 0) return (
+                <span className="rounded-full bg-[#F0FBE0] px-1.5 py-0.5 text-[10px] font-semibold text-[#4A7A00]">New</span>
+              )
+              const pct = Math.round(((curr - prev) / prev) * 100)
               const up = pct >= 0
               return (
                 <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
@@ -685,21 +750,6 @@ export default function EditPage({ params }: EditPageProps) {
 
           {/* Views — right */}
           <a href={`/${username}/analytics`} className="flex items-center gap-2 group">
-            {quickStats && (() => {
-              const prev = quickStats.prevViews
-              const curr = quickStats.views
-              if (prev === 0 && curr === 0) return null
-              const pct = prev === 0 ? 100 : Math.round(((curr - prev) / prev) * 100)
-              const up = pct >= 0
-              return (
-                <span className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
-                  up ? 'bg-[#F0FBE0] text-[#4A7A00]' : 'bg-red-50 text-red-600'
-                }`}>
-                  {up ? <TrendUp className="h-2.5 w-2.5" /> : <TrendDown className="h-2.5 w-2.5" />}
-                  {up ? '+' : ''}{pct}%
-                </span>
-              )
-            })()}
             <div className="flex flex-col items-end">
               <span className="text-sm font-bold leading-none text-[#0F1702]">
                 {quickStats ? quickStats.views.toLocaleString() : '—'}
@@ -724,16 +774,32 @@ export default function EditPage({ params }: EditPageProps) {
 
       {/* Customisation coming soon badge — fixed bottom-left */}
       <div className="fixed bottom-5 left-5 z-50 flex items-center gap-2 rounded-2xl border border-[#E8E8E8] bg-white px-3.5 py-2.5 shadow-md">
-        <Sliders className="h-3.5 w-3.5 shrink-0 text-[#182403]" weight="bold" />
-        <span className="text-[13px] font-semibold text-[#182403]">Customisation</span>
+        <Sliders className="h-3.5 w-3.5 shrink-0 text-[#909090]" />
+        <span className="text-[13px] font-semibold text-[#0F1702]">Customisation</span>
         <span
-          className="flex items-center gap-1.5 rounded-full border border-white/60 px-2.5 py-0.5 text-[11px] font-semibold text-[#2D4A00]"
+          className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-[#2D4A00]"
           style={{ background: 'linear-gradient(to right, #f0f0f0, #C5F135)' }}
         >
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#6BBF00]" />
           Coming Soon
         </span>
       </div>
+
+      {/* Feedback FAB — fixed bottom-right */}
+      <FeedbackFab
+        username={username}
+        name={profile?.user?.name ?? username}
+        email={authUser?.email ?? ''}
+      />
+
+      {showTour && <GuidedTour onFinish={handleTourFinish} />}
+
+      <ProfileChecklist
+        user={user}
+        links={links}
+        blocks={profile.blocks}
+        achievements={achievements}
+        wallets={profile.wallet ? [profile.wallet] : []}
+      />
     </>
   )
 }

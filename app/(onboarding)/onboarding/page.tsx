@@ -44,6 +44,7 @@ export default function OnboardingPage() {
   const [username, setUsername] = useState('')
   const [checkState, setCheckState] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle')
   const [checkMsg, setCheckMsg] = useState('')
+  const [reservedUsername, setReservedUsername] = useState<string | null>(null)
 
   // Step 2
   const [name, setName] = useState('')
@@ -70,6 +71,22 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (user?.user_metadata?.full_name) setName(user.user_metadata.full_name)
   }, [user])
+
+  // Fetch reserved username from waitlist/beta list
+  useEffect(() => {
+    if (!user?.email) return
+    fetch(`/api/beta-check?email=${encodeURIComponent(user.email)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.reservedUsername) {
+          setReservedUsername(data.reservedUsername)
+          setUsername(data.reservedUsername)
+          setCheckState('available')
+          setCheckMsg(`@${data.reservedUsername} is reserved for you`)
+        }
+      })
+      .catch(() => {})
+  }, [user?.email])
 
   const checkUsername = useCallback((value: string) => {
     if (!value) { setCheckState('idle'); setCheckMsg(''); return }
@@ -105,7 +122,8 @@ export default function OnboardingPage() {
   }
 
   const handleStep1 = async () => {
-    if (!username || checkState !== 'available') return
+    const isReady = reservedUsername ? username === reservedUsername : checkState === 'available'
+    if (!username || !isReady) return
     setSubmitting(true); setError('')
     try {
       const res = await fetch('/api/username', {
@@ -316,9 +334,13 @@ export default function OnboardingPage() {
                   className="text-xl font-bold text-[#0F1702]"
                   style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
                 >
-                  Choose your username
+                  {reservedUsername ? 'Your username is ready' : 'Choose your username'}
                 </h1>
-                <p className="mt-1 text-sm text-[#909090]">Your public profile URL — choose carefully, this can&apos;t be changed.</p>
+                <p className="mt-1 text-sm text-[#909090]">
+                  {reservedUsername
+                    ? 'We reserved this handle for you from the waitlist.'
+                    : "Your public profile URL — choose carefully, this can't be changed."}
+                </p>
               </div>
 
               <div>
@@ -328,13 +350,18 @@ export default function OnboardingPage() {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => handleUsernameChange(e.target.value)}
+                    onChange={reservedUsername ? undefined : e => handleUsernameChange(e.target.value)}
+                    readOnly={!!reservedUsername}
                     placeholder="yourname"
                     maxLength={30}
-                    autoFocus
+                    autoFocus={!reservedUsername}
                     autoComplete="off"
                     autoCapitalize="none"
-                    className="w-full rounded-xl border border-[#E8E8E8] bg-[#FAFAFA] py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20"
+                    className={`w-full rounded-xl border py-3 pl-[6.5rem] pr-10 text-sm text-[#0F1702] outline-none transition ${
+                      reservedUsername
+                        ? 'border-[#8EE600]/40 bg-[#F5FDED] cursor-default select-none'
+                        : 'border-[#E8E8E8] bg-[#FAFAFA] focus:border-[#8EE600]/50 focus:bg-white focus:ring-1 focus:ring-[#8EE600]/20'
+                    }`}
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2">
                     {checkState === 'checking' && <CircleNotch className="h-4 w-4 animate-spin text-[#C0C0C0]" />}
@@ -349,19 +376,25 @@ export default function OnboardingPage() {
                 )}
               </div>
 
-              <div className="rounded-xl bg-[#FAFAFA] p-3 text-xs text-[#909090]">
-                <ul className="list-inside list-disc space-y-0.5">
-                  <li>3–30 characters</li>
-                  <li>Lowercase letters, numbers, and underscores only</li>
-                  <li>Cannot be changed after you set it</li>
-                </ul>
-              </div>
+              {reservedUsername ? (
+                <div className="rounded-xl border border-[#8EE600]/30 bg-[#F5FDED] p-3 text-xs text-[#4A7A00]">
+                  This username was reserved for you when you joined the waitlist. It cannot be changed.
+                </div>
+              ) : (
+                <div className="rounded-xl bg-[#FAFAFA] p-3 text-xs text-[#909090]">
+                  <ul className="list-inside list-disc space-y-0.5">
+                    <li>3–30 characters</li>
+                    <li>Lowercase letters, numbers, and underscores only</li>
+                    <li>Cannot be changed after you set it</li>
+                  </ul>
+                </div>
+              )}
 
               {error && <p className="text-sm text-red-600">{error}</p>}
 
               <button
                 onClick={handleStep1}
-                disabled={submitting || checkState !== 'available'}
+                disabled={submitting || (reservedUsername ? !username : checkState !== 'available')}
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F1702] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#1A2E03] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {submitting ? <><CircleNotch className="h-4 w-4 animate-spin" /> Saving…</> : 'Continue'}

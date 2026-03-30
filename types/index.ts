@@ -8,6 +8,9 @@ export interface User {
   location: string | null
   profile_visibility: 'public' | 'private'
   featured_affiliation_id: string | null
+  tips_enabled: boolean
+  ai_enabled: boolean
+  tour_seen: boolean
   created_at: string
 }
 
