@@ -1,26 +1,59 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from '@phosphor-icons/react'
 import { MyntroLogo } from '@/components/MyntroLogo'
-// ── Hero mount animation ──────────────────────────────────────────────────────
+
+// ── Mount animation (hero) ────────────────────────────────────────────────────
 function useMounted() {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
   return mounted
 }
 
+// ── Scroll-triggered visibility ───────────────────────────────────────────────
+function useInView(threshold = 0.12) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); obs.disconnect() } },
+      { threshold },
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [threshold])
+  return { ref, inView }
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   const mounted = useMounted()
+  const card = useInView(0.08)
 
   return (
     <div
       className="flex min-h-[100dvh] flex-col bg-white"
       style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}
     >
+      <style>{`
+        @keyframes cardFloat {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes cardShadowPulse {
+          0%, 100% { filter: drop-shadow(0 24px 48px rgba(15,23,2,0.10)); }
+          50% { filter: drop-shadow(0 32px 64px rgba(15,23,2,0.16)); }
+        }
+        .card-float {
+          animation: cardFloat 5s ease-in-out infinite, cardShadowPulse 5s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-[#F0F0F0] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
@@ -38,7 +71,6 @@ export default function HomePage() {
               style={{
                 background: 'linear-gradient(180deg, #FDFDFD 0%, #8EE600 100%)',
                 boxShadow: '0 2px 8px rgba(142,230,0,0.25)',
-                willChange: 'transform',
               }}
             >
               Get started
@@ -58,7 +90,9 @@ export default function HomePage() {
             background: 'radial-gradient(ellipse at center, rgba(142,230,0,0.08) 0%, transparent 70%)',
           }}
         />
-        <div className="relative mx-auto max-w-3xl">
+
+        <div className="relative mx-auto max-w-3xl w-full">
+          {/* Waitlist pill */}
           <Link
             href="/waitlist"
             className="group mb-8 inline-flex items-center gap-2 rounded-full px-3 py-[5px] text-xs font-medium transition-all hover:opacity-80"
@@ -81,6 +115,7 @@ export default function HomePage() {
             <span className="opacity-50 transition-opacity group-hover:opacity-100">→</span>
           </Link>
 
+          {/* Heading */}
           <h1
             className="mb-6 text-5xl font-bold leading-[1.12] tracking-tight text-[#0F1702] sm:text-6xl lg:text-7xl"
             style={{
@@ -94,6 +129,7 @@ export default function HomePage() {
             all in one link.
           </h1>
 
+          {/* Subheading */}
           <p
             className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#909090]"
             style={{
@@ -106,6 +142,7 @@ export default function HomePage() {
             and let visitors tip you in SOL — all with an AI assistant that knows your story.
           </p>
 
+          {/* CTA */}
           <div
             className="flex justify-center"
             style={{
@@ -120,21 +157,25 @@ export default function HomePage() {
             </GreenCTA>
           </div>
 
-          {/* Profile card preview */}
+          {/* Profile card — scroll-triggered */}
           <div
+            ref={card.ref}
             className="mt-24 w-full"
             style={{
-              opacity: mounted ? 1 : 0,
-              transform: mounted ? 'translateY(0)' : 'translateY(24px)',
-              transition: 'opacity 700ms ease 550ms, transform 700ms cubic-bezier(0.25,0.46,0.45,0.94) 550ms',
+              opacity: card.inView ? 1 : 0,
+              transform: card.inView ? 'translateY(0)' : 'translateY(48px)',
+              transition: 'opacity 900ms cubic-bezier(0.22,1,0.36,1), transform 900ms cubic-bezier(0.22,1,0.36,1)',
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/myntro-card.svg"
               alt="Myntro profile card preview"
-              className="mx-auto w-full"
-              style={{ maxWidth: 900 }}
+              className={`mx-auto w-full ${card.inView ? 'card-float' : ''}`}
+              style={{
+                maxWidth: 900,
+                animationDelay: '900ms',
+              }}
             />
           </div>
         </div>
@@ -143,10 +184,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-[#F0F0F0]">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-          {/* Muted logo — #D9DCD4, 180×48.5px */}
           <FooterLogo />
-
-          {/* Built by */}
           <p className="text-sm text-[#C0C0C0]">
             Built with ❤️ by{' '}
             <a
@@ -164,7 +202,7 @@ export default function HomePage() {
   )
 }
 
-// ── Footer logo — muted #D9DCD4, 180×48.5px ──────────────────────────────────
+// ── Footer logo ───────────────────────────────────────────────────────────────
 
 function FooterLogo() {
   return (
@@ -191,7 +229,7 @@ function FooterLogo() {
   )
 }
 
-// ── Shared primary green CTA button ──────────────────────────────────────────
+// ── Primary CTA button ────────────────────────────────────────────────────────
 
 function GreenCTA({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -214,12 +252,8 @@ function GreenCTA({ href, children }: { href: string; children: React.ReactNode 
         e.currentTarget.style.transform = 'scale(1) translateY(0)'
         e.currentTarget.style.boxShadow = '0 2px 12px rgba(142,230,0,0.30)'
       }}
-      onMouseDown={(e) => {
-        e.currentTarget.style.transform = 'scale(0.97)'
-      }}
-      onMouseUp={(e) => {
-        e.currentTarget.style.transform = 'scale(1.02) translateY(-1px)'
-      }}
+      onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)' }}
+      onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1.02) translateY(-1px)' }}
     >
       {children}
     </Link>
