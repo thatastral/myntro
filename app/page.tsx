@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from '@phosphor-icons/react'
 import { MyntroLogo } from '@/components/MyntroLogo'
-
 // ── Hero mount animation ──────────────────────────────────────────────────────
 function useMounted() {
   const [mounted, setMounted] = useState(false)
@@ -150,11 +149,51 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-[#F0F0F0]">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-6 py-6 text-xs text-[#C0C0C0] sm:flex-row">
-          <MyntroLogo size="sm" />
-          <span>© 2026 Myntro. Built on Solana.</span>
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
+          {/* Muted logo — #D9DCD4, 180×48.5px */}
+          <FooterLogo />
+
+          {/* Built by */}
+          <p className="text-sm text-[#C0C0C0]">
+            Built with ❤️ by{' '}
+            <a
+              href="https://myntro.me/thatastral"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[#0F1702] transition-opacity hover:opacity-70"
+            >
+              astral
+            </a>
+          </p>
         </div>
       </footer>
+    </div>
+  )
+}
+
+// ── Footer logo — muted #D9DCD4, 180×48.5px ──────────────────────────────────
+
+function FooterLogo() {
+  return (
+    <div style={{ width: 180, height: 48.5, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+      <svg width="36" height="36" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
+        <path
+          d="M-0.000976562 14.8511C-0.000976562 6.57424 9.19728 1.61336 16.1134 6.16011L27.4183 13.592L38.7231 6.16011C45.6392 1.61337 54.8375 6.57426 54.8375 14.8511V40.0039C54.8375 45.7482 50.1809 50.4048 44.4366 50.4048H10.3999C4.65563 50.4048 -0.000976562 45.7482 -0.000976562 40.0039V14.8511Z"
+          fill="#D9DCD4"
+        />
+      </svg>
+      <span
+        style={{
+          fontFamily: 'var(--font-funnel-display), sans-serif',
+          fontSize: 28,
+          fontWeight: 700,
+          color: '#D9DCD4',
+          letterSpacing: '-0.02em',
+          lineHeight: 1,
+        }}
+      >
+        Myntro
+      </span>
     </div>
   )
 }
