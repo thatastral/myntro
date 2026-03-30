@@ -175,8 +175,8 @@ export default function HomePage() {
 
 function FooterLogo() {
   return (
-    <div style={{ width: 180, height: 48.5, display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-      <svg width="36" height="36" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+      <svg width="24" height="24" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{ flexShrink: 0 }}>
         <path
           d="M-0.000976562 14.8511C-0.000976562 6.57424 9.19728 1.61336 16.1134 6.16011L27.4183 13.592L38.7231 6.16011C45.6392 1.61337 54.8375 6.57426 54.8375 14.8511V40.0039C54.8375 45.7482 50.1809 50.4048 44.4366 50.4048H10.3999C4.65563 50.4048 -0.000976562 45.7482 -0.000976562 40.0039V14.8511Z"
           fill="#D9DCD4"
@@ -185,10 +185,10 @@ function FooterLogo() {
       <span
         style={{
           fontFamily: 'var(--font-funnel-display), sans-serif',
-          fontSize: 28,
+          fontSize: 16,
           fontWeight: 700,
           color: '#D9DCD4',
-          letterSpacing: '-0.02em',
+          letterSpacing: '-0.01em',
           lineHeight: 1,
         }}
       >
