@@ -125,7 +125,8 @@ export default function HomePage() {
               transition: 'opacity 600ms ease 150ms, transform 600ms cubic-bezier(0.25,0.46,0.45,0.94) 150ms',
             }}
           >
-            Your Web3 identity,{' '}
+            Your Web3 identity,
+            <br />
             all in one link.
           </h1>
 
