@@ -50,7 +50,9 @@ export async function GET(request: NextRequest) {
           .maybeSingle()
 
         if (!betaTester) {
-          // Not on beta list — sign them out and redirect with error
+          // Not on beta list — delete the auth user so they can retry with
+          // email/password later without hitting "User already registered"
+          await admin.auth.admin.deleteUser(user.id)
           await supabase.auth.signOut()
           return NextResponse.redirect(`${origin}/signup?error=beta_required`)
         }
