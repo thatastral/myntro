@@ -117,12 +117,13 @@ export default async function proxy(request: NextRequest) {
         process.env.SUPABASE_SERVICE_ROLE_KEY!,
         { global: { fetch: (url, opts = {}) => fetch(url, { ...opts, cache: 'no-store' }) } },
       )
-      const { count } = await betaAdmin
+      const { data: betaTester } = await betaAdmin
         .from('beta_testers')
-        .select('id', { count: 'exact', head: true })
+        .select('id')
         .ilike('email', user.email ?? '')
+        .maybeSingle()
 
-      if (!count || count === 0) {
+      if (!betaTester) {
         const url = request.nextUrl.clone()
         url.pathname = '/waitlist'
         return NextResponse.redirect(url)
