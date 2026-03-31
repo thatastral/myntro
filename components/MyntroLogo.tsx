@@ -7,6 +7,7 @@ interface MyntroLogoProps {
   showBeta?: boolean
   showText?: boolean
   iconColor?: string
+  gradient?: boolean
 }
 
 const SIZE_MAP = {
@@ -16,10 +17,13 @@ const SIZE_MAP = {
   lg: { icon: 44, textClass: 'text-2xl', gap: 'gap-2.5' },
 }
 
-export function MyntroLogo({ size = 'md', showBeta = false, showText = true, iconColor = '#0F1702' }: MyntroLogoProps) {
+export function MyntroLogo({ size = 'md', showBeta = false, showText = true, iconColor = '#0F1702', gradient = false }: MyntroLogoProps) {
   const uid = useId().replace(/:/g, '')
   const clipId = `logoClip_${uid}`
+  const gradId = `logoGrad_${uid}`
   const { icon, textClass, gap } = SIZE_MAP[size]
+
+  const fill = gradient ? `url(#${gradId})` : iconColor
 
   return (
     <div className={`flex items-center ${gap}`}>
@@ -36,11 +40,17 @@ export function MyntroLogo({ size = 'md', showBeta = false, showText = true, ico
           <clipPath id={clipId}>
             <rect width="54.8377" height="54.8377" fill="white" />
           </clipPath>
+          {gradient && (
+            <linearGradient id={gradId} x1="0" y1="0" x2="54.8377" y2="54.8377" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#C6F135" />
+              <stop offset="100%" stopColor="#8EE600" />
+            </linearGradient>
+          )}
         </defs>
         <g clipPath={`url(#${clipId})`}>
           <path
             d="M-0.000976562 14.8511C-0.000976562 6.57424 9.19728 1.61336 16.1134 6.16011L27.4183 13.592L38.7231 6.16011C45.6392 1.61337 54.8375 6.57426 54.8375 14.8511V40.0039C54.8375 45.7482 50.1809 50.4048 44.4366 50.4048H10.3999C4.65563 50.4048 -0.000976562 45.7482 -0.000976562 40.0039V14.8511Z"
-            fill={iconColor}
+            fill={fill}
           />
         </g>
       </svg>
