@@ -26,7 +26,13 @@ export default async function proxy(request: NextRequest) {
   // Auth routes are always allowed so Google OAuth can complete.
   const { pathname } = request.nextUrl
   if (process.env.MAINTENANCE_MODE === 'true') {
+    // Public profile pages (/{username}) are always viewable so shared
+    // links and hover previews work even during maintenance.
+    const reserved = ['/api', '/login', '/signup', '/onboarding', '/admin', '/waitlist', '/forgot-password', '/reset-password', '/_next']
+    const isPublicProfile = !reserved.some(r => pathname.startsWith(r)) && pathname.split('/').length === 2
+
     const publicAllowed =
+      isPublicProfile ||
       pathname === '/waitlist' ||
       pathname.startsWith('/api/waitlist') ||
       pathname.startsWith('/api/admin') ||
