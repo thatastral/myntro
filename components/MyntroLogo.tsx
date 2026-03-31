@@ -41,8 +41,8 @@ export function MyntroLogo({ size = 'md', showBeta = false, showText = true, ico
             <rect width="54.8377" height="54.8377" fill="white" />
           </clipPath>
           {gradient && (
-            <linearGradient id={gradId} x1="0" y1="0" x2="54.8377" y2="54.8377" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#C6F135" />
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="54.8377" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FDFDFD" />
               <stop offset="100%" stopColor="#8EE600" />
             </linearGradient>
           )}
