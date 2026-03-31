@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
 
   const admin = createAdminClient()
   const [betaResult, waitlistResult] = await Promise.all([
-    admin.from('beta_testers').select('id').eq('email', email).maybeSingle(),
-    admin.from('waitlist').select('username').eq('email', email).maybeSingle(),
+    admin.from('beta_testers').select('id').ilike('email', email).maybeSingle(),
+    admin.from('waitlist').select('username').ilike('email', email).maybeSingle(),
   ])
 
   return NextResponse.json({

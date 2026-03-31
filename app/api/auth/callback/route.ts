@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         const { data: betaTester } = await admin
           .from('beta_testers')
           .select('id')
-          .eq('email', (user.email ?? '').toLowerCase())
+          .ilike('email', user.email ?? '')
           .maybeSingle()
 
         if (!betaTester) {
