@@ -20,14 +20,40 @@ async function getUserProfilePath(request: NextRequest, userId: string): Promise
 }
 
 export default async function proxy(request: NextRequest) {
-  // Maintenance mode — redirect everything to /waitlist except the waitlist page and its API
+  // Maintenance mode — unauthenticated visitors only see /waitlist.
+  // Authenticated users (beta testers who signed up) pass through so they
+  // can reach /onboarding and their edit page.
+  // Auth routes are always allowed so Google OAuth can complete.
   const { pathname } = request.nextUrl
   if (process.env.MAINTENANCE_MODE === 'true') {
-    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/api/admin') || pathname.startsWith('/api/email') || pathname.startsWith('/api/auth') || pathname.startsWith('/_next')
-    if (!allowed) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/waitlist'
-      return NextResponse.redirect(url)
+    const publicAllowed =
+      pathname === '/waitlist' ||
+      pathname.startsWith('/api/waitlist') ||
+      pathname.startsWith('/api/admin') ||
+      pathname.startsWith('/api/email') ||
+      pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/login') ||
+      pathname.startsWith('/signup') ||
+      pathname.startsWith('/_next')
+
+    if (!publicAllowed) {
+      // Check session — authenticated users pass through
+      const tempClient = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() { return request.cookies.getAll() },
+            setAll() {},
+          },
+        },
+      )
+      const { data: { user: tempUser } } = await tempClient.auth.getUser()
+      if (!tempUser) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/waitlist'
+        return NextResponse.redirect(url)
+      }
     }
   }
 
