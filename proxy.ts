@@ -32,6 +32,7 @@ export default async function proxy(request: NextRequest) {
       pathname.startsWith('/api/admin') ||
       pathname.startsWith('/api/email') ||
       pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/api/beta-check') ||
       pathname.startsWith('/login') ||
       pathname.startsWith('/signup') ||
       pathname.startsWith('/_next')
