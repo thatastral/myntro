@@ -54,18 +54,11 @@ function ProfilePreview({ x, y }: { x: number; y: number }) {
         background: '#fff',
       }}
     >
-      <iframe
-        src="https://myntro.me/thatastral"
-        title="Profile preview"
-        scrolling="no"
-        style={{
-          width: 1200,
-          height: 1000,
-          border: 'none',
-          transform: 'scale(0.3)',
-          transformOrigin: 'top left',
-          pointerEvents: 'none',
-        }}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="https://s.wordpress.com/mshots/v1/https%3A%2F%2Fmyntro.me%2Fastral?w=720&h=600"
+        alt="Profile preview"
+        style={{ width: W, height: H, objectFit: 'cover', objectPosition: 'top', display: 'block' }}
       />
     </div>,
     document.body,

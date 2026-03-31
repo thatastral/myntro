@@ -263,7 +263,7 @@ export default function OnboardingPage() {
 
         {/* Logo */}
         <div className="mb-8 flex justify-center">
-          <MyntroLogo size="md" />
+          <MyntroLogo size="md" showText={false} />
         </div>
 
         {/* Card */}

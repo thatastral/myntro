@@ -5,6 +5,8 @@ import { useId } from 'react'
 interface MyntroLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'footer'
   showBeta?: boolean
+  showText?: boolean
+  iconColor?: string
 }
 
 const SIZE_MAP = {
@@ -14,7 +16,7 @@ const SIZE_MAP = {
   lg: { icon: 44, textClass: 'text-2xl', gap: 'gap-2.5' },
 }
 
-export function MyntroLogo({ size = 'md', showBeta = false }: MyntroLogoProps) {
+export function MyntroLogo({ size = 'md', showBeta = false, showText = true, iconColor = '#0F1702' }: MyntroLogoProps) {
   const uid = useId().replace(/:/g, '')
   const clipId = `logoClip_${uid}`
   const { icon, textClass, gap } = SIZE_MAP[size]
@@ -38,18 +40,20 @@ export function MyntroLogo({ size = 'md', showBeta = false }: MyntroLogoProps) {
         <g clipPath={`url(#${clipId})`}>
           <path
             d="M-0.000976562 14.8511C-0.000976562 6.57424 9.19728 1.61336 16.1134 6.16011L27.4183 13.592L38.7231 6.16011C45.6392 1.61337 54.8375 6.57426 54.8375 14.8511V40.0039C54.8375 45.7482 50.1809 50.4048 44.4366 50.4048H10.3999C4.65563 50.4048 -0.000976562 45.7482 -0.000976562 40.0039V14.8511Z"
-            fill="#0F1702"
+            fill={iconColor}
           />
         </g>
       </svg>
 
       {/* Wordmark */}
-      <span
-        className={`font-bold tracking-tight text-[#0F1702] ${textClass}`}
-        style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
-      >
-        Myntro
-      </span>
+      {showText && (
+        <span
+          className={`font-bold tracking-tight text-[#0F1702] ${textClass}`}
+          style={{ fontFamily: 'var(--font-funnel-display), sans-serif' }}
+        >
+          Myntro
+        </span>
+      )}
 
       {/* Beta pill */}
       {showBeta && (

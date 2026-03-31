@@ -238,7 +238,7 @@ export default function WaitlistPage() {
 
       {/* Nav */}
       <header className="relative flex items-center justify-center px-6 pt-10 pb-4">
-        <MyntroLogo size="md" />
+        <MyntroLogo size="md" iconColor="#8EE600" />
       </header>
 
       {/* Main content */}
@@ -450,7 +450,7 @@ function SuccessScreen({ username }: { username: string }) {
 
       {/* Nav */}
       <header className="relative flex items-center justify-center px-6 pt-10 pb-4">
-        <MyntroLogo size="md" />
+        <MyntroLogo size="md" iconColor="#8EE600" />
       </header>
 
       <main className="relative flex flex-1 flex-col items-center justify-center px-4 py-8 text-center">
