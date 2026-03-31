@@ -23,7 +23,7 @@ export default async function proxy(request: NextRequest) {
   // Maintenance mode — redirect everything to /waitlist except the waitlist page and its API
   const { pathname } = request.nextUrl
   if (process.env.MAINTENANCE_MODE === 'true') {
-    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/api/admin') || pathname.startsWith('/api/email') || pathname.startsWith('/_next')
+    const allowed = pathname === '/waitlist' || pathname.startsWith('/api/waitlist') || pathname.startsWith('/api/admin') || pathname.startsWith('/api/email') || pathname.startsWith('/api/auth') || pathname.startsWith('/_next')
     if (!allowed) {
       const url = request.nextUrl.clone()
       url.pathname = '/waitlist'
@@ -93,7 +93,7 @@ export default async function proxy(request: NextRequest) {
       const { count } = await betaAdmin
         .from('beta_testers')
         .select('id', { count: 'exact', head: true })
-        .eq('email', user.email)
+        .ilike('email', user.email ?? '')
 
       if (!count || count === 0) {
         const url = request.nextUrl.clone()
