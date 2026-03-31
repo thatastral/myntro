@@ -230,7 +230,7 @@ export default function HomePage() {
           <p className="text-sm text-[#C0C0C0]">
             Built with ❤️ by{' '}
             <a
-              href="https://myntro.me/thatastral"
+              href="https://myntro.me/astral"
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-[#0F1702] transition-opacity hover:opacity-70"
