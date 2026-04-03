@@ -21,6 +21,7 @@ interface UseProfileReturn {
   deleteAffiliation: (id: string) => Promise<void>
   addBlock: (type: BlockType, content: Record<string, string>, span: 1 | 2, sectionId?: string | null) => Promise<Block>
   updateBlock: (id: string, content: Record<string, string>) => Promise<void>
+  updateBlockSpan: (id: string, span: 1 | 2) => Promise<void>
   deleteBlock: (id: string) => Promise<void>
   reorderBlocks: (updates: { id: string; section_id: string | null; display_order: number }[]) => Promise<void>
   addSection: (title: string) => Promise<Section>
@@ -328,6 +329,22 @@ export function useProfile(username: string): UseProfileReturn {
     }
   }, [])
 
+  const updateBlockSpan = useCallback(async (id: string, span: 1 | 2) => {
+    setProfile((prev) =>
+      prev
+        ? { ...prev, blocks: prev.blocks.map((b) => (b.id === id ? { ...b, span } : b)) }
+        : prev,
+    )
+    const res = await fetch(`/api/blocks?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ span }),
+    })
+    if (!res.ok) {
+      setRefreshKey((k) => k + 1)
+    }
+  }, [])
+
   const deleteBlock = useCallback(async (id: string) => {
     setProfile((prev) => prev ? { ...prev, blocks: prev.blocks.filter((b) => b.id !== id) } : prev)
     const res = await fetch(`/api/blocks?id=${id}`, { method: 'DELETE' })
@@ -447,6 +464,7 @@ export function useProfile(username: string): UseProfileReturn {
     deleteAffiliation,
     addBlock,
     updateBlock,
+    updateBlockSpan,
     deleteBlock,
     reorderBlocks,
     addSection,

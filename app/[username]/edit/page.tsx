@@ -62,6 +62,7 @@ export default function EditPage({ params }: EditPageProps) {
     deleteAffiliation,
     addBlock,
     updateBlock,
+    updateBlockSpan,
     deleteBlock,
     reorderBlocks,
     addSection,
@@ -642,6 +643,7 @@ export default function EditPage({ params }: EditPageProps) {
                   username={username}
                   onAdd={addBlock}
                   onUpdate={updateBlock}
+                  onUpdateSpan={updateBlockSpan}
                   onDelete={deleteBlock}
                   onAddSection={addSection}
                   onUpdateSection={updateSection}

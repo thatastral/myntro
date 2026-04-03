@@ -71,13 +71,14 @@ export interface Section {
   created_at: string
 }
 
-export type BlockType = 'note' | 'link' | 'spotify' | 'music' | 'youtube' | 'image'
+export type BlockType = 'note' | 'text' | 'link' | 'spotify' | 'music' | 'youtube' | 'image'
 
-export interface NoteContent   { text: string; color: string; font_family?: string }
-export interface LinkContent   { url: string; title: string; description?: string; og_image?: string }
+export interface NoteContent    { text: string; color: string; font_family?: string }
+export interface TextContent    { text: string; bold?: string; italic?: string; size?: string; align?: string; font_family?: string }
+export interface LinkContent    { url: string; title: string; description?: string; og_image?: string }
 export interface SpotifyContent { url: string }
 export interface YoutubeContent { url: string }
-export interface ImageContent  { url: string; caption?: string }
+export interface ImageContent   { url: string; caption?: string; height?: string }
 
 export interface Block {
   id: string

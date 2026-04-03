@@ -22,7 +22,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
-  Note, Link, MusicNote, YoutubeLogo, Image as PhosphorImage,
+  Note, Link, MusicNote, YoutubeLogo, Image as PhosphorImage, TextT,
   X, Plus, CircleNotch, DotsSixVertical, FolderPlus, PencilSimple, Check,
   SquaresFour,
 } from '@phosphor-icons/react'
@@ -32,17 +32,26 @@ import { LinkBlock } from './LinkBlock'
 import { MusicBlock } from './MusicBlock'
 import { YoutubeBlock } from './YoutubeBlock'
 import { ImageBlock } from './ImageBlock'
+import { TextBlock } from './TextBlock'
 
 // ── Block renderer ─────────────────────────────────────────────────
 
-export function BlockRenderer({ block, username, onUpdate }: { block: Block; username?: string; onUpdate?: (id: string, content: Record<string, string>) => void }) {
+export function BlockRenderer({
+  block, username, onUpdate, onUpdateSpan,
+}: {
+  block: Block
+  username?: string
+  onUpdate?: (id: string, content: Record<string, string>) => void
+  onUpdateSpan?: (id: string, span: 1 | 2) => void
+}) {
   switch (block.type) {
     case 'note':    return <NoteBlock block={block} username={username} onUpdate={onUpdate} />
+    case 'text':    return <TextBlock block={block} onUpdate={onUpdate} />
     case 'link':    return <LinkBlock block={block} />
     case 'spotify':
     case 'music':   return <MusicBlock block={block} />
     case 'youtube': return <YoutubeBlock block={block} />
-    case 'image':   return <ImageBlock block={block} />
+    case 'image':   return <ImageBlock block={block} onUpdate={onUpdate} onUpdateSpan={onUpdateSpan} />
     default:        return null
   }
 }
@@ -110,6 +119,7 @@ const NOTE_COLORS = [
 
 const BLOCK_TYPES: { type: BlockType; label: string; Icon: React.ElementType; defaultSpan: 1 | 2 }[] = [
   { type: 'note',    label: 'Note',    Icon: Note,          defaultSpan: 1 },
+  { type: 'text',    label: 'Text',    Icon: TextT,         defaultSpan: 2 },
   { type: 'link',    label: 'Link',    Icon: Link,          defaultSpan: 1 },
   { type: 'music',   label: 'Music',   Icon: MusicNote,     defaultSpan: 2 },
   { type: 'youtube', label: 'YouTube', Icon: YoutubeLogo,   defaultSpan: 2 },
@@ -132,12 +142,14 @@ function SortableBlockItem({
   block,
   onDelete,
   onUpdate,
+  onUpdateSpan,
   activeId,
   username,
 }: {
   block: Block
   onDelete?: (id: string) => void
   onUpdate?: (id: string, content: Record<string, string>) => void
+  onUpdateSpan?: (id: string, span: 1 | 2) => void
   activeId: string | null
   username?: string
 }) {
@@ -167,7 +179,7 @@ function SortableBlockItem({
         <DotsSixVertical className="h-3 w-3" />
       </div>
 
-      <BlockRenderer block={block} username={username} onUpdate={onUpdate} />
+      <BlockRenderer block={block} username={username} onUpdate={onUpdate} onUpdateSpan={onUpdateSpan} />
 
       {onDelete && activeId !== block.id && (
         <button
@@ -209,6 +221,7 @@ function SortableSectionItem({
   onDeleteBlock,
   onRename,
   onUpdate,
+  onUpdateSpan,
   activeId,
   activeBlockType,
   username,
@@ -219,6 +232,7 @@ function SortableSectionItem({
   onDeleteBlock: (id: string) => void
   onRename: (id: string, title: string) => void
   onUpdate?: (id: string, content: Record<string, string>) => void
+  onUpdateSpan?: (id: string, span: 1 | 2) => void
   activeId: string | null
   activeBlockType: 'block' | 'section' | null
   username?: string
@@ -331,6 +345,7 @@ function SortableSectionItem({
                   block={block}
                   onDelete={onDeleteBlock}
                   onUpdate={onUpdate}
+                  onUpdateSpan={onUpdateSpan}
                   activeId={activeId}
                   username={username}
                 />
@@ -355,6 +370,7 @@ interface BlocksEditorProps {
   username?: string
   onAdd: (type: BlockType, content: Record<string, string>, span: 1 | 2, sectionId?: string | null) => Promise<Block>
   onUpdate?: (id: string, content: Record<string, string>) => Promise<void>
+  onUpdateSpan?: (id: string, span: 1 | 2) => Promise<void>
   onDelete: (id: string) => Promise<void>
   onAddSection: (title: string) => Promise<Section>
   onUpdateSection: (id: string, title: string) => Promise<void>
@@ -369,6 +385,7 @@ export function BlocksEditor({
   username,
   onAdd,
   onUpdate,
+  onUpdateSpan,
   onDelete,
   onAddSection,
   onUpdateSection,
@@ -394,6 +411,12 @@ export function BlocksEditor({
   const [linkDesc, setLinkDesc] = useState('')
   const [spotifyUrl, setSpotifyUrl] = useState('')
   const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [textContent, setTextContent] = useState('')
+  const [textBold, setTextBold]       = useState('false')
+  const [textItalic, setTextItalic]   = useState('false')
+  const [textSize, setTextSize]       = useState('md')
+  const [textAlign, setTextAlign]     = useState('left')
+  const [textFont, setTextFont]       = useState('dm-sans')
 
   // dnd state
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -568,6 +591,8 @@ export function BlocksEditor({
     setNoteText(''); setNoteColor('default'); setNoteFont('sans-serif')
     setLinkUrl(''); setLinkTitle(''); setLinkDesc('')
     setSpotifyUrl(''); setYoutubeUrl('')
+    setTextContent(''); setTextBold('false'); setTextItalic('false')
+    setTextSize('md'); setTextAlign('left'); setTextFont('dm-sans')
   }
 
   const handleSave = async () => {
@@ -587,6 +612,16 @@ export function BlocksEditor({
       } else if (activeBlockType === 'youtube') {
         if (!youtubeUrl.trim()) return
         await onAdd('youtube', { url: youtubeUrl.trim() }, defaultSpan)
+      } else if (activeBlockType === 'text') {
+        if (!textContent.trim()) return
+        await onAdd('text', {
+          text: textContent.trim(),
+          bold: textBold,
+          italic: textItalic,
+          size: textSize,
+          align: textAlign,
+          font_family: textFont,
+        }, defaultSpan)
       }
       resetAndClose()
     } finally {
@@ -604,7 +639,7 @@ export function BlocksEditor({
       const res = await fetch('/api/avatar', { method: 'POST', body: fd })
       const data = await res.json()
       if (data.avatar_url) {
-        await onAdd('image', { url: data.avatar_url, caption: '' }, 1)
+        await onAdd('image', { url: data.avatar_url, caption: '', height: '200' }, 1)
       }
     } finally {
       setImageUploading(false)
@@ -651,6 +686,7 @@ export function BlocksEditor({
                   block={block}
                   onDelete={onDelete}
                   onUpdate={onUpdate}
+                  onUpdateSpan={onUpdateSpan}
                   activeId={activeId}
                   username={username}
                 />
@@ -676,6 +712,7 @@ export function BlocksEditor({
                   onDeleteBlock={onDelete}
                   onRename={onUpdateSection}
                   onUpdate={onUpdate}
+                  onUpdateSpan={onUpdateSpan}
                   activeId={activeId}
                   activeBlockType={activeDragType}
                   username={username}
@@ -764,6 +801,48 @@ export function BlocksEditor({
             <input type="url" value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=… or youtu.be/…" autoFocus
               className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
+          )}
+
+          {activeBlockType === 'text' && (
+            <div className="space-y-3">
+              <textarea
+                value={textContent}
+                onChange={(e) => setTextContent(e.target.value)}
+                placeholder="Write something…"
+                rows={3}
+                autoFocus
+                className="w-full resize-none rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20"
+              />
+              <div className="flex flex-wrap items-center gap-1.5">
+                {/* Bold */}
+                <button onClick={() => setTextBold(b => b === 'true' ? 'false' : 'true')}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg border text-sm font-bold transition-colors ${textBold === 'true' ? 'border-[#0F1702] bg-[#0F1702] text-white' : 'border-[#EBEBEB] text-[#909090]'}`}>B</button>
+                {/* Italic */}
+                <button onClick={() => setTextItalic(i => i === 'true' ? 'false' : 'true')}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg border text-sm italic transition-colors ${textItalic === 'true' ? 'border-[#0F1702] bg-[#0F1702] text-white' : 'border-[#EBEBEB] text-[#909090]'}`}>I</button>
+                <div className="h-4 w-px bg-[#EBEBEB]" />
+                {(['sm', 'md', 'lg'] as const).map((s) => (
+                  <button key={s} onClick={() => setTextSize(s)}
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg border text-xs font-medium transition-colors ${textSize === s ? 'border-[#0F1702] bg-[#0F1702] text-white' : 'border-[#EBEBEB] text-[#909090]'}`}>
+                    {s.toUpperCase()}
+                  </button>
+                ))}
+                <div className="h-4 w-px bg-[#EBEBEB]" />
+                {(['left', 'center', 'right'] as const).map((a) => (
+                  <button key={a} onClick={() => setTextAlign(a)} title={a}
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg border text-xs transition-colors ${textAlign === a ? 'border-[#0F1702] bg-[#0F1702] text-white' : 'border-[#EBEBEB] text-[#909090]'}`}>
+                    {a === 'left' ? '≡' : a === 'center' ? '☰' : '≡'}
+                  </button>
+                ))}
+                <div className="h-4 w-px bg-[#EBEBEB]" />
+                <select value={textFont} onChange={(e) => setTextFont(e.target.value)}
+                  className="rounded-lg border border-[#EBEBEB] bg-white px-2 py-1 text-xs text-[#0F1702] outline-none">
+                  <option value="dm-sans">DM Sans</option>
+                  <option value="funnel-display">Funnel Display</option>
+                  <option value="mono">Mono</option>
+                </select>
+              </div>
+            </div>
           )}
 
           <div className="mt-3 flex items-center justify-end gap-2">
