@@ -49,6 +49,12 @@ Supabase Auth with Google OAuth + email/password. Two client factories in `lib/s
 - `client.ts` — `createBrowserClient` (use in `'use client'` components)
 - `server.ts` — `createServerClient` with cookies (use in Server Components, API routes, `proxy.ts`), plus `createAdminClient()` which uses the service role key with no cookies — bypasses all RLS
 
+**Custom Google OAuth flow** (so Google shows "Myntro" instead of the Supabase project ref):
+- `GET /api/auth/google` — generates PKCE code_verifier/challenge, stores verifier in an HttpOnly `pkce_verifier` cookie, redirects directly to `accounts.google.com`. Requires `GOOGLE_CLIENT_ID`.
+- `GET /api/auth/callback/google` — exchanges the Google authorization code for tokens (using `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`), then calls `supabase.auth.signInWithIdToken` with the Google ID token to mint a Supabase session. Applies the same beta gate + profile redirect logic as the old callback. Clears the `pkce_verifier` cookie on completion.
+- The old `GET /api/auth/callback` route is kept for any other OAuth flows.
+- Login and signup pages call `window.location.href = '/api/auth/google?next=...'` — no longer call `supabase.auth.signInWithOAuth`.
+
 After OAuth the browser hits `/api/auth/callback` → checks if user has a profile → redirects to `/onboarding` (new users) or `/{username}/edit` (existing users).
 
 **Password recovery flow**: `app/(auth)/forgot-password/page.tsx` calls `supabase.auth.resetPasswordForEmail()` with `redirectTo: /reset-password`. `app/(auth)/reset-password/page.tsx` calls `supabase.auth.getSession()` on mount to exchange the URL fragment token, then `supabase.auth.updateUser({ password })` on submit.
