@@ -50,23 +50,9 @@ function LoginForm() {
     }
   }
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     setGoogleLoading(true)
-    setError(null)
-    const supabase = createClient()
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/api/auth/callback?next=${encodeURIComponent(next)}`,
-        queryParams: { access_type: 'offline', prompt: 'consent' },
-      },
-    })
-
-    if (error) {
-      setError(error.message)
-      setGoogleLoading(false)
-    }
+    window.location.href = `/api/auth/google?next=${encodeURIComponent(next)}`
   }
 
   return (
