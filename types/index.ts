@@ -71,7 +71,7 @@ export interface Section {
   created_at: string
 }
 
-export type BlockType = 'note' | 'link' | 'spotify' | 'youtube' | 'image'
+export type BlockType = 'note' | 'link' | 'spotify' | 'music' | 'youtube' | 'image'
 
 export interface NoteContent   { text: string; color: string; font_family?: string }
 export interface LinkContent   { url: string; title: string; description?: string; og_image?: string }

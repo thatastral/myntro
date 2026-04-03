@@ -29,7 +29,7 @@ import {
 import type { Block, BlockType, Section } from '@/types'
 import { NoteBlock } from './NoteBlock'
 import { LinkBlock } from './LinkBlock'
-import { SpotifyBlock } from './SpotifyBlock'
+import { MusicBlock } from './MusicBlock'
 import { YoutubeBlock } from './YoutubeBlock'
 import { ImageBlock } from './ImageBlock'
 
@@ -39,7 +39,8 @@ export function BlockRenderer({ block, username, onUpdate }: { block: Block; use
   switch (block.type) {
     case 'note':    return <NoteBlock block={block} username={username} onUpdate={onUpdate} />
     case 'link':    return <LinkBlock block={block} />
-    case 'spotify': return <SpotifyBlock block={block} />
+    case 'spotify':
+    case 'music':   return <MusicBlock block={block} />
     case 'youtube': return <YoutubeBlock block={block} />
     case 'image':   return <ImageBlock block={block} />
     default:        return null
@@ -110,7 +111,7 @@ const NOTE_COLORS = [
 const BLOCK_TYPES: { type: BlockType; label: string; Icon: React.ElementType; defaultSpan: 1 | 2 }[] = [
   { type: 'note',    label: 'Note',    Icon: Note,          defaultSpan: 1 },
   { type: 'link',    label: 'Link',    Icon: Link,          defaultSpan: 1 },
-  { type: 'spotify', label: 'Spotify', Icon: MusicNote,     defaultSpan: 2 },
+  { type: 'music',   label: 'Music',   Icon: MusicNote,     defaultSpan: 2 },
   { type: 'youtube', label: 'YouTube', Icon: YoutubeLogo,   defaultSpan: 2 },
   { type: 'image',   label: 'Image',   Icon: PhosphorImage, defaultSpan: 1 },
 ]
@@ -580,9 +581,9 @@ export function BlocksEditor({
       } else if (activeBlockType === 'link') {
         if (!linkUrl.trim()) return
         await onAdd('link', { url: linkUrl.trim(), title: linkTitle.trim(), description: linkDesc.trim() }, defaultSpan)
-      } else if (activeBlockType === 'spotify') {
+      } else if (activeBlockType === 'music') {
         if (!spotifyUrl.trim()) return
-        await onAdd('spotify', { url: spotifyUrl.trim() }, defaultSpan)
+        await onAdd('music', { url: spotifyUrl.trim() }, defaultSpan)
       } else if (activeBlockType === 'youtube') {
         if (!youtubeUrl.trim()) return
         await onAdd('youtube', { url: youtubeUrl.trim() }, defaultSpan)
@@ -753,9 +754,9 @@ export function BlocksEditor({
             </div>
           )}
 
-          {activeBlockType === 'spotify' && (
+          {activeBlockType === 'music' && (
             <input type="url" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)}
-              placeholder="https://open.spotify.com/track/… or playlist/…" autoFocus
+              placeholder="Paste a link from Spotify, SoundCloud, Apple Music, or Tidal…" autoFocus
               className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
           )}
 
