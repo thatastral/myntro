@@ -756,7 +756,7 @@ export function BlocksEditor({
 
           {activeBlockType === 'music' && (
             <input type="url" value={spotifyUrl} onChange={(e) => setSpotifyUrl(e.target.value)}
-              placeholder="Paste a link from Spotify, SoundCloud, Apple Music, or Tidal…" autoFocus
+              placeholder="Paste a link from Spotify, Apple Music, or YouTube Music…" autoFocus
               className="w-full rounded-xl border border-[#EBEBEB] bg-[#FAFAFA] px-3 py-2 text-sm text-[#0F1702] outline-none placeholder:text-[#C0C0C0] transition-colors focus:border-[#8EE600]/50 focus:ring-1 focus:ring-[#8EE600]/20" />
           )}
 
