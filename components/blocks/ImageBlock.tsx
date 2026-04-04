@@ -20,7 +20,7 @@ interface ImageBlockProps {
 }
 
 export function ImageBlock({ block, onUpdate, onUpdateSpan }: ImageBlockProps) {
-  const { url, caption = '', height: storedH } = block.content
+  const { url = '', caption = '', height: storedH } = block.content
   const savedHeight = clampH(parseInt(storedH ?? String(DEFAULT_H), 10))
   const editable = !!onUpdate
 
