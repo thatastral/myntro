@@ -114,6 +114,14 @@ function toast(msg) {
   const t = $('#toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800);
 }
+const ring = (pct, size, inner, sw = 12) => {
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/><circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(100, pct) / 100)}" transform="rotate(-90 ${m} ${m})"/></svg><div class="ri">${inner}</div></div>`;
+};
+function weekStrip() {
+  const ws = weekStart(today()), on = new Set(S.activities.map(a => a.date.slice(0, 10)));
+  return `<div class="week">${'MTWTFSS'.split('').map((l, i) => { const k = addDays(ws, i); return `<div class="${on.has(k) ? 'on' : ''} ${k === today() ? 'now' : ''}"><i>${on.has(k) ? '✓' : ''}</i><span>${l}</span></div>`; }).join('')}</div>`;
+}
 const bar = pct => `<div class="bar ${pct >= 100 ? 'done' : ''}"><i style="width:${pct}%"></i></div>`;
 const actRow = a => `<div class="item"><div><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#log/${a.id}">Edit</a></div>`;
 
@@ -124,14 +132,15 @@ function vDash() {
   if (!pr) {
     h += `<div class="card"><h2>Welcome</h2><div class="sub">Set your starting and target weight to track progress.</div><p><a class="btn primary full" style="text-align:center" href="#weight">Set weights</a></p></div>`;
   } else {
-    const verb = pr.mode === 'gain' ? 'Gained' : 'Lost';
-    const change = pr.mode === 'gain' ? pr.moved : -pr.moved;
-    const remain = Math.max(0, Math.abs(S.profile.targetWeight - pr.cur));
-    h += `<div class="card"><div class="row"><div><div class="sub">Current weight</div><div class="big">${f(pr.cur)} <small class="sub">kg</small></div></div><div style="text-align:right"><div class="sub">${change >= 0 ? verb : (pr.mode === 'gain' ? 'Lost' : 'Gained')}</div><b>${f(Math.abs(change))} kg</b></div></div>${bar(pr.pct)}<div class="row sub"><span>Start ${f(S.profile.startingWeight)}</span><span>${f(pr.pct, 0)}% · ${f(remain)} kg to go</span><span>Target ${f(S.profile.targetWeight)}</span></div></div>`;
+    const st = S.profile.startingWeight, tg = S.profile.targetWeight;
+    const delta = pr.cur - st, good = pr.mode === 'gain' ? delta >= 0 : delta <= 0;
+    h += `<div class="card hero"><div class="sub">Current weight</div>${ring(pr.pct, 176, `<div class="big">${f(pr.cur)}</div><div class="sub">kg</div>`, 14)}
+      <div class="pill">${f(pr.pct, 0)}% there · ${f(Math.abs(tg - pr.cur))} kg to go</div>
+      <div class="trio"><div><span class="sub">Start</span><b>${f(st)} kg</b></div><div><span class="sub">Change</span><b class="${good ? 'good' : 'bad'}">${delta > 0 ? '+' : ''}${f(delta)} kg</b></div><div><span class="sub">Target</span><b>${f(tg)} kg</b></div></div></div>`;
   }
   const act = S.goals.filter(g => g.active);
   const daily = act.filter(g => g.frequency === 'daily'), weekly = act.filter(g => g.frequency === 'weekly');
-  const gl = g => { const p = goalProg(g); return `<div class="goal"><div class="row"><span>${esc(goalName(g))}</span><span class="sub">${f(p.v)} / ${f(g.targetValue)}</span></div>${bar(p.pct)}</div>`; };
+  const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ring(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${UNIT_LABEL[g.targetUnit]}</div></div></div>`; };
   h += `<div class="card"><h2>Goals <button class="link" data-act="goal" data-id="">+ Add</button></h2>`;
   if (!act.length) h += `<div class="empty">No active goals. Add one, e.g. 30 min cycling daily.</div>`;
   if (daily.length) h += `<div class="sub" style="margin-bottom:6px">Today</div>${daily.map(gl).join('')}`;
@@ -141,7 +150,7 @@ function vDash() {
   const todays = S.activities.filter(a => a.date.startsWith(t)).sort((a, b) => b.date.localeCompare(a.date));
   h += `<div class="card"><h2>Today <a class="btn primary" href="#log">+ Log</a></h2>${todays.length ? todays.map(actRow).join('') : '<div class="empty">Nothing logged yet today.</div>'}</div>`;
   const wk = S.activities.filter(a => a.date.slice(0, 10) >= ws);
-  h += `<div class="card"><h2>This week</h2>${totalsHTML(totals(wk))}</div>`;
+  h += `<div class="card"><h2>This week</h2>${weekStrip()}${totalsHTML(totals(wk))}</div>`;
   return h;
 }
 
@@ -205,21 +214,28 @@ async function submitLog(form) {
 
 // --- weight
 let editW = null;
+let CR = 0; // chart range in days, 0 = all
 function chart(points, target) {
-  if (points.length < 2) return `<div class="empty">Log at least two weights to see a trend.</div>`;
-  const W = 320, H = 140, px = 34, py = 14;
+  if (points.length < 2) return `<div class="empty">Log at least two weights in this range to see a trend.</div>`;
+  const W = 320, H = 160, px = 30, py = 16;
   const vals = points.map(p => p.weight); if (target != null) vals.push(target);
   let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 1) { lo -= .5; hi += .5; }
+  const pad = (hi - lo) * .12; lo -= pad; hi += pad;
   const t0 = parseKey(points[0].date).getTime(), t1 = parseKey(points[points.length - 1].date).getTime();
-  const X = d => px + (t1 === t0 ? 0.5 : (parseKey(d).getTime() - t0) / (t1 - t0)) * (W - px - 8);
-  const Y = w => py + (1 - (w - lo) / (hi - lo)) * (H - 2 * py);
-  const line = points.map(p => `${X(p.date).toFixed(1)},${Y(p.weight).toFixed(1)}`).join(' ');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend">
-    <text x="2" y="${py + 4}" font-size="10" fill="#909090">${f(hi)}</text><text x="2" y="${H - py + 4}" font-size="10" fill="#909090">${f(lo)}</text>
-    ${target != null ? `<line x1="${px}" x2="${W - 8}" y1="${Y(target)}" y2="${Y(target)}" stroke="#8EE600" stroke-dasharray="4 4"/><text x="${W - 8}" y="${Y(target) - 3}" font-size="10" text-anchor="end" fill="#4d7c0f">target</text>` : ''}
-    <polyline points="${line}" fill="none" stroke="#4d7c0f" stroke-width="2.5" stroke-linejoin="round"/>
-    ${points.map(p => `<circle cx="${X(p.date).toFixed(1)}" cy="${Y(p.weight).toFixed(1)}" r="3" fill="#8EE600" stroke="#4d7c0f"/>`).join('')}
-    <text x="${px}" y="${H - 1}" font-size="10" fill="#909090">${esc(fmtDay(points[0].date))}</text><text x="${W - 8}" y="${H - 1}" font-size="10" text-anchor="end" fill="#909090">${esc(fmtDay(points[points.length - 1].date))}</text></svg>`;
+  const X = d => px + (t1 === t0 ? 0.5 : (parseKey(d).getTime() - t0) / (t1 - t0)) * (W - px - 14);
+  const Y = w => py + (1 - (w - lo) / (hi - lo)) * (H - 2 * py - 6);
+  const pts = points.map(p => [X(p.date), Y(p.weight)]);
+  const line = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
+  const area = `${pts[0][0].toFixed(1)},${H - py} ${line} ${pts[pts.length - 1][0].toFixed(1)},${H - py}`;
+  const grid = [0, 1, 2].map(i => { const v = hi - (hi - lo) * (i / 2.4 + .05); return `<line x1="${px}" x2="${W - 8}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="2" y="${Y(v) + 3}" class="gt">${f(v, 0)}</text>`; }).join('');
+  const last = pts[pts.length - 1];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend"><defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8EE600" stop-opacity=".35"/><stop offset="1" stop-color="#8EE600" stop-opacity="0"/></linearGradient></defs>
+    ${grid}
+    ${target != null ? `<line x1="${px}" x2="${W - 8}" y1="${Y(target)}" y2="${Y(target)}" class="goalline"/><rect x="${W - 62}" y="${Y(target) - 17}" width="54" height="16" rx="8" fill="#182403"/><text x="${W - 35}" y="${Y(target) - 6}" font-size="9.5" font-weight="700" text-anchor="middle" fill="#C6F135">Goal ${f(target)}</text>` : ''}
+    <polygon points="${area}" fill="url(#ga)"/><polyline points="${line}" class="ln"/>
+    ${pts.length <= 40 ? pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" class="dot"/>`).join('') : ''}
+    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="5.5" class="dot now"/>
+    <text x="${px}" y="${H - 2}" class="gt">${esc(fmtDay(points[0].date))}</text><text x="${W - 8}" y="${H - 2}" text-anchor="end" class="gt">${esc(fmtDay(points[points.length - 1].date))}</text></svg>`;
 }
 function vWeight() {
   const p = S.profile, ws = sortedWeights();
@@ -232,7 +248,7 @@ function vWeight() {
     <button class="primary full" type="submit">${e ? 'Save changes' : 'Save weight'}</button>
     ${e ? `<p><button type="button" class="full" data-act="cancel-w">Cancel</button> <button type="button" class="danger full" style="margin-top:8px" data-act="del-w" data-id="${e.id}">Delete</button></p>` : ''}</form>`;
   const pr = progress();
-  h += `<div class="card"><h2>Trend</h2>${chart(ws, p?.targetWeight)}${pr ? `${bar(pr.pct)}<div class="sub">${f(pr.pct, 0)}% of the way from ${f(p.startingWeight)} to ${f(p.targetWeight)} kg</div>` : ''}</div>`;
+  h += `<div class="card"><h2>Trend</h2><div class="chips seg">${[[7, '1W'], [30, '1M'], [90, '3M'], [0, 'All']].map(([d, l]) => `<button data-act="crange" data-d="${d}" class="${CR === d ? 'on' : ''}">${l}</button>`).join('')}</div>${chart(CR ? ws.filter(w => w.date >= addDays(today(), -CR)) : ws, p?.targetWeight)}${pr ? `${bar(pr.pct)}<div class="sub">${f(pr.pct, 0)}% of the way from ${f(p.startingWeight)} to ${f(p.targetWeight)} kg</div>` : ''}</div>`;
   h += `<form id="profileForm" class="card"><h2>${p ? 'Goal weights' : 'Set your weights'}</h2>
     <div class="two"><label>Starting (kg)<input name="start" type="number" inputmode="decimal" step="0.1" min="1" required value="${esc(p?.startingWeight ?? '')}"></label>
     <label>Target (kg)<input name="target" type="number" inputmode="decimal" step="0.1" min="1" required value="${esc(p?.targetWeight ?? '')}"></label></div>
@@ -340,6 +356,7 @@ document.addEventListener('click', async e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const { act, id } = el.dataset;
   if (act === 'type') { const form = $('#logForm'); form.dataset.type = el.dataset.type; syncLogForm(); }
+  else if (act === 'crange') { CR = +el.dataset.d; render(); }
   else if (act === 'goal') openGoal(id);
   else if (act === 'close') $('#dlg').close();
   else if (act === 'del-goal') { if (confirm('Delete this goal?')) { await remove('goals', id); $('#dlg').close(); render(); } }
