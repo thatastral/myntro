@@ -229,9 +229,9 @@ function chart(points, target) {
   const area = `${pts[0][0].toFixed(1)},${H - py} ${line} ${pts[pts.length - 1][0].toFixed(1)},${H - py}`;
   const grid = [0, 1, 2].map(i => { const v = hi - (hi - lo) * (i / 2.4 + .05); return `<line x1="${px}" x2="${W - 8}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="2" y="${Y(v) + 3}" class="gt">${f(v, 0)}</text>`; }).join('');
   const last = pts[pts.length - 1];
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend"><defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8EE600" stop-opacity=".35"/><stop offset="1" stop-color="#8EE600" stop-opacity="0"/></linearGradient></defs>
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend"><defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".12"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>
     ${grid}
-    ${target != null ? `<line x1="${px}" x2="${W - 8}" y1="${Y(target)}" y2="${Y(target)}" class="goalline"/><rect x="${W - 62}" y="${Y(target) - 17}" width="54" height="16" rx="8" fill="#182403"/><text x="${W - 35}" y="${Y(target) - 6}" font-size="9.5" font-weight="700" text-anchor="middle" fill="#C6F135">Goal ${f(target)}</text>` : ''}
+    ${target != null ? `<line x1="${px}" x2="${W - 8}" y1="${Y(target)}" y2="${Y(target)}" class="goalline"/><rect x="${W - 62}" y="${Y(target) - 17}" width="54" height="16" rx="8" style="fill:var(--ink)"/><text x="${W - 35}" y="${Y(target) - 6}" font-size="9.5" font-weight="700" text-anchor="middle" style="fill:var(--bg)">Goal ${f(target)}</text>` : ''}
     <polygon points="${area}" fill="url(#ga)"/><polyline points="${line}" class="ln"/>
     ${pts.length <= 40 ? pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" class="dot"/>`).join('') : ''}
     <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="5.5" class="dot now"/>
