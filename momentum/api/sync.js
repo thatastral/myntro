@@ -4,7 +4,7 @@
 import { createClient } from '@libsql/client';
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-const STORES = new Set(['profile', 'weights', 'activities', 'goals']);
+const STORES = new Set(['profile', 'weights', 'activities', 'goals', 'water']);
 const MAX_CHANGES = 500, MAX_DATA = 20000, PULL_LIMIT = 5000;
 
 let client, ready;

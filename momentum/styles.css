@@ -1,4 +1,4 @@
-:root{--bg:#EDEDF0;--card:rgba(255,255,255,.58);--glass-b:rgba(255,255,255,.75);--fill:rgba(60,60,67,.08);--ink:#111;--ink2:#111;--sub:rgba(60,60,67,.6);--line:rgba(60,60,67,.14);--bar:rgba(60,60,67,.14);--accent-d:var(--ink);--bad:var(--ink);--dock:rgba(255,255,255,.55);--dock-on:#111;--dock-on-t:#fff;--orb1:rgba(139,123,255,.32);--orb2:#c9cacf;--orb3:#e1e2e6;--accent:#5B3DF5;--accent-ink:#fff;--amber:#FFB020;--heat:var(--amber);--heat-t:#9A5B00;--heat-bg:rgba(255,176,32,.2);--spring:cubic-bezier(.34,1.56,.64,1);--blur:saturate(180%) blur(28px);--hd:-apple-system,BlinkMacSystemFont,'SF Pro Display','DM Sans',system-ui,sans-serif}
+:root{--bg:#EDEDF0;--card:rgba(255,255,255,.58);--glass-b:rgba(255,255,255,.75);--fill:rgba(60,60,67,.08);--ink:#111;--ink2:#111;--sub:rgba(60,60,67,.6);--line:rgba(60,60,67,.14);--bar:rgba(60,60,67,.14);--accent-d:var(--ink);--bad:var(--ink);--dock:rgba(255,255,255,.55);--dock-on:#111;--dock-on-t:#fff;--orb1:rgba(139,123,255,.32);--orb2:#c9cacf;--orb3:#e1e2e6;--accent:#5B3DF5;--accent-ink:#fff;--amber:#FFB020;--heat:var(--amber);--heat-t:#9A5B00;--heat-bg:rgba(255,176,32,.2);--spring:cubic-bezier(.34,1.56,.64,1);--navbg:rgba(60,60,67,.1);--navon:#fff;--blur:saturate(180%) blur(28px);--hd:-apple-system,BlinkMacSystemFont,'SF Pro Display','DM Sans',system-ui,sans-serif}
 @media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#000;--card:rgba(255,255,255,.08);--glass-b:rgba(255,255,255,.14);--fill:rgba(255,255,255,.1);--ink:#F5F5F7;--ink2:#fff;--sub:rgba(235,235,245,.6);--line:rgba(255,255,255,.12);--bar:rgba(255,255,255,.16);--dock:rgba(40,40,44,.6);--dock-on:#fff;--dock-on-t:#111;--orb1:rgba(108,77,255,.3);--orb2:#1c1c20;--orb3:#26262a;--accent:#8B7BFF;--accent-ink:#0D0626;--amber:#FFC53D;--heat-t:#FFC53D;--heat-bg:rgba(255,197,61,.16)}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 a,button,input,select,label{touch-action:manipulation}
@@ -84,7 +84,6 @@ dialog::backdrop{background:rgba(0,0,0,.3);-webkit-backdrop-filter:blur(8px);bac
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 .goal .ring{margin:0;flex:none}
 
-body::before{content:'';position:fixed;inset:-10%;z-index:-1;pointer-events:none;background:radial-gradient(40% 32% at 18% 12%,var(--orb1),transparent 70%),radial-gradient(45% 36% at 88% 40%,var(--orb2),transparent 70%),radial-gradient(50% 40% at 25% 90%,var(--orb3),transparent 70%);filter:blur(30px)}
 #view[data-anim="1"] .card{animation:rise .5s var(--spring) both}
 #view[data-anim="1"] .card:nth-child(2){animation-delay:40ms}#view[data-anim="1"] .card:nth-child(3){animation-delay:80ms}#view[data-anim="1"] .card:nth-child(4){animation-delay:120ms}#view[data-anim="1"] .card:nth-child(n+5){animation-delay:160ms}
 @keyframes rise{from{opacity:0;transform:translateY(10px) scale(.98)}}
@@ -137,3 +136,81 @@ dialog[open]{animation:pop .35s var(--spring)}
 @keyframes draw{from{stroke-dashoffset:var(--c)}}
 .adot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--h);margin-right:7px;vertical-align:1px}
 .repbtn,.reps,.timer{user-select:none;-webkit-user-select:none}
+
+/* ---- bottom sheet (How We Feel / BitePal / WHOOP inspired) ---- */
+dialog{border:0;border-top:1px solid var(--glass-b);border-radius:32px 32px 0 0;padding:12px 20px calc(22px + env(safe-area-inset-bottom));width:min(100%,520px);max-width:none;margin:auto auto 0;max-height:90dvh;overflow:auto;background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);touch-action:pan-y;transition:transform .3s var(--spring)}
+dialog::before{content:'';display:block;width:40px;height:5px;border-radius:99px;background:var(--sub);opacity:.4;margin:0 auto 16px}
+dialog[open]{animation:sheetup .45s var(--spring)}
+dialog.closing{animation:none;transform:translateY(100%);transition:transform .22s cubic-bezier(.4,0,1,1)}
+@keyframes sheetup{from{transform:translateY(100%)}}
+.shead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.shead h2{display:block;font:700 30px/1.1 var(--hd);letter-spacing:-.03em;margin:0}
+.ssub{font:600 22px/1.2 var(--hd);letter-spacing:-.02em;color:var(--sub);margin-top:2px}
+.x{flex:none;width:40px;height:40px;min-height:0;padding:0;border-radius:50%;display:grid;place-items:center}
+.x svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linecap:round}
+.cta{display:block;width:100%;min-height:58px;margin-top:14px;border-radius:99px;background:var(--dock-on);color:var(--dock-on-t);font-size:17px;font-weight:700}
+.wheels{position:relative;display:flex;gap:8px;margin:6px 0 0}
+.wheels::before{content:'';position:absolute;left:0;right:0;top:88px;height:44px;border-radius:14px;background:var(--fill)}
+.wcol{position:relative;flex:1}
+.wheel{position:relative;height:220px;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;padding:88px 0;-webkit-mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent);mask-image:linear-gradient(transparent,#000 32%,#000 68%,transparent)}
+.wheel::-webkit-scrollbar{display:none}
+.wheel div{height:44px;display:grid;place-items:center;scroll-snap-align:center;font:600 26px var(--hd);font-variant-numeric:tabular-nums}
+.wl{position:absolute;top:100px;left:calc(50% + 26px);font-size:15px;font-weight:600;pointer-events:none}
+/* floating action button next to the dock (BitePal) */
+.tabs{left:12px;right:88px;width:auto;max-width:430px;transform:none}
+.fab{position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:5;width:66px;height:66px;min-height:0;padding:0;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);transition:transform .3s var(--spring)}
+.fab svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.fab:active{transform:scale(.9) rotate(90deg)}
+body.in-workout .fab{display:none}
+@media(min-width:600px){.tabs{left:50%;right:auto;width:min(calc(100% - 24px),420px);transform:translateX(-50%)}.fab{display:none}}
+/* WHOOP-style quiet labels */
+.grid .sub{text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+
+/* ---- flat page, logo ---- */
+.top h1{display:flex;align-items:center;gap:9px;font-size:30px}
+.top h1::after{display:none}
+.logo{width:34px;height:34px;flex:none}
+.logo,.ic{display:block}
+.ic{width:1em;height:1em}
+/* ---- BitePal-style nav: soft pill, icon-only, active icon sits in a lit circle ---- */
+.tabs{left:12px;right:90px;max-width:420px;min-height:66px;padding:6px;background:var(--navbg);border:1px solid var(--glass-b)}
+.tabs::before{top:6px;bottom:6px;left:6px;background:var(--navon);border:1px solid var(--glass-b)}
+.tabs a{display:grid;place-items:center;padding:0;min-height:52px;color:var(--sub);font-size:0}
+.tabs a svg{width:27px;height:27px;margin:0;stroke:none;fill:currentColor}
+.tabs a.on{color:var(--ink)}
+.fab{width:66px;height:66px;background:var(--ink);color:var(--bg)}
+.fab svg{width:26px;height:26px;fill:currentColor;stroke:none}
+.fab:active{transform:scale(.9)}
+/* ---- icons & illustrations ---- */
+.tile svg{width:44px;height:44px;padding:9px;border-radius:50%;background:color-mix(in srgb,var(--h) 20%,transparent);fill:var(--h);stroke:none}
+.pill::before{display:none}
+.pill .ic{width:15px;height:15px;color:var(--heat)}
+.h2i{width:20px;height:20px;color:var(--amber);margin-left:6px;vertical-align:-3px}
+.x svg,.x .ic{width:18px;height:18px;fill:var(--ink);stroke:none}
+.artbox{width:100%;max-width:240px;margin:0 auto 8px}
+.art-svg{display:block;width:100%;height:auto;max-height:170px}
+.empty.art{padding:6px 0 10px}
+.eyebrow{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--sub)}
+.wi{width:16px;height:16px;color:#4DA3FF}
+/* ---- water (BitePal-style card) ---- */
+.wnum{font-variant-numeric:tabular-nums;margin-top:2px}
+.wnum small{font-size:18px;font-weight:600;color:var(--sub);letter-spacing:0}
+.plus{width:44px;height:44px;min-height:0;padding:0;border-radius:50%;background:none;display:grid;place-items:center;font-size:22px;color:var(--ink)}
+.plus .ic{width:20px;height:20px}
+.glasses{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 10px}
+.glass{width:36px;height:46px;clip-path:url(#glassClip);background:color-mix(in srgb,#4DA3FF 14%,transparent);position:relative;overflow:hidden}
+.glass i{position:absolute;left:0;right:0;bottom:0;height:calc(var(--f)*100%);background:linear-gradient(#8CCBFF,#4DA3FF);transform-origin:bottom;transition:height .5s var(--spring)}
+#view[data-anim="1"] .glass i,.glass.just i{animation:fillup .8s var(--spring) both}
+@keyframes fillup{from{transform:scaleY(0)}}
+.wfoot{align-items:center;gap:8px}
+.wq{display:flex;gap:6px}
+.wq button{min-height:36px;padding:6px 12px;font-size:13px;font-weight:600}
+.wq .ic{width:18px;height:18px}
+
+@media(prefers-color-scheme:dark){:root{--navbg:rgba(255,255,255,.09);--navon:rgba(255,255,255,.17)}}
+.row .ring{margin:0;flex:none}
+.plus{position:relative}
+.wfoot .link{font-size:13px;white-space:nowrap}
+#waterCard .ri{width:100%;height:100%;display:grid;place-items:center}
+.plus{place-content:center}
+.plus .ic{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}

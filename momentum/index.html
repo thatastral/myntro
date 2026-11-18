@@ -7,22 +7,26 @@
 <title>Momentum</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="top"><h1>Momentum</h1><span class="hr"><span id="syncdot" hidden></span><span id="offline" hidden>Offline</span></span></header>
+<header class="top"><h1><svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7C6BFF"/><stop offset="1" stop-color="#FFC53D"/></linearGradient></defs><g transform="skewX(-10) translate(9 0)" fill="url(#lg)"><rect x="22" y="52" width="14" height="24" rx="7"/><rect x="43" y="38" width="14" height="38" rx="7"/><rect x="64" y="22" width="14" height="54" rx="7"/></g></svg>Momentum</h1><span class="hr"><span id="syncdot" hidden></span><span id="offline" hidden>Offline</span></span></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="glassClip" clipPathUnits="objectBoundingBox"><path d="M0.1 0H0.9L0.8 0.9Q0.78 1 0.68 1H0.32Q0.22 1 0.2 0.9Z"/></clipPath></defs></svg>
 <main id="view" aria-live="polite"></main>
 <nav class="tabs" aria-label="Primary">
-  <a href="#dashboard" data-tab="dashboard"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>Dashboard</a>
-  <a href="#log" data-tab="log"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Log</a>
-  <a href="#weight" data-tab="weight"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>Weight</a>
-  <a href="#history" data-tab="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</a>
+  <a href="#dashboard" data-tab="dashboard" aria-label="Today" title="Today"></a>
+  <a href="#log" data-tab="log" aria-label="Log" title="Log"></a>
+  <a href="#weight" data-tab="weight" aria-label="Weight" title="Weight"></a>
+  <a href="#history" data-tab="history" aria-label="History" title="History"></a>
 </nav>
+<button class="fab" data-act="quick" aria-label="Quick log"></button>
 <dialog id="dlg"></dialog>
 <div id="toast" role="status"></div>
+<script src="icons.js"></script>
+<script src="art.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
