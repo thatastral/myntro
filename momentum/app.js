@@ -15,21 +15,23 @@ const weekStart = k => { const d = parseKey(k || today()); d.setDate(d.getDate()
 const f = (n, d = 1) => +(+n).toFixed(d);
 const num = v => (v === '' || v == null || isNaN(+v) ? null : +v);
 const fmtDay = k => parseKey(k).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+const fmtPace = m => { let mm = Math.floor(m), ss = Math.round((m - mm) * 60); if (ss === 60) { mm++; ss = 0; } return `${mm}:${pad(ss)}`; };
 const fmtTime = s => s.length > 10 ? s.slice(11, 16) : '';
 
-const TYPES = { cycling: 'Cycling', pushups: 'Push-ups', walking: 'Walking', custom: 'Custom' };
-const MET = { cycling: 6.8, walking: 3.5 }; // rough averages; calories are always labelled "est."
-const UNITS = { cycling: ['min', 'km', 'sessions'], pushups: ['reps', 'sessions'], walking: ['min', 'km', 'sessions'], any: ['days'] };
+const TYPES = { cycling: 'Cycling', running: 'Running', pushups: 'Push-ups', walking: 'Walking', custom: 'Custom' };
+const MET = { cycling: 6.8, running: 9.8, walking: 3.5 }; // rough averages; calories are always labelled "est."
+const UNITS = { cycling: ['min', 'km', 'sessions'], running: ['min', 'km', 'sessions'], pushups: ['reps', 'sessions'], walking: ['min', 'km', 'sessions'], any: ['days'] };
 const UNIT_LABEL = { min: 'min', km: 'km', reps: 'reps', sessions: 'sessions', days: 'days' };
 
 // ---------- storage (IndexedDB) ----------
 let db;
 const STORES = ['profile', 'weights', 'activities', 'goals'];
+const ALL_STORES = [...STORES, 'outbox'];
 const S = { profile: null, weights: [], activities: [], goals: [] };
 
 const openDB = () => new Promise((res, rej) => {
-  const r = indexedDB.open('momentum', 1);
-  r.onupgradeneeded = () => STORES.forEach(s => r.result.createObjectStore(s, { keyPath: 'id' }));
+  const r = indexedDB.open('momentum', 2);
+  r.onupgradeneeded = () => ALL_STORES.forEach(s => { if (!r.result.objectStoreNames.contains(s)) r.result.createObjectStore(s, { keyPath: s === 'outbox' ? 'key' : 'id' }); });
   r.onsuccess = () => res(r.result);
   r.onerror = () => rej(r.error);
 });
@@ -42,15 +44,23 @@ const tx = (s, mode, fn) => new Promise((res, rej) => {
 });
 const dbAll = s => tx(s, 'readonly', o => o.getAll());
 
-async function save(store, rec) {
+// Every local write is stamped and queued in the outbox so it can be synced to the server database.
+const enqueue = (store, id, data, updatedAt, deleted) => tx('outbox', 'readwrite', o => o.put({ key: `${store}:${id}`, store, id, data, updatedAt, deleted }));
+async function save(store, rec, opt = {}) {
+  if (!opt.remote) rec.updatedAt = Date.now();
   await tx(store, 'readwrite', o => o.put(rec));
-  if (store === 'profile') { S.profile = rec; return; }
-  const i = S[store].findIndex(x => x.id === rec.id);
-  if (i >= 0) S[store][i] = rec; else S[store].push(rec);
+  if (store === 'profile') S.profile = rec;
+  else {
+    const i = S[store].findIndex(x => x.id === rec.id);
+    if (i >= 0) S[store][i] = rec; else S[store].push(rec);
+  }
+  if (!opt.remote) { await enqueue(store, rec.id, rec, rec.updatedAt, false); queueSync(); }
 }
-async function remove(store, id) {
+async function remove(store, id, opt = {}) {
+  if (store === 'profile') return;
   await tx(store, 'readwrite', o => o.delete(id));
   S[store] = S[store].filter(x => x.id !== id);
+  if (!opt.remote) { await enqueue(store, id, null, Date.now(), true); queueSync(); }
 }
 async function load() {
   const [p, w, a, g] = await Promise.all(STORES.map(dbAll));
@@ -92,7 +102,9 @@ function actSummary(a) {
   const p = [];
   if (a.duration) p.push(`${f(a.duration)} min`);
   if (a.distance) p.push(`${f(a.distance, 2)} km`);
-  if (a.repetitions) p.push(`${a.repetitions} reps${a.sets > 1 ? ` × ${a.sets} sets` : ''}`);
+  if (a.activityType === 'running' && a.duration && a.distance >= 0.1) p.push(`${fmtPace(a.duration / a.distance)} /km`);
+  if (a.activityType === 'cycling' && a.duration && a.distance) p.push(`${f(a.distance / (a.duration / 60))} km/h`);
+  if (a.repetitions) p.push(a.setReps && a.setReps.length > 1 ? `${a.repetitions} reps (${a.setReps.join(' · ')})` : `${a.repetitions} reps${a.sets > 1 ? ` × ${a.sets} sets` : ''}`);
   if (a.rpm) p.push(`${f(a.rpm, 0)} rpm`);
   return p.join(' · ');
 }
@@ -125,22 +137,78 @@ function weekStrip() {
 const bar = pct => `<div class="bar ${pct >= 100 ? 'done' : ''}"><i style="width:${pct}%"></i></div>`;
 const actRow = a => `<div class="item"><div><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#log/${a.id}">Edit</a></div>`;
 
+// ---------- dashboard helpers ----------
+const actDay = a => a.date.slice(0, 10);
+function streak() {
+  const days = new Set(S.activities.map(actDay));
+  let k = today(); if (!days.has(k)) k = addDays(k, -1);
+  let n = 0; while (days.has(k)) { n++; k = addDays(k, -1); }
+  return n;
+}
+const dayMins = k => S.activities.filter(a => actDay(a) === k).reduce((s, a) => s + (a.duration || 0), 0);
+function weekBars() {
+  const ws = weekStart(), L = 'MTWTFSS';
+  const mins = L.split('').map((_, i) => dayMins(addDays(ws, i)));
+  const max = Math.max(30, ...mins);
+  const cur = mins.reduce((a, b) => a + b, 0);
+  const prevStart = addDays(ws, -7);
+  const prev = [0, 1, 2, 3, 4, 5, 6].reduce((s, i) => s + dayMins(addDays(prevStart, i)), 0);
+  const diff = cur - prev;
+  const cmp = prev === 0 && cur === 0 ? '' : prev === 0 ? 'First active week' : `${diff >= 0 ? '+' : '−'}${f(Math.abs(diff), 0)} min vs last week`;
+  return `<div class="bars" role="img" aria-label="Minutes per day this week">${mins.map((m, i) => { const k = addDays(ws, i); return `<div class="${k === today() ? 'now' : ''}"><em>${m ? f(m, 0) : ''}</em><b><i style="height:${m ? Math.max(6, (m / max) * 100) : 0}%"></i></b><span>${L[i]}</span></div>`; }).join('')}</div>
+    <div class="sub" style="margin-top:8px">${f(cur, 0)} min this week${cmp ? ` · ${cmp}` : ''}</div>`;
+}
+function bests() {
+  const A = S.activities, out = [];
+  const maxBy = (arr, fn) => arr.reduce((x, y) => (fn(y) > fn(x) ? y : x));
+  const rides = A.filter(a => a.activityType === 'cycling' && a.distance);
+  if (rides.length) { const b = maxBy(rides, a => a.distance); out.push(['Longest ride', `${f(b.distance)} km`, actDay(b)]); }
+  const runs = A.filter(a => a.activityType === 'running' && a.distance >= 1 && a.duration);
+  if (runs.length) {
+    const p = runs.reduce((x, y) => (y.duration / y.distance < x.duration / x.distance ? y : x));
+    out.push(['Fastest run pace', `${fmtPace(p.duration / p.distance)} /km`, actDay(p)]);
+    const l = maxBy(runs, a => a.distance); out.push(['Longest run', `${f(l.distance)} km`, actDay(l)]);
+  }
+  const pu = A.filter(a => a.activityType === 'pushups' && a.repetitions);
+  if (pu.length) {
+    const tot = a => a.repetitions * (a.sets || 1), b = maxBy(pu, tot);
+    out.push(['Most push-ups in a session', `${tot(b)}`, actDay(b)]);
+    const sets = pu.filter(a => a.setReps && a.setReps.length > 1);
+    if (sets.length) { let best = 0, day = ''; sets.forEach(a => a.setReps.forEach(r => { if (r > best) { best = r; day = actDay(a); } })); out.push(['Best single set', `${best}`, day]); }
+  }
+  return out;
+}
+const TILES = [
+  ['cycling', 'Cycle', '<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-8h5l3 8M10 8H8M13 12h-4"/>'],
+  ['running', 'Run', '<circle cx="14" cy="5" r="2"/><path d="M12 9l-3 3 3 3-1 5M12 9l4 2 2 3M9 12l-4 1"/>'],
+  ['pushups', 'Push-ups', '<path d="M3 17h18M5 17l2-6 7-2 5 4v4M7 11l-3 1"/>'],
+  ['walking', 'Walk', '<circle cx="13" cy="4.5" r="2"/><path d="M13 8l-2 4 3 3v5M11 12l-3 1-1 4M14 15l3 1"/>'],
+];
+
 // ---------- views ----------
 function vDash() {
   const pr = progress(), t = today(), ws = weekStart();
-  let h = '';
-  if (!pr) {
-    h += `<div class="card"><h2>Welcome</h2><div class="sub">Set your starting and target weight to track progress.</div><p><a class="btn primary full" style="text-align:center" href="#weight">Set weights</a></p></div>`;
-  } else {
-    const st = S.profile.startingWeight, tg = S.profile.targetWeight;
-    const delta = pr.cur - st, good = pr.mode === 'gain' ? delta >= 0 : delta <= 0;
-    h += `<div class="card hero"><div class="sub">Current weight</div>${ring(pr.pct, 176, `<div class="big">${f(pr.cur)}</div><div class="sub">kg</div>`, 14)}
-      <div class="pill">${f(pr.pct, 0)}% there · ${f(Math.abs(tg - pr.cur))} kg to go</div>
-      <div class="trio"><div><span class="sub">Start</span><b>${f(st)} kg</b></div><div><span class="sub">Change</span><b class="${good ? 'good' : 'bad'}">${delta > 0 ? '+' : ''}${f(delta)} kg</b></div><div><span class="sub">Target</span><b>${f(tg)} kg</b></div></div></div>`;
-  }
   const act = S.goals.filter(g => g.active);
   const daily = act.filter(g => g.frequency === 'daily'), weekly = act.filter(g => g.frequency === 'weekly');
-  const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ring(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${UNIT_LABEL[g.targetUnit]}</div></div></div>`; };
+  const hr = new Date().getHours(), greet = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+  const mToday = dayMins(t), st = streak();
+  let h = '';
+  if (WS) {
+    h += `<a class="card live" href="#workout/${WS.type}"><span class="dotlive"></span><div><b>${esc(TYPES[WS.type])} in progress</b><div class="sub" id="liveT">${fmtClock(wsElapsed(WS))}</div></div><span class="btn primary">Resume</span></a>`;
+  }
+  // hero: today's progress
+  const dPcts = daily.map(g => goalProg(g).pct);
+  const pct = daily.length ? dPcts.reduce((a, b) => a + b, 0) / daily.length : Math.min(100, (mToday / 30) * 100);
+  const sub = daily.length ? `${dPcts.filter(p => p >= 100).length} of ${daily.length} daily goals` : 'of 30 min';
+  h += `<div class="card hero"><div class="sub">${greet} · ${esc(parseKey(t).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
+    ${ring(pct, 168, `<div class="big">${f(mToday, 0)}</div><div class="sub">min today</div>`, 14)}
+    <div class="sub" style="margin-top:-2px">${sub}</div>
+    <div class="pill" style="margin:12px 0 0">${st ? `${st}-day streak` : 'Start your streak today'}</div></div>`;
+  // quick start
+  h += `<div class="card"><h2>Start a workout</h2><div class="tiles">${TILES.map(([k, l, ic]) => `<a class="tile" href="#workout/${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg><span>${l}</span></a>`).join('')}</div>
+    <div style="text-align:center;margin-top:10px"><a class="link" href="#log" style="color:var(--sub);font-size:13px">or log one manually</a></div></div>`;
+  // goals
+  const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ring(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${esc(UNIT_LABEL[g.targetUnit])}</div></div></div>`; };
   h += `<div class="card"><h2>Goals <button class="link" data-act="goal" data-id="">+ Add</button></h2>`;
   if (!act.length) h += `<div class="empty">No active goals. Add one, e.g. 30 min cycling daily.</div>`;
   if (daily.length) h += `<div class="sub" style="margin-bottom:6px">Today</div>${daily.map(gl).join('')}`;
@@ -150,7 +218,17 @@ function vDash() {
   const todays = S.activities.filter(a => a.date.startsWith(t)).sort((a, b) => b.date.localeCompare(a.date));
   h += `<div class="card"><h2>Today <a class="btn primary" href="#log">+ Log</a></h2>${todays.length ? todays.map(actRow).join('') : '<div class="empty">Nothing logged yet today.</div>'}</div>`;
   const wk = S.activities.filter(a => a.date.slice(0, 10) >= ws);
-  h += `<div class="card"><h2>This week</h2>${weekStrip()}${totalsHTML(totals(wk))}</div>`;
+  h += `<div class="card"><h2>This week</h2>${weekBars()}${totalsHTML(totals(wk))}</div>`;
+  const bs = bests();
+  if (bs.length) h += `<div class="card"><h2>Personal bests</h2>${bs.map(([l, v, d]) => `<div class="item"><div><b>${esc(l)}</b><div class="sub">${esc(fmtDay(d))}</div></div><b class="bigv">${esc(v)}</b></div>`).join('')}</div>`;
+  // weight
+  if (!pr) {
+    h += `<div class="card"><h2>Body weight</h2><div class="sub">Set your starting and target weight to track progress.</div><p><a class="btn primary full" style="text-align:center" href="#weight">Set weights</a></p></div>`;
+  } else {
+    const delta = pr.cur - S.profile.startingWeight;
+    h += `<a class="card row wcard" href="#weight" style="text-decoration:none;color:inherit">${ring(pr.pct, 72, `<span class="mini">${f(pr.pct, 0)}%</span>`, 8)}
+      <div style="flex:1"><div class="sub">Body weight</div><div class="big" style="font-size:30px">${f(pr.cur)} <span class="sub">kg</span></div><div class="sub">${delta === 0 ? 'No change' : `${delta > 0 ? '+' : '−'}${f(Math.abs(delta))} kg`} since start · ${f(Math.abs(S.profile.targetWeight - pr.cur))} kg to go</div></div></a>`;
+  }
   return h;
 }
 
@@ -161,8 +239,8 @@ function logFields(a) {
   return `
   ${t('custom', `<label>Name<input name="customName" value="${v('customName')}" maxlength="40" placeholder="e.g. Squats"></label>`)}
   <div class="two">
-  ${t('cycling walking custom', `<label>Duration (min)<input name="duration" type="number" inputmode="decimal" min="0" step="any" value="${v('duration')}"></label>`)}
-  ${t('cycling walking', `<label>Distance (km)<input name="distance" type="number" inputmode="decimal" min="0" step="any" value="${v('distance')}"></label>`)}
+  ${t('cycling running walking custom', `<label>Duration (min)<input name="duration" type="number" inputmode="decimal" min="0" step="any" value="${v('duration')}"></label>`)}
+  ${t('cycling running walking', `<label>Distance (km)<input name="distance" type="number" inputmode="decimal" min="0" step="any" value="${v('distance')}"></label>`)}
   ${t('cycling', `<label>Avg RPM<input name="rpm" type="number" inputmode="decimal" min="0" step="any" value="${v('rpm')}"></label>`)}
   ${t('pushups custom', `<label>Reps${'' /* per set */}<input name="repetitions" type="number" inputmode="numeric" min="0" step="1" value="${v('repetitions')}"></label>`)}
   ${t('pushups custom', `<label>Sets<input name="sets" type="number" inputmode="numeric" min="1" step="1" value="${a.sets ?? ''}" placeholder="1"></label>`)}
@@ -198,10 +276,12 @@ async function submitLog(form) {
     notes: (fd.get('notes') || '').trim(),
   };
   if (type === 'custom') rec.customName = (fd.get('customName') || '').trim();
-  if (['cycling', 'walking', 'custom'].includes(type)) rec.duration = num(fd.get('duration'));
-  if (['cycling', 'walking'].includes(type)) rec.distance = num(fd.get('distance'));
+  if (['cycling', 'running', 'walking', 'custom'].includes(type)) rec.duration = num(fd.get('duration'));
+  if (['cycling', 'running', 'walking'].includes(type)) rec.distance = num(fd.get('distance'));
   if (type === 'cycling') rec.rpm = num(fd.get('rpm'));
   if (['pushups', 'custom'].includes(type)) { rec.repetitions = num(fd.get('repetitions')); rec.sets = rec.repetitions ? (num(fd.get('sets')) || 1) : null; }
+  const old = id && S.activities.find(x => x.id === id); // keep what a live workout recorded if the reps weren't changed
+  if (old && type === 'pushups') { rec.duration = old.duration ?? null; if (old.repetitions === rec.repetitions && (old.sets || 1) === (rec.sets || 1) && old.setReps) rec.setReps = old.setReps; }
   const ok = type === 'custom' ? rec.customName && (rec.duration || rec.repetitions)
     : type === 'pushups' ? rec.repetitions : (rec.duration || rec.distance);
   if (!ok) return toast(type === 'custom' ? 'Add a name and duration or reps' : 'Enter at least one value');
@@ -288,7 +368,12 @@ function vHistory() {
   const days = {}; acts.forEach(a => (days[a.date.slice(0, 10)] ||= []).push(a));
   h += `<div class="card"><h2>Daily log</h2>${Object.keys(days).length ? Object.keys(days).sort().reverse().map(k => `<div class="sub" style="margin-top:8px"><b>${esc(fmtDay(k))}</b></div>${days[k].map(actRow).join('')}`).join('') : '<div class="empty">No activity in range.</div>'}</div>`;
   h += `<div class="card"><h2>Weight measurements</h2>${ws.length ? ws.map(w => `<div class="item"><span>${esc(fmtDay(w.date))}</span><b>${f(w.weight)} kg</b></div>`).join('') : '<div class="empty">No weights in range.</div>'}</div>`;
-  h += `<div class="card"><h2>Your data</h2><div class="sub" style="margin-bottom:10px">Stored only on this device. Export to back it up.</div>
+  const on = !!lsGet('m_key');
+  h += `<div class="card"><h2>Sync</h2><div class="sub" id="syncStatus" style="margin-bottom:10px">${esc(syncText())}</div>
+    ${on ? `<div class="two"><button data-act="sync-now">Sync now</button><button class="danger" data-act="sync-off">Disconnect</button></div>`
+    : `<label>Passphrase<input id="syncKey" type="password" autocomplete="off" placeholder="Set in your server settings"></label><button class="primary full" data-act="sync-connect">Connect</button>`}
+    <div class="sub" style="margin-top:10px">Your data always lives on this device. When connected it is also saved to your Momentum database, so every device you sign in on stays in step.</div></div>`;
+  h += `<div class="card"><h2>Your data</h2><div class="sub" style="margin-bottom:10px">Export a copy to back it up or move it elsewhere.</div>
     <div class="two"><button data-act="export-json">Export JSON</button><button data-act="export-csv">Export CSV</button></div>
     <p><label>Restore from JSON backup<input id="importFile" type="file" accept="application/json,.json"></label></p></div>`;
   return h;
@@ -298,7 +383,7 @@ function vHistory() {
 function goalForm(g) {
   const type = g.activityType, units = UNITS[type];
   return `<form id="goalForm" data-id="${g.id || ''}"><h2>${g.id ? 'Edit goal' : 'New goal'}</h2>
-    <label>Activity<select name="activityType" id="gType">${['cycling', 'pushups', 'walking', 'any'].map(k => `<option value="${k}" ${k === type ? 'selected' : ''}>${k === 'any' ? 'Any exercise (active days)' : TYPES[k]}</option>`).join('')}</select></label>
+    <label>Activity<select name="activityType" id="gType">${['cycling', 'running', 'pushups', 'walking', 'any'].map(k => `<option value="${k}" ${k === type ? 'selected' : ''}>${k === 'any' ? 'Any exercise (active days)' : TYPES[k]}</option>`).join('')}</select></label>
     <div class="two"><label>Target<input name="targetValue" type="number" inputmode="decimal" min="1" step="any" required value="${esc(g.targetValue ?? '')}"></label>
     <label>Unit<select name="targetUnit">${units.map(u => `<option value="${u}" ${u === g.targetUnit ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select></label></div>
     <label>Frequency<select name="frequency">${['daily', 'weekly'].map(x => `<option value="${x}" ${x === g.frequency ? 'selected' : ''} ${type === 'any' && x === 'daily' ? 'disabled' : ''}>${x}</option>`).join('')}</select></label>
@@ -342,12 +427,205 @@ async function importJSON(file) {
   } catch { toast('Not a valid Momentum backup'); }
 }
 
+// ---------- live workout (timers) ----------
+const WS_KEY = 'm_ws';
+let WS = null;
+try { WS = JSON.parse(localStorage.getItem(WS_KEY)); } catch {}
+const persistWS = () => { try { WS ? localStorage.setItem(WS_KEY, JSON.stringify(WS)) : localStorage.removeItem(WS_KEY); } catch {} };
+const wsElapsed = w => w.acc + (w.run ? Date.now() - w.since : 0);
+const fmtClock = ms => { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return `${h ? h + ':' + pad(m) : pad(m)}:${pad(s % 60)}`; };
+const isCardio = t => t !== 'pushups';
+function newWS(type) {
+  const g = S.goals.find(x => x.active && x.frequency === 'daily' && x.activityType === type && x.targetUnit === 'min');
+  const now = Date.now();
+  return { type, start: now, run: type === 'pushups', acc: 0, since: now, target: g ? g.targetValue : 0, dist: '', cur: 0, sets: [], rest: null, restLen: 60, notified: false };
+}
+function beep() {
+  try { const A = window.AudioContext || window.webkitAudioContext, c = new A(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.setValueAtTime(.2, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .5); o.start(); o.stop(c.currentTime + .5); } catch {}
+  try { navigator.vibrate && navigator.vibrate([200, 80, 200]); } catch {}
+}
+let wl = null;
+async function wake(on) {
+  try {
+    if (on && 'wakeLock' in navigator && !wl) { wl = await navigator.wakeLock.request('screen'); wl.addEventListener('release', () => { wl = null; }); }
+    else if (!on && wl) { await wl.release(); wl = null; }
+  } catch {}
+}
+const wsStats = w => {
+  const ms = wsElapsed(w), mins = ms / 60000, d = num(w.dist), out = [];
+  const kc = estCalories(w.type, mins, curWeight()); if (kc) out.push(`~${kc} kcal (est.)`);
+  if (d && mins) out.push(w.type === 'cycling' ? `${f(d / (mins / 60))} km/h` : `${fmtPace(mins / d)} /km`);
+  return out.join(' · ');
+};
+function vWorkout() {
+  const w = WS, label = TYPES[w.type];
+  const head = `<div class="row"><h2 style="margin:0">${label}</h2><span><a class="link" href="#dashboard" style="color:var(--sub);font-size:13px">Minimise</a> &nbsp; <button class="link" data-act="ws-cancel" style="color:var(--sub)">Discard</button></span></div>`;
+  if (w.type === 'pushups') {
+    const total = w.sets.reduce((a, b) => a + b, 0) + w.cur;
+    const resting = w.rest && w.rest.end > Date.now();
+    return `<div class="card ws" id="ws">${head}
+      <div class="sub" style="text-align:center;margin-top:6px">Workout time <b id="tm">${fmtClock(wsElapsed(w))}</b> · <b id="wsTotal">${total}</b> total reps</div>
+      ${resting ? `<div class="rest" style="text-align:center">${ring(100, 220, `<div class="sub">Rest</div><div class="timer" id="rtm">${fmtClock(w.rest.end - Date.now())}</div>`, 14)}
+        <div class="two" style="margin-top:12px"><button data-act="ws-rest-add">+15 s</button><button class="primary" data-act="ws-rest-skip">Skip rest</button></div></div>`
+      : `<div class="reps" id="reps">${w.cur}</div><div class="sub" style="text-align:center">Set ${w.sets.length + 1} · tap to count</div>
+        <button class="repbtn" data-act="ws-rep" data-n="1">+1</button>
+        <div class="two"><button data-act="ws-rep" data-n="-1">−1</button><button data-act="ws-rep" data-n="5">+5</button></div>
+        <button class="primary full" style="margin-top:10px" data-act="ws-setdone" ${w.cur ? '' : 'disabled'}>Set done · rest ${w.restLen}s</button>
+        <div class="chips" style="margin:12px 0 0;justify-content:center">${[30, 60, 90, 120].map(s => `<button data-act="ws-restlen" data-s="${s}" class="${w.restLen === s ? 'on' : ''}">${s}s</button>`).join('')}</div>`}
+      ${w.sets.length ? `<div style="margin-top:12px">${w.sets.map((r, i) => `<div class="item"><span>Set ${i + 1}</span><b>${r} reps</b></div>`).join('')}</div>` : ''}
+      <button class="full" style="margin-top:12px" data-act="ws-finish">Finish &amp; save</button></div>`;
+  }
+  const ms = wsElapsed(w), pct = w.target ? (ms / (w.target * 60000)) * 100 : 0;
+  return `<div class="card ws" id="ws">${head}
+    <div style="text-align:center;margin-top:6px">${ring(w.target ? pct : (w.run ? 100 : 0), 240, `<div class="timer" id="tm">${fmtClock(ms)}</div><div class="sub" id="tsub">${w.target ? `of ${fmtClock(w.target * 60000)}` : (w.run ? 'running' : 'ready')}</div>`, 14)}</div>
+    <div class="sub" id="wsStats" style="text-align:center;min-height:20px;margin:6px 0 10px">${esc(wsStats(w))}</div>
+    <div class="two"><button class="primary" data-act="ws-toggle" style="min-height:56px;font-size:18px">${w.run ? 'Pause' : ms > 0 ? 'Resume' : 'Start'}</button><button data-act="ws-finish" style="min-height:56px" ${ms > 0 ? '' : 'disabled'}>Finish</button></div>
+    ${w.type === 'cycling' || w.type === 'running' || w.type === 'walking' ? `<label style="margin-top:14px">Distance so far (km, optional)<input id="wsDist" type="number" inputmode="decimal" min="0" step="any" value="${esc(w.dist)}"></label>` : ''}
+    <div class="sub" style="margin:4px 0 6px">Target time</div>
+    <div class="chips">${[0, 15, 20, 30, 45, 60].map(m => `<button data-act="ws-target" data-m="${m}" class="${w.target === m ? 'on' : ''}">${m ? m + ' min' : 'None'}</button>`).join('')}</div></div>`;
+}
+let ticker = null;
+function stopTick() { clearInterval(ticker); ticker = null; }
+function tick() {
+  const w = WS; if (!w) return;
+  const live = $('#liveT'); if (live) live.textContent = fmtClock(wsElapsed(w));
+  if (!$('#ws')) return;
+  const ms = wsElapsed(w);
+  if (w.type === 'pushups') {
+    const tm = $('#tm'); if (tm) tm.textContent = fmtClock(ms);
+    if (w.rest) {
+      const left = w.rest.end - Date.now();
+      if (left <= 0) { w.rest = null; persistWS(); beep(); render(); return; }
+      const r = $('#rtm'); if (r) r.textContent = fmtClock(left);
+      const c = $('#ws .rp'); if (c) { const len = c.getAttribute('stroke-dasharray'); c.setAttribute('stroke-dashoffset', len * (1 - left / (w.rest.len * 1000))); }
+    }
+    return;
+  }
+  const tm = $('#tm'); if (tm) tm.textContent = fmtClock(ms);
+  const fin = $('[data-act=ws-finish]'); if (fin) fin.disabled = ms <= 0;
+  const st = $('#wsStats'); if (st) st.textContent = wsStats(w);
+  const c = $('#ws .rp');
+  if (c) { const len = c.getAttribute('stroke-dasharray'); const p = w.target ? Math.min(1, ms / (w.target * 60000)) : (w.run ? 1 : 0); c.setAttribute('stroke-dashoffset', len * (1 - p)); }
+  if (w.target && !w.notified && ms >= w.target * 60000) { w.notified = true; persistWS(); beep(); toast('Target reached 🎯'); }
+}
+function startTick() { if (!ticker) ticker = setInterval(tick, 250); }
+function discardWS() { WS = null; persistWS(); wake(false); stopTick(); location.hash = '#dashboard'; }
+async function finishWS() {
+  const w = WS; if (!w) return;
+  const ms = wsElapsed(w);
+  let rec;
+  if (w.type === 'pushups') {
+    const sets = [...w.sets]; if (w.cur > 0) sets.push(w.cur);
+    const total = sets.reduce((a, b) => a + b, 0);
+    if (!total) { if (!confirm('No reps counted. Discard this workout?')) return; return discardWS(); }
+    rec = { id: uid(), activityType: 'pushups', date: tKey(new Date(w.start)), duration: ms >= 30000 ? f(ms / 60000, 2) : null, distance: null, repetitions: total, sets: 1, setReps: sets, rpm: null, estimatedCalories: null, notes: '' };
+  } else {
+    if (ms < 10000) { if (!confirm('That was under 10 seconds. Discard this workout?')) return; return discardWS(); }
+    const dur = f(ms / 60000, 2), dist = num($('#wsDist')?.value ?? w.dist);
+    rec = { id: uid(), activityType: w.type, date: tKey(new Date(w.start)), duration: dur, distance: dist || null, repetitions: null, sets: null, rpm: null, estimatedCalories: estCalories(w.type, dur, curWeight()), notes: '' };
+  }
+  await save('activities', rec);
+  WS = null; persistWS(); wake(false); stopTick();
+  toast('Workout saved ✓'); location.hash = '#dashboard';
+}
+function wsAction(act, el) {
+  const w = WS; if (!w) return;
+  if (act === 'ws-toggle') {
+    if (w.run) { w.acc += Date.now() - w.since; w.run = false; wake(false); } else { w.since = Date.now(); w.run = true; wake(true); }
+  } else if (act === 'ws-target') { w.target = +el.dataset.m; w.notified = false; }
+  else if (act === 'ws-rep') {
+    w.cur = Math.max(0, w.cur + +el.dataset.n); persistWS();
+    const r = $('#reps'); if (r) { r.textContent = w.cur; r.classList.remove('bump'); void r.offsetWidth; r.classList.add('bump'); }
+    const tt = $('#wsTotal'); if (tt) tt.textContent = w.sets.reduce((a, b) => a + b, 0) + w.cur;
+    const sd = $('[data-act=ws-setdone]'); if (sd) sd.disabled = !w.cur;
+    return;
+  }
+  else if (act === 'ws-setdone') { if (!w.cur) return; w.sets.push(w.cur); w.cur = 0; w.rest = { end: Date.now() + w.restLen * 1000, len: w.restLen }; }
+  else if (act === 'ws-restlen') { w.restLen = +el.dataset.s; }
+  else if (act === 'ws-rest-skip') { w.rest = null; }
+  else if (act === 'ws-rest-add') { if (w.rest) { w.rest.end += 15000; w.rest.len += 15; } }
+  else if (act === 'ws-cancel') { if (confirm('Discard this workout?')) discardWS(); return; }
+  else if (act === 'ws-finish') { finishWS().catch(() => toast('Could not save')); return; }
+  persistWS(); render();
+}
+
+// ---------- sync (local-first; IndexedDB is the source the UI reads, the server database is the shared copy) ----------
+const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch { return ''; } };
+const lsSet = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch {} };
+const SY = { state: lsGet('m_key') ? 'idle' : 'off', msg: '', last: +lsGet('m_last') || 0 };
+let syncing = false, syncAgain = false, syncT;
+function setSY(state, msg = '') {
+  SY.state = state; SY.msg = msg;
+  const d = $('#syncdot'); if (d) { d.dataset.s = state; d.hidden = state === 'off'; d.title = msg || state; }
+  const t = $('#syncStatus'); if (t) t.textContent = syncText();
+}
+const syncText = () => SY.state === 'off' ? 'Not connected — data is only on this device.' : SY.state === 'syncing' ? 'Syncing…' : SY.state === 'error' ? `Sync problem: ${SY.msg}` : `Synced${SY.last ? ' ' + new Date(SY.last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}`;
+function queueSync() { clearTimeout(syncT); syncT = setTimeout(sync, 700); }
+async function sync() {
+  const key = lsGet('m_key');
+  if (!key) return setSY('off');
+  if (!navigator.onLine) return setSY('error', 'offline — will sync when back online');
+  if (syncing) { syncAgain = true; return; }
+  syncing = true; setSY('syncing');
+  try {
+    const out = (await dbAll('outbox')).slice(0, 200);
+    const res = await fetch('/api/sync', { method: 'POST', headers: { 'content-type': 'application/json', 'x-momentum-key': key }, body: JSON.stringify({ since: +lsGet('m_since') || 0, changes: out.map(({ store, id, data, updatedAt, deleted }) => ({ store, id, data, updatedAt, deleted })) }) });
+    if (res.status === 401) throw new Error('wrong passphrase');
+    if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || (res.status === 404 || res.status === 405 ? 'server database not available here' : `server error ${res.status}`)); }
+    const d = await res.json();
+    // drop outbox entries that were sent and haven't been edited since
+    const now = new Map((await dbAll('outbox')).map(o => [o.key, o]));
+    for (const o of out) if (now.get(o.key)?.updatedAt === o.updatedAt) await tx('outbox', 'readwrite', s => s.delete(o.key));
+    const pending = new Map((await dbAll('outbox')).map(o => [o.key, o]));
+    let changed = false;
+    for (const r of d.records) {
+      const p = pending.get(`${r.store}:${r.id}`);
+      if (p && p.updatedAt >= r.updatedAt) continue;
+      const local = r.store === 'profile' ? S.profile : S[r.store]?.find(x => x.id === r.id);
+      if (local && (local.updatedAt || 0) >= r.updatedAt) continue;
+      if (r.deleted) { if (local) { await remove(r.store, r.id, { remote: true }); changed = true; } }
+      else if (r.data) { await save(r.store, { ...r.data, updatedAt: r.updatedAt }, { remote: true }); changed = true; }
+    }
+    lsSet('m_since', String(d.rev)); SY.last = Date.now(); lsSet('m_last', String(SY.last));
+    if (d.more || out.length === 200) syncAgain = true;
+    setSY('idle');
+    const busy = document.activeElement?.matches?.('input,select,textarea') || $('#dlg')?.open || location.hash.startsWith('#workout');
+    if (changed && !busy) render();
+  } catch (e) {
+    setSY('error', e.message === 'Failed to fetch' ? 'cannot reach server' : e.message);
+  } finally {
+    syncing = false;
+    if (syncAgain) { syncAgain = false; queueSync(); }
+  }
+}
+async function connectSync(key) {
+  lsSet('m_key', key); lsSet('m_since', '');
+  // queue everything already on this device so the server gets a full copy
+  if (S.profile) await save('profile', S.profile);
+  for (const st of ['weights', 'activities', 'goals']) for (const r of [...S[st]]) await save(st, r);
+  await sync();
+  if (SY.state === 'error' && /passphrase|reach|available/.test(SY.msg)) { if (/passphrase/.test(SY.msg)) { lsSet('m_key', ''); } }
+  render();
+}
+
 // ---------- router + events ----------
+let lastRoute = '';
 function render() {
   const [tab, arg] = (location.hash.slice(1) || 'dashboard').split('/');
-  const view = { dashboard: vDash, log: () => vLog(arg), weight: vWeight, history: vHistory }[tab] || vDash;
+  if (tab === 'workout') {
+    if (WS && WS.type !== arg) { location.hash = `#workout/${WS.type}`; return; }
+    if (!WS) {
+      if (!TYPES[arg] || arg === 'custom') { location.hash = '#dashboard'; return; }
+      WS = newWS(arg); persistWS(); if (WS.run) wake(true);
+    }
+  }
+  const view = { dashboard: vDash, log: () => vLog(arg), weight: vWeight, history: vHistory, workout: vWorkout }[tab] || vDash;
+  $('#view').dataset.anim = location.hash === lastRoute ? '' : '1'; lastRoute = location.hash;
   $('#view').innerHTML = view();
-  document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === (view === vDash ? 'dashboard' : tab)));
+  const known = ['dashboard', 'log', 'weight', 'history'].includes(tab) ? tab : 'dashboard';
+  document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === known && tab !== 'workout'));
+  document.body.classList.toggle('in-workout', tab === 'workout');
+  if (WS) startTick(); else stopTick();
   syncLogForm();
   if (tab !== 'weight') editW = null;
 }
@@ -367,7 +645,13 @@ document.addEventListener('click', async e => {
   else if (act === 'range') { const d = +el.dataset.d; H.to = ''; H.from = d ? addDays(today(), -(d - 1)) : ''; render(); }
   else if (act === 'export-json') exportJSON();
   else if (act === 'export-csv') exportCSV();
+  else if (act.startsWith('ws-')) wsAction(act, el);
+  else if (act === 'sync-connect') { const k = ($('#syncKey')?.value || '').trim(); if (!k) return toast('Enter your passphrase'); connectSync(k); }
+  else if (act === 'sync-now') sync();
+  else if (act === 'sync-off') { lsSet('m_key', ''); lsSet('m_since', ''); setSY('off'); render(); }
+  if (act.startsWith('ws-') || act.startsWith('sync-')) buzz(act === 'ws-rep' ? 8 : 12);
 });
+const buzz = n => { try { navigator.vibrate && navigator.vibrate(n); } catch {} };
 document.addEventListener('submit', e => {
   e.preventDefault();
   const fn = { logForm: submitLog, weightForm: submitWeight, profileForm: submitProfile, goalForm: submitGoal }[e.target.id];
@@ -382,14 +666,17 @@ document.addEventListener('change', e => {
     $('#dlg').innerHTML = goalForm({ id: form.dataset.id, activityType: type, targetValue: num(fd.get('targetValue')) ?? '', targetUnit: UNITS[type][0], frequency: type === 'any' ? 'weekly' : fd.get('frequency'), active: !!fd.get('active') });
   }
 });
+document.addEventListener('input', e => { if (e.target.id === 'wsDist' && WS) { WS.dist = e.target.value; persistWS(); } });
 addEventListener('hashchange', () => { render(); scrollTo(0, 0); });
 const setOffline = () => { $('#offline').hidden = navigator.onLine; };
-addEventListener('online', setOffline); addEventListener('offline', setOffline);
+addEventListener('online', () => { setOffline(); sync(); }); addEventListener('offline', setOffline);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { if (WS && WS.run) wake(true); tick(); sync(); } });
+setInterval(() => { if (!document.hidden) sync(); }, 60000);
 
 (async function init() {
   setOffline();
   try { db = await openDB(); await load(); }
   catch { $('#view').innerHTML = '<div class="card">Storage is unavailable in this browser mode, so Momentum cannot save data. Try a normal (non-private) window.</div>'; return; }
-  render();
+  render(); setSY(lsGet('m_key') ? 'idle' : 'off'); sync();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

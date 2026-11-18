@@ -1,0 +1,7 @@
+{
+  "name": "momentum",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "node dev.js" },
+  "dependencies": { "@libsql/client": "^0.15.0" }
+}
