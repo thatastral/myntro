@@ -128,14 +128,14 @@ function toast(msg) {
 }
 const ring = (pct, size, inner, sw = 12) => {
   const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
-  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/><circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(100, pct) / 100)}" transform="rotate(-90 ${m} ${m})"/></svg><div class="ri">${inner}</div></div>`;
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/><circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" style="--c:${c}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(100, pct) / 100)}" transform="rotate(-90 ${m} ${m})"/></svg><div class="ri">${inner}</div></div>`;
 };
 function weekStrip() {
   const ws = weekStart(today()), on = new Set(S.activities.map(a => a.date.slice(0, 10)));
   return `<div class="week">${'MTWTFSS'.split('').map((l, i) => { const k = addDays(ws, i); return `<div class="${on.has(k) ? 'on' : ''} ${k === today() ? 'now' : ''}"><i>${on.has(k) ? '✓' : ''}</i><span>${l}</span></div>`; }).join('')}</div>`;
 }
 const bar = pct => `<div class="bar ${pct >= 100 ? 'done' : ''}"><i style="width:${pct}%"></i></div>`;
-const actRow = a => `<div class="item"><div><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#log/${a.id}">Edit</a></div>`;
+const actRow = a => `<div class="item"><div><i class="adot" style="--h:${HUE[a.activityType] || HUE.custom}"></i><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#log/${a.id}">Edit</a></div>`;
 
 // ---------- dashboard helpers ----------
 const actDay = a => a.date.slice(0, 10);
@@ -178,6 +178,7 @@ function bests() {
   }
   return out;
 }
+const HUE = { cycling: '#4DA3FF', running: '#FF5C7A', pushups: '#FFB020', walking: '#3DDBA7', custom: '#8A8A8A' };
 const TILES = [
   ['cycling', 'Cycle', '<circle cx="6" cy="16" r="3.5"/><circle cx="18" cy="16" r="3.5"/><path d="M6 16l4-8h5l3 8M10 8H8M13 12h-4"/>'],
   ['running', 'Run', '<circle cx="14" cy="5" r="2"/><path d="M12 9l-3 3 3 3-1 5M12 9l4 2 2 3M9 12l-4 1"/>'],
@@ -205,7 +206,7 @@ function vDash() {
     <div class="sub" style="margin-top:-2px">${sub}</div>
     <div class="pill" style="margin:12px 0 0">${st ? `${st}-day streak` : 'Start your streak today'}</div></div>`;
   // quick start
-  h += `<div class="card"><h2>Start a workout</h2><div class="tiles">${TILES.map(([k, l, ic]) => `<a class="tile" href="#workout/${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg><span>${l}</span></a>`).join('')}</div>
+  h += `<div class="card"><h2>Start a workout</h2><div class="tiles">${TILES.map(([k, l, ic]) => `<a class="tile" href="#workout/${k}" style="--h:${HUE[k]}"><svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg><span>${l}</span></a>`).join('')}</div>
     <div style="text-align:center;margin-top:10px"><a class="link" href="#log" style="color:var(--sub);font-size:13px">or log one manually</a></div></div>`;
   // goals
   const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ring(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${esc(UNIT_LABEL[g.targetUnit])}</div></div></div>`; };
@@ -463,7 +464,7 @@ function vWorkout() {
   if (w.type === 'pushups') {
     const total = w.sets.reduce((a, b) => a + b, 0) + w.cur;
     const resting = w.rest && w.rest.end > Date.now();
-    return `<div class="card ws" id="ws">${head}
+    return `<div class="card ws" id="ws" style="--h:${HUE[w.type]}">${head}
       <div class="sub" style="text-align:center;margin-top:6px">Workout time <b id="tm">${fmtClock(wsElapsed(w))}</b> · <b id="wsTotal">${total}</b> total reps</div>
       ${resting ? `<div class="rest" style="text-align:center">${ring(100, 220, `<div class="sub">Rest</div><div class="timer" id="rtm">${fmtClock(w.rest.end - Date.now())}</div>`, 14)}
         <div class="two" style="margin-top:12px"><button data-act="ws-rest-add">+15 s</button><button class="primary" data-act="ws-rest-skip">Skip rest</button></div></div>`
@@ -476,7 +477,7 @@ function vWorkout() {
       <button class="full" style="margin-top:12px" data-act="ws-finish">Finish &amp; save</button></div>`;
   }
   const ms = wsElapsed(w), pct = w.target ? (ms / (w.target * 60000)) * 100 : 0;
-  return `<div class="card ws" id="ws">${head}
+  return `<div class="card ws" id="ws" style="--h:${HUE[w.type]}">${head}
     <div style="text-align:center;margin-top:6px">${ring(w.target ? pct : (w.run ? 100 : 0), 240, `<div class="timer" id="tm">${fmtClock(ms)}</div><div class="sub" id="tsub">${w.target ? `of ${fmtClock(w.target * 60000)}` : (w.run ? 'running' : 'ready')}</div>`, 14)}</div>
     <div class="sub" id="wsStats" style="text-align:center;min-height:20px;margin:6px 0 10px">${esc(wsStats(w))}</div>
     <div class="two"><button class="primary" data-act="ws-toggle" style="min-height:56px;font-size:18px">${w.run ? 'Pause' : ms > 0 ? 'Resume' : 'Start'}</button><button data-act="ws-finish" style="min-height:56px" ${ms > 0 ? '' : 'disabled'}>Finish</button></div>
@@ -625,6 +626,7 @@ function render() {
   const known = ['dashboard', 'log', 'weight', 'history'].includes(tab) ? tab : 'dashboard';
   document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === known && tab !== 'workout'));
   document.body.classList.toggle('in-workout', tab === 'workout');
+  $('.tabs').style.setProperty('--i', ['dashboard', 'log', 'weight', 'history'].indexOf(known));
   if (WS) startTick(); else stopTick();
   syncLogForm();
   if (tab !== 'weight') editW = null;
