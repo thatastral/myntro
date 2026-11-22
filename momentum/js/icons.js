@@ -28,8 +28,12 @@ const P = {
   down: '<path d="M6 9l6 6 6-6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
 };
-export const icon = (name, size = 20, extra = '') =>
-  `<svg class="ic ${extra}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[name] || P.dot}</svg>`;
+const DUO = new Set(['sun', 'drop', 'book', 'doc', 'eye', 'calendar', 'home', 'target', 'money', 'career', 'goals', 'lock', 'bolt', 'flame', 'alert']);
+export const icon = (name, size = 20, extra = '') => {
+  const p = P[name] || P.dot;
+  const duo = DUO.has(name) ? `<g fill="currentColor" fill-opacity=".16" stroke="none">${p}</g>` : '';
+  return `<svg class="ic ${extra}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${duo}${p}</svg>`;
+};
 
 // Status = fixed colours + icon + label, never colour alone.
 export const STATUS = {

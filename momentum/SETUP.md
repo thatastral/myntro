@@ -33,6 +33,7 @@ The demo uses synthetic data, not your real data.
    | `MOMENTUM_PASSCODE` | the passcode you'll type to open the app |
    | `SESSION_SECRET` | any long random string (32+ chars) |
    | `MOMENTUM_TZ` | optional, defaults to `Africa/Lagos` |
+   | `FITNESS_WEEKLY_TARGET` | optional, workouts per week on the Fitness ring (default 4) |
    | `TIM_URL`, `TIM_TOKEN` | optional, see "Tim" below |
 
 4. **Deploy.** Import the repo in Vercel, set **Root Directory = `momentum`** and Framework Preset =
