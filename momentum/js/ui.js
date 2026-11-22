@@ -23,3 +23,16 @@ export function habitChips(state, A, { keys = null, date = state.today } = {}) {
       <span class="hc-s">${s?.streak ? `${icon('flame', 12)}${s.streak}d` : h.writable ? '' : icon('lock', 12)}</span></button>`;
   }).join('')}</div>`;
 }
+
+// Compact icon strip (dashboard). Tap = tick (writable habits sync to Notion).
+export function habitStrip(state, A, { date = state.today } = {}) {
+  const list = state.habits?.list ?? [];
+  const row = state.habits?.days.find(d => d.date === date);
+  if (!row) return `<div class="empty">No habit row for today in Notion yet.</div>`;
+  return `<div class="hstrip">${list.map(h => {
+    const done = !!row.done[h.key];
+    const tip = h.writable ? (done ? 'Tap to untick (syncs to Notion)' : 'Tap to tick (syncs to Notion)') : 'Read-only: tick this in Notion';
+    return `<button class="hs ${done ? 'on' : ''} ${h.writable ? 'rw' : 'ro'}" data-do="tick" data-habit="${esc(h.key)}" data-date="${date}" data-tip="${tip}" aria-pressed="${done}">
+      <span class="hi">${icon(done ? 'check' : h.icon, 20)}</span><span>${esc(h.label)}</span></button>`;
+  }).join('')}</div>`;
+}

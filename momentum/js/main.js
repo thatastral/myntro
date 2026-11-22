@@ -5,7 +5,7 @@ import { initTips } from './charts.js';
 import { icon } from './icons.js';
 import { $, $$, ago, toast, esc } from './util.js';
 import { habitChips } from './ui.js';
-import { home, openTasks } from './pages/home.js';
+import { home, ui as homeUi } from './pages/home.js';
 import { habits } from './pages/habits.js';
 import { goals, filter as goalFilter } from './pages/goals.js';
 import { moneyPage } from './pages/money.js';
@@ -75,7 +75,8 @@ document.addEventListener('click', async e => {
       if (!h?.writable) return toast('Read-only for now. Tick it in Notion.');
       Sync.setHabit(d.habit, d.date, !Sync.habitDone(d.habit, d.date)); break;
     }
-    case 'task': openTasks.has(d.id) ? openTasks.delete(d.id) : openTasks.add(d.id); render(); break;
+    case 'task': homeUi.open.has(d.id) ? homeUi.open.delete(d.id) : homeUi.open.add(d.id); render(); break;
+    case 'toggle': homeUi[d.key] = !homeUi[d.key]; render(); break;
     case 'goal-cat': goalFilter.cat = d.cat; render(); break;
     case 'career-type': careerFilter.type = d.type; render(); break;
     case 'refresh': Sync.refresh({ fresh: true }); break;

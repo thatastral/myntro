@@ -8,11 +8,10 @@ import { icon } from './icons.js';
 let uid = 0;
 
 export function ring(pct, size, inner, sw = 12) {
-  const id = `rg${++uid}`, r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
   return `<div class="ring" style="width:${size}px;height:${size}px" role="img" aria-label="${Math.round(pct * 100)} percent">
-    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--lime)"/><stop offset="1" stop-color="var(--mk)"/></linearGradient></defs>
-    <circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/>
-    <circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke="url(#${id})" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - clamp(pct))}" transform="rotate(-90 ${m} ${m})"/></svg>
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/>
+    <circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - clamp(pct))}" transform="rotate(-90 ${m} ${m})"/></svg>
     <div class="ri">${inner}</div></div>`;
 }
 
@@ -32,6 +31,18 @@ export function weekBars(days) {
     return `<g data-tip="${esc(tip)}" tabindex="0"><rect x="${x - gap / 2}" y="0" width="${bw + gap}" height="${H}" fill="transparent"/>${bar}<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" class="gt ${d.isToday ? 'gt-now' : ''}">${d.label}</text></g>`;
   }).join('');
   return `<svg class="chart wk" viewBox="0 0 ${W} ${H}" role="img" aria-label="Completion by day">${g}${bars}</svg>`;
+}
+
+// Compact seven-day column chart for the dashboard (today highlighted, past muted).
+export function miniWeek(days) {
+  const W = 224, H = 76, base = 56, bw = 16, gap = (W - 7 * bw) / 8;
+  const bars = days.map((d, i) => {
+    const x = gap + i * (bw + gap), h = d.pct == null ? 0 : Math.max(d.pct * 50, d.pct > 0 ? 3 : 0);
+    const tip = d.future ? `${d.name}: upcoming` : `${d.name}: ${d.tasks[0]}/${d.tasks[1]} tasks · ${d.habits[0]}/${d.habits[1]} habits`;
+    const bar = h ? `<path d="M${x} ${base}V${base - h + 4}a4 4 0 0 1 4-4h${bw - 8}a4 4 0 0 1 4 4V${base}z" class="${d.isToday ? 'bar-now' : 'bar-mk'}"/>` : `<rect x="${x}" y="${base - 2}" width="${bw}" height="2" rx="1" class="bar-empty"/>`;
+    return `<g class="chart" data-tip="${esc(tip)}" tabindex="0"><rect x="${x - gap / 2}" y="0" width="${bw + gap}" height="${H}" fill="transparent"/>${bar}<text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle" class="gt ${d.isToday ? 'gt-now' : ''}">${d.label}</text></g>`;
+  }).join('');
+  return `<svg class="mini-week" viewBox="0 0 ${W} ${H}" role="img" aria-label="Completion by day this week">${bars}</svg>`;
 }
 
 // Rows of cells; v in [0,1] (binary: 0/1) or null (no row). Sequential 5-step single hue.
@@ -58,12 +69,14 @@ export function strip(values) {
 }
 
 // Single-series line over time. y gets a hairline grid; target is a labelled reference line.
-export function lineChart({ points, target = null, targetLabel = 'Target', unit = '', w = 360, h = 170, fmt = v => compact(v), from = null, to = null }) {
+export function lineChart({ points, target = null, targetLabel = 'Target', unit = '', w = 360, h = 170, fmt = v => compact(v), from = null, to = null, zero = true }) {
   if (points.length < 2) return '<div class="empty">Not enough points yet for a trend.</div>';
   const px = 36, py = 18, pr = 14;
   const ys = points.map(p => p.y); if (target != null) ys.push(target);
   const nice = v => { const p = 10 ** Math.floor(Math.log10(v || 1)), n = (v || 1) / p; return ([1, 2, 4, 6, 8, 10].find(x => x >= n - 1e-9)) * p; };
-  const lo = Math.min(0, ...ys), hi = nice(Math.max(...ys, 1));
+  let lo, hi;
+  if (zero) { lo = Math.min(0, ...ys); hi = nice(Math.max(...ys, 1)); }
+  else { const mn = Math.min(...ys), mx = Math.max(...ys), pd = Math.max((mx - mn) * .2, .5); lo = mn - pd; hi = mx + pd; }
   const t = k => new Date(k + 'T00:00:00Z').getTime();
   const t0 = t(from || points[0].x), t1 = t(to || points[points.length - 1].x);
   const X = k => px + (t1 === t0 ? .5 : (t(k) - t0) / (t1 - t0)) * (w - px - pr);

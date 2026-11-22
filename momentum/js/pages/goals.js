@@ -15,7 +15,7 @@ export function goals(state, A) {
     <header><span class="cat">${esc(g.category || '')}</span>${chip(g.status)}</header>
     <h3>${esc(shortTitle(g.title))}</h3>
     ${g.binary ? `<p class="sub">Milestone · ${esc(g.status === 'done' ? 'achieved' : 'in progress')}</p>` : `<div class="g-nums"><b>${g.currency ? money(g.total, g.currency) : compact(g.total)}</b><span class="sub">of ${g.currency ? money(g.target, g.currency) : compact(g.target)}</span><em>${pct(g.pct)}</em></div>${meter(g.pct, { pace: g.elapsed })}`}
-    <footer class="sub"><span>${g.daysLeft >= 0 ? `${plural(g.daysLeft, 'day')} left · ${fmtShort(g.deadline || state.cycle.end)}` : 'past deadline'}</span>${g.perDay && !g.binary ? `<span>needs ${g.currency ? money(g.perDay, g.currency) : compact(g.perDay)}/day</span>` : ''}${g.live ? `<span data-tip="Counted live from your habit ticks, no need to update Current">${icon('bolt', 12)} live</span>` : ''}</footer></article>`;
+    <footer class="sub"><span>${g.status === 'done' ? 'Completed' : g.daysLeft >= 0 ? `${plural(g.daysLeft, 'day')} left · ${fmtShort(g.deadline || state.cycle.end)}` : 'past deadline'}</span>${g.perDay && !g.binary ? `<span>needs ${g.currency ? money(g.perDay, g.currency) : compact(g.perDay)}/day</span>` : ''}${g.live ? `<span data-tip="Counted live from your habit ticks, no need to update Current">${icon('bolt', 12)} live</span>` : ''}</footer></article>`;
   const wg = A.weeklyGoals;
   return `${head('Goals', `${state.cycle.label} · day ${A.cycle.day} of ${A.cycle.total}`)}
     <div class="grid12">

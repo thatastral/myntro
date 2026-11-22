@@ -1,6 +1,6 @@
 /* Momentum Fitness: the original local-first tracker (cycling, running, walking, push-ups,
    weight, goals), now a module inside the Momentum app. Data stays on this device. */
-import { ring as ringChart } from './charts.js';
+import { ring as ringChart, lineChart } from './charts.js';
 import { toast } from './util.js';
 
 export const hooks = { onActivity: null, header: null };
@@ -213,28 +213,9 @@ async function submitLog(form) {
 // --- weight
 let editW = null;
 let CR = 0; // chart range in days, 0 = all
-function chart(points, target) {
-  if (points.length < 2) return `<div class="empty">Log at least two weights in this range to see a trend.</div>`;
-  const W = 320, H = 160, px = 30, py = 16;
-  const vals = points.map(p => p.weight); if (target != null) vals.push(target);
-  let lo = Math.min(...vals), hi = Math.max(...vals); if (hi - lo < 1) { lo -= .5; hi += .5; }
-  const pad = (hi - lo) * .12; lo -= pad; hi += pad;
-  const t0 = parseKey(points[0].date).getTime(), t1 = parseKey(points[points.length - 1].date).getTime();
-  const X = d => px + (t1 === t0 ? 0.5 : (parseKey(d).getTime() - t0) / (t1 - t0)) * (W - px - 14);
-  const Y = w => py + (1 - (w - lo) / (hi - lo)) * (H - 2 * py - 6);
-  const pts = points.map(p => [X(p.date), Y(p.weight)]);
-  const line = pts.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ');
-  const area = `${pts[0][0].toFixed(1)},${H - py} ${line} ${pts[pts.length - 1][0].toFixed(1)},${H - py}`;
-  const grid = [0, 1, 2].map(i => { const v = hi - (hi - lo) * (i / 2.4 + .05); return `<line x1="${px}" x2="${W - 8}" y1="${Y(v)}" y2="${Y(v)}" class="gl"/><text x="2" y="${Y(v) + 3}" class="gt">${f(v, 0)}</text>`; }).join('');
-  const last = pts[pts.length - 1];
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weight trend"><defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8EE600" stop-opacity=".35"/><stop offset="1" stop-color="#8EE600" stop-opacity="0"/></linearGradient></defs>
-    ${grid}
-    ${target != null ? `<line x1="${px}" x2="${W - 8}" y1="${Y(target)}" y2="${Y(target)}" class="goalline"/><rect x="${W - 62}" y="${Y(target) - 17}" width="54" height="16" rx="8" fill="#182403"/><text x="${W - 35}" y="${Y(target) - 6}" font-size="9.5" font-weight="700" text-anchor="middle" fill="#C6F135">Goal ${f(target)}</text>` : ''}
-    <polygon points="${area}" fill="url(#ga)"/><polyline points="${line}" class="ln"/>
-    ${pts.length <= 40 ? pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" class="dot"/>`).join('') : ''}
-    <circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="5.5" class="dot now"/>
-    <text x="${px}" y="${H - 2}" class="gt">${esc(fmtDay(points[0].date))}</text><text x="${W - 8}" y="${H - 2}" text-anchor="end" class="gt">${esc(fmtDay(points[points.length - 1].date))}</text></svg>`;
-}
+const chart = (points, target) => points.length < 2
+  ? '<div class="empty">Log at least two weights in this range to see a trend.</div>'
+  : lineChart({ points: points.map(p => ({ x: p.date, y: p.weight })), target, targetLabel: 'Goal', unit: ' kg', zero: false, fmt: v => String(f(v, 1)) });
 function vWeight() {
   const p = S.profile, ws = sortedWeights();
   const e = editW ? S.weights.find(x => x.id === editW) : null;
