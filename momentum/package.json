@@ -1,0 +1,10 @@
+{
+  "name": "momentum",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "MOMENTUM_SOURCE=fixture MOMENTUM_PASSCODE=demo node dev-server.js",
+    "dev:live": "node dev-server.js",
+    "test": "node --test test/*.check.mjs"
+  }
+}

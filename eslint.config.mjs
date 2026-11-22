@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Standalone Momentum app (plain JS, own package.json)
+    "momentum/**",
   ]),
 ]);
 

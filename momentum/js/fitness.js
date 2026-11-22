@@ -1,5 +1,10 @@
-'use strict';
-/* Momentum — local-first fitness tracker. No backend, no dependencies. */
+/* Momentum Fitness: the original local-first tracker (cycling, running, walking, push-ups,
+   weight, goals), now a module inside the Momentum app. Data stays on this device. */
+import { ring as ringChart } from './charts.js';
+import { toast } from './util.js';
+
+export const hooks = { onActivity: null, header: null };
+
 
 // ---------- helpers ----------
 const $ = (s, r = document) => r.querySelector(s);
@@ -109,46 +114,38 @@ function totals(acts) {
 const totalsHTML = t => `<div class="grid"><div><b>${t.sessions}</b><span class="sub">sessions</span></div><div><b>${t.days}</b><span class="sub">active days</span></div><div><b>${f(t.min, 0)}</b><span class="sub">minutes</span></div><div><b>${f(t.km)}</b><span class="sub">km</span></div><div><b>${t.reps}</b><span class="sub">reps</span></div></div>`;
 
 // ---------- UI primitives ----------
-let toastT;
-function toast(msg) {
-  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800);
-}
-const ring = (pct, size, inner, sw = 12) => {
-  const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
-  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/><circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - Math.min(100, pct) / 100)}" transform="rotate(-90 ${m} ${m})"/></svg><div class="ri">${inner}</div></div>`;
-};
+const ringP = (p, size, inner, sw = 12) => ringChart(p / 100, size, inner, sw);
 function weekStrip() {
   const ws = weekStart(today()), on = new Set(S.activities.map(a => a.date.slice(0, 10)));
   return `<div class="week">${'MTWTFSS'.split('').map((l, i) => { const k = addDays(ws, i); return `<div class="${on.has(k) ? 'on' : ''} ${k === today() ? 'now' : ''}"><i>${on.has(k) ? '✓' : ''}</i><span>${l}</span></div>`; }).join('')}</div>`;
 }
 const bar = pct => `<div class="bar ${pct >= 100 ? 'done' : ''}"><i style="width:${pct}%"></i></div>`;
-const actRow = a => `<div class="item"><div><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#log/${a.id}">Edit</a></div>`;
+const actRow = a => `<div class="item"><div><b>${esc(actTitle(a))}</b> <span class="sub">${esc(fmtTime(a.date))}</span><div class="sub">${esc(actSummary(a))}${a.estimatedCalories ? ` · <span class="est">~${a.estimatedCalories} kcal (est.)</span>` : ''}</div>${a.notes ? `<div class="sub">“${esc(a.notes)}”</div>` : ''}</div><a class="btn" href="#/fitness/log/${a.id}">Edit</a></div>`;
 
 // ---------- views ----------
 function vDash() {
   const pr = progress(), t = today(), ws = weekStart();
-  let h = '';
+  let h = hooks.header ? hooks.header() : '';
   if (!pr) {
-    h += `<div class="card"><h2>Welcome</h2><div class="sub">Set your starting and target weight to track progress.</div><p><a class="btn primary full" style="text-align:center" href="#weight">Set weights</a></p></div>`;
+    h += `<div class="card"><h2>Welcome</h2><div class="sub">Set your starting and target weight to track progress.</div><p><a class="btn primary full" style="text-align:center" href="#/fitness/weight">Set weights</a></p></div>`;
   } else {
     const st = S.profile.startingWeight, tg = S.profile.targetWeight;
     const delta = pr.cur - st, good = pr.mode === 'gain' ? delta >= 0 : delta <= 0;
-    h += `<div class="card hero"><div class="sub">Current weight</div>${ring(pr.pct, 176, `<div class="big">${f(pr.cur)}</div><div class="sub">kg</div>`, 14)}
+    h += `<div class="card hero"><div class="sub">Current weight</div>${ringP(pr.pct, 176, `<div class="big">${f(pr.cur)}</div><div class="sub">kg</div>`, 14)}
       <div class="pill">${f(pr.pct, 0)}% there · ${f(Math.abs(tg - pr.cur))} kg to go</div>
       <div class="trio"><div><span class="sub">Start</span><b>${f(st)} kg</b></div><div><span class="sub">Change</span><b class="${good ? 'good' : 'bad'}">${delta > 0 ? '+' : ''}${f(delta)} kg</b></div><div><span class="sub">Target</span><b>${f(tg)} kg</b></div></div></div>`;
   }
   const act = S.goals.filter(g => g.active);
   const daily = act.filter(g => g.frequency === 'daily'), weekly = act.filter(g => g.frequency === 'weekly');
-  const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ring(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${UNIT_LABEL[g.targetUnit]}</div></div></div>`; };
-  h += `<div class="card"><h2>Goals <button class="link" data-act="goal" data-id="">+ Add</button></h2>`;
+  const gl = g => { const p = goalProg(g); return `<div class="goal row" style="justify-content:flex-start;gap:12px">${ringP(p.pct, 46, `<span class="mini">${f(p.pct, 0)}</span>`, 6)}<div><b>${esc(goalName(g))}</b><div class="sub">${f(p.v)} of ${f(g.targetValue)} ${UNIT_LABEL[g.targetUnit]}</div></div></div>`; };
+  h += `<div class="card"><h2>Fitness goals <button class="link" data-act="goal" data-id="">+ Add</button></h2>`;
   if (!act.length) h += `<div class="empty">No active goals. Add one, e.g. 30 min cycling daily.</div>`;
   if (daily.length) h += `<div class="sub" style="margin-bottom:6px">Today</div>${daily.map(gl).join('')}`;
   if (weekly.length) h += `<div class="sub" style="margin:8px 0 6px">This week</div>${weekly.map(gl).join('')}`;
   if (S.goals.length) h += `<div style="margin-top:10px">${S.goals.map(g => `<button class="link" data-act="goal" data-id="${g.id}">${g.active ? '' : '(paused) '}Edit: ${esc(goalName(g))}</button>`).join('<br>')}</div>`;
   h += `</div>`;
   const todays = S.activities.filter(a => a.date.startsWith(t)).sort((a, b) => b.date.localeCompare(a.date));
-  h += `<div class="card"><h2>Today <a class="btn primary" href="#log">+ Log</a></h2>${todays.length ? todays.map(actRow).join('') : '<div class="empty">Nothing logged yet today.</div>'}</div>`;
+  h += `<div class="card"><h2>Today <a class="btn primary" href="#/fitness/log">+ Log</a></h2>${todays.length ? todays.map(actRow).join('') : '<div class="empty">Nothing logged yet today.</div>'}</div>`;
   const wk = S.activities.filter(a => a.date.slice(0, 10) >= ws);
   h += `<div class="card"><h2>This week</h2>${weekStrip()}${totalsHTML(totals(wk))}</div>`;
   return h;
@@ -170,7 +167,7 @@ function logFields(a) {
 }
 function vLog(id) {
   const a = id ? S.activities.find(x => x.id === id) : null;
-  if (id && !a) return `<div class="card empty">Entry not found. <a href="#history">Back</a></div>`;
+  if (id && !a) return `<div class="card empty">Entry not found. <a href="#/fitness/history">Back</a></div>`;
   let last = 'cycling'; try { last = localStorage.getItem('m_lastType') || 'cycling'; } catch {}
   const rec = a || { activityType: last, date: tKey(new Date()) };
   return `<form id="logForm" class="card" data-id="${a?.id || ''}" data-type="${rec.activityType}">
@@ -207,9 +204,10 @@ async function submitLog(form) {
   if (!ok) return toast(type === 'custom' ? 'Add a name and duration or reps' : 'Enter at least one value');
   rec.estimatedCalories = estCalories(type, rec.duration, curWeight());
   await save('activities', rec);
+  hooks.onActivity?.(rec.date.slice(0, 10));
   try { localStorage.setItem('m_lastType', type); } catch {}
   toast(id ? 'Saved' : 'Logged ✓');
-  location.hash = '#dashboard';
+  location.hash = '#/fitness';
 }
 
 // --- weight
@@ -261,7 +259,7 @@ async function submitWeight(form) {
   const fd = new FormData(form), w = num(fd.get('weight'));
   if (!w || w <= 0) return toast('Enter a valid weight');
   await save('weights', { id: form.dataset.id || uid(), ts: Date.now(), date: fd.get('date'), weight: w, notes: (fd.get('notes') || '').trim() });
-  editW = null; toast('Weight saved ✓'); render();
+  editW = null; toast('Weight saved ✓'); rerender();
 }
 async function submitProfile(form) {
   const fd = new FormData(form), s = num(fd.get('start')), t = num(fd.get('target'));
@@ -269,7 +267,7 @@ async function submitProfile(form) {
   const first = !S.profile;
   await save('profile', { id: 'me', startingWeight: s, targetWeight: t, weightUnit: 'kg', createdAt: S.profile?.createdAt || new Date().toISOString() });
   if (first && !S.weights.length) await save('weights', { id: uid(), ts: Date.now() - 1, date: today(), weight: s, notes: 'Starting weight' });
-  toast('Saved ✓'); render();
+  toast('Saved ✓'); rerender();
 }
 
 // --- history
@@ -314,7 +312,7 @@ async function submitGoal(form) {
   const fd = new FormData(form), type = fd.get('activityType'), v = num(fd.get('targetValue'));
   if (!v || v <= 0) return toast('Enter a target');
   await save('goals', { id: form.dataset.id || uid(), activityType: type, targetValue: v, targetUnit: fd.get('targetUnit'), frequency: type === 'any' ? 'weekly' : fd.get('frequency'), active: !!fd.get('active') });
-  $('#dlg').close(); toast('Goal saved ✓'); render();
+  $('#dlg').close(); toast('Goal saved ✓'); rerender();
 }
 
 // --- export / import
@@ -338,33 +336,37 @@ async function importJSON(file) {
     if (!confirm('Merge this backup into your data? Entries with matching IDs are overwritten.')) return;
     if (d.profile) await save('profile', d.profile);
     for (const k of ['weights', 'activities', 'goals']) for (const r of d[k] || []) await save(k, r);
-    toast('Backup restored ✓'); render();
+    toast('Backup restored ✓'); rerender();
   } catch { toast('Not a valid Momentum backup'); }
 }
 
 // ---------- router + events ----------
-function render() {
-  const [tab, arg] = (location.hash.slice(1) || 'dashboard').split('/');
-  const view = { dashboard: vDash, log: () => vLog(arg), weight: vWeight, history: vHistory }[tab] || vDash;
-  $('#view').innerHTML = view();
-  document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === (view === vDash ? 'dashboard' : tab)));
+let HOST = null, SUB = '', ARG = '';
+const SUBS = [['', 'Overview'], ['log', 'Log'], ['weight', 'Weight'], ['history', 'History']];
+export function renderFitness(host, sub = '', arg = '') {
+  HOST = host; SUB = sub; ARG = arg;
+  const view = { '': vDash, log: () => vLog(arg), weight: vWeight, history: vHistory }[sub] || vDash;
+  host.innerHTML = `<div class="page-head"><div><h1>Fitness</h1><p class="sub">Timed sessions, weight and goals. Stored on this device.</p></div></div>
+    <div class="chips seg-scroll fit-nav">${SUBS.map(([k, l]) => `<a class="${k === sub ? 'on' : ''}" href="#/fitness${k ? '/' + k : ''}">${l}</a>`).join('')}</div>
+    <div class="fit-body">${view()}</div>`;
   syncLogForm();
-  if (tab !== 'weight') editW = null;
+  if (sub !== 'weight') editW = null;
 }
+function rerender() { if (HOST) renderFitness(HOST, SUB, ARG); }
 
 document.addEventListener('click', async e => {
   const el = e.target.closest('[data-act]'); if (!el) return;
   const { act, id } = el.dataset;
   if (act === 'type') { const form = $('#logForm'); form.dataset.type = el.dataset.type; syncLogForm(); }
-  else if (act === 'crange') { CR = +el.dataset.d; render(); }
+  else if (act === 'crange') { CR = +el.dataset.d; rerender(); }
   else if (act === 'goal') openGoal(id);
   else if (act === 'close') $('#dlg').close();
-  else if (act === 'del-goal') { if (confirm('Delete this goal?')) { await remove('goals', id); $('#dlg').close(); render(); } }
-  else if (act === 'del-act') { if (confirm('Delete this entry? This cannot be undone.')) { await remove('activities', id); toast('Deleted'); location.hash = '#history'; } }
-  else if (act === 'edit-w') { editW = id; render(); scrollTo(0, 0); }
-  else if (act === 'cancel-w') { editW = null; render(); }
-  else if (act === 'del-w') { if (confirm('Delete this weight record?')) { await remove('weights', id); editW = null; render(); } }
-  else if (act === 'range') { const d = +el.dataset.d; H.to = ''; H.from = d ? addDays(today(), -(d - 1)) : ''; render(); }
+  else if (act === 'del-goal') { if (confirm('Delete this goal?')) { await remove('goals', id); $('#dlg').close(); rerender(); } }
+  else if (act === 'del-act') { if (confirm('Delete this entry? This cannot be undone.')) { await remove('activities', id); toast('Deleted'); location.hash = '#/fitness/history'; } }
+  else if (act === 'edit-w') { editW = id; rerender(); scrollTo(0, 0); }
+  else if (act === 'cancel-w') { editW = null; rerender(); }
+  else if (act === 'del-w') { if (confirm('Delete this weight record?')) { await remove('weights', id); editW = null; rerender(); } }
+  else if (act === 'range') { const d = +el.dataset.d; H.to = ''; H.from = d ? addDays(today(), -(d - 1)) : ''; rerender(); }
   else if (act === 'export-json') exportJSON();
   else if (act === 'export-csv') exportCSV();
 });
@@ -374,22 +376,18 @@ document.addEventListener('submit', e => {
   if (fn) fn(e.target).catch(() => toast('Could not save'));
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'hFrom') { H.from = e.target.value; render(); }
-  else if (e.target.id === 'hTo') { H.to = e.target.value; render(); }
+  if (e.target.id === 'hFrom') { H.from = e.target.value; rerender(); }
+  else if (e.target.id === 'hTo') { H.to = e.target.value; rerender(); }
   else if (e.target.id === 'importFile' && e.target.files[0]) importJSON(e.target.files[0]);
   else if (e.target.id === 'gType') { // rebuild goal form for the new activity type's units
     const form = e.target.form, fd = new FormData(form), type = fd.get('activityType');
     $('#dlg').innerHTML = goalForm({ id: form.dataset.id, activityType: type, targetValue: num(fd.get('targetValue')) ?? '', targetUnit: UNITS[type][0], frequency: type === 'any' ? 'weekly' : fd.get('frequency'), active: !!fd.get('active') });
   }
 });
-addEventListener('hashchange', () => { render(); scrollTo(0, 0); });
-const setOffline = () => { $('#offline').hidden = navigator.onLine; };
-addEventListener('online', setOffline); addEventListener('offline', setOffline);
-
-(async function init() {
-  setOffline();
-  try { db = await openDB(); await load(); }
-  catch { $('#view').innerHTML = '<div class="card">Storage is unavailable in this browser mode, so Momentum cannot save data. Try a normal (non-private) window.</div>'; return; }
-  render();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-})();
+export async function initFitness() {
+  db = await openDB(); await load();
+}
+export function summary() {
+  const ws = weekStart(), wk = S.activities.filter(a => a.date.slice(0, 10) >= ws), t = totals(wk), pr = progress();
+  return { weekMin: t.min, weekKm: t.km, sessions: t.sessions, weight: pr ? pr.cur : curWeight(), pct: pr ? pr.pct : null };
+}
