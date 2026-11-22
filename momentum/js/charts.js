@@ -7,12 +7,32 @@ import { icon } from './icons.js';
 
 let uid = 0;
 
-export function ring(pct, size, inner, sw = 12) {
+export function ring(pct, size, inner, sw = 12, area = 0) {
   const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2;
-  return `<div class="ring" style="width:${size}px;height:${size}px" role="img" aria-label="${Math.round(pct * 100)} percent">
+  return `<div class="ring ${area ? 'a' + area : ''}" style="width:${size}px;height:${size}px" role="img" aria-label="${Math.round(pct * 100)} percent">
     <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle class="rt" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}"/>
     <circle class="rp" cx="${m}" cy="${m}" r="${r}" stroke-width="${sw}" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - clamp(pct))}" transform="rotate(-90 ${m} ${m})"/></svg>
     <div class="ri">${inner}</div></div>`;
+}
+
+// Two concentric progress rings (outer blue = tasks, inner coral = habits).
+export function rings2(a, b, size = 176, sw = 14) {
+  const m = size / 2, one = (pct, r, v) => { const c = 2 * Math.PI * r; return `<circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke-width="${sw}" style="stroke:color-mix(in srgb,var(${v}) 17%,var(--card))"/>
+    <circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="var(${v})" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - clamp(pct))}" transform="rotate(-90 ${m} ${m})" style="transition:stroke-dashoffset .5s"/>`; };
+  const r1 = (size - sw) / 2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-hidden="true">${one(a, r1, '--c1')}${one(b, r1 - sw - 6, '--c2')}</svg>`;
+}
+
+// Donut with rounded, gapped segments. segs: [{value, color, tip}]
+export function donut(segs, { size = 200, sw = 26 } = {}) {
+  const r = (size - sw) / 2, c = 2 * Math.PI * r, m = size / 2, total = segs.reduce((a, s) => a + s.value, 0) || 1, gap = sw + 3;
+  let off = 0;
+  const arcs = segs.filter(s => s.value > 0).map(s => {
+    const len = (s.value / total) * c, d = Math.max(0.01, len - gap);
+    const out = `<circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${d} ${c - d}" stroke-dashoffset="${-(off + gap / 2)}" transform="rotate(-90 ${m} ${m})" data-tip="${esc(s.tip || '')}" tabindex="0"/>`;
+    off += len; return out;
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Breakdown"><circle cx="${m}" cy="${m}" r="${r}" fill="none" stroke="var(--track)" stroke-width="${sw}"/>${arcs}</svg>`;
 }
 
 // Meter with an optional "where you should be by now" tick.
@@ -21,16 +41,16 @@ export function meter(pct, { pace = null, tone = '' } = {}) {
 }
 
 // Seven columns (Mon-Sun) of daily completion.
-export function weekBars(days) {
+export function weekBars(days, { fmtTick = v => `${v}%` } = {}) {
   const W = 320, H = 150, base = 120, n = days.length, bw = n > 8 ? 12 : 18, gap = (W - n * bw) / (n + 1);
-  const g = [0, 50, 100].map(v => { const y = base - (v / 100) * 96; return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" class="gl"/><text x="0" y="${y - 4}" class="gt">${v}%</text>`; }).join('');
+  const g = [0, 50, 100].map(v => { const y = base - (v / 100) * 96; return `<line x1="0" x2="${W}" y1="${y}" y2="${y}" class="gl"/><text x="0" y="${y - 4}" class="gt">${fmtTick(v)}</text>`; }).join('');
   const bars = days.map((d, i) => {
     const x = gap + i * (bw + gap), h = d.pct == null ? 0 : Math.max(d.pct * 96, d.pct > 0 ? 3 : 0);
     const tip = d.tip || (d.future ? `${d.name}: upcoming` : `${d.name}: ${d.tasks[0]}/${d.tasks[1]} tasks · ${d.habits[0]}/${d.habits[1]} habits`);
     const bar = h ? `<path d="M${x} ${base}V${base - h + 4}a4 4 0 0 1 4-4h${bw - 8}a4 4 0 0 1 4 4V${base}z" class="${d.isToday ? 'bar-now' : 'bar-mk'}"/>` : `<rect x="${x}" y="${base - 2}" width="${bw}" height="2" rx="1" class="bar-empty"/>`;
     return `<g data-tip="${esc(tip)}" tabindex="0"><rect x="${x - gap / 2}" y="0" width="${bw + gap}" height="${H}" fill="transparent"/>${bar}<text x="${x + bw / 2}" y="${H - 8}" text-anchor="middle" class="gt ${d.isToday ? 'gt-now' : ''}">${d.label}</text></g>`;
   }).join('');
-  return `<svg class="chart wk" viewBox="0 0 ${W} ${H}" role="img" aria-label="Completion by day">${g}${bars}</svg>`;
+  return `<svg class="chart wk" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMinYMid meet" role="img" aria-label="Completion by day">${g}${bars}</svg>`;
 }
 
 // Compact seven-day column chart for the dashboard (today highlighted, past muted).
@@ -50,7 +70,7 @@ export function heat(rows, { cols = 7, labels = [] } = {}) {
   const lvl = v => (v == null ? 'hn' : v === 0 ? 'h0' : v < .34 ? 'h1' : v < .67 ? 'h2' : v < 1 ? 'h3' : 'h4');
   return `<div class="heat" style="--cols:${cols}">
     ${labels.length ? `<div class="heat-head"><span></span><div class="heat-cells">${labels.map(l => `<em>${esc(l)}</em>`).join('')}</div><span></span></div>` : ''}
-    ${rows.map(r => `<div class="heat-row"><span class="heat-label">${r.icon ? icon(r.icon, 15) : ''}${esc(r.label)}</span><div class="heat-cells">${r.cells.map(c => `<i class="${lvl(c.v)}" data-tip="${esc(c.tip || '')}" tabindex="0"></i>`).join('')}</div><span class="heat-right">${r.right || ''}</span></div>`).join('')}</div>`;
+    ${rows.map(r => `<div class="heat-row ${r.area ? 'a' + r.area : ''}"><span class="heat-label">${r.icon ? icon(r.icon, 15) : ''}${esc(r.label)}</span><div class="heat-cells">${r.cells.map(c => `<i class="${lvl(c.v)}" data-tip="${esc(c.tip || '')}" tabindex="0"></i>`).join('')}</div><span class="heat-right">${r.right || ''}</span></div>`).join('')}</div>`;
 }
 
 export function spark(values, { w = 120, h = 32 } = {}) {
@@ -96,7 +116,7 @@ export function lineChart({ points, target = null, targetLabel = 'Target', unit 
 // Ranked horizontal bars. over:true flags a value past its limit (icon + label, not colour alone).
 export function hbars(items, { fmt = v => compact(v) } = {}) {
   const max = Math.max(...items.map(i => Math.max(i.value, i.limit || 0)), 1);
-  return `<div class="hbars">${items.map(i => `<div class="hb" data-tip="${esc(i.tip || '')}" tabindex="0">
+  return `<div class="hbars">${items.map(i => `<div class="hb ${i.area ? 'a' + i.area : ''}" ${i.color ? `style="--a:${i.color}"` : ''} data-tip="${esc(i.tip || '')}" tabindex="0">
     <span class="hb-l">${esc(i.label)}</span>
     <div class="hb-t"><i class="${i.over ? 'over' : ''}" style="width:${(i.value / max * 100).toFixed(1)}%"></i>${i.limit ? `<b style="left:${(i.limit / max * 100).toFixed(1)}%"></b>` : ''}</div>
     <span class="hb-v">${fmt(i.value)}${i.over ? ` <em class="st-crit-t">${icon('alert', 12)} over</em>` : ''}</span></div>`).join('')}</div>`;

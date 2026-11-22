@@ -72,6 +72,9 @@ export const config = {
     { match: 'devotional', habit: 'Morning devotional' },
   ],
 
+  // Weekly workout target shown on the Fitness ring (override with FITNESS_WEEKLY_TARGET).
+  targets: { workoutsPerWeek: Number(env.FITNESS_WEEKLY_TARGET) || 4 },
+
   // How far back habit rows are loaded (days before cycle start are ignored).
   habitFutureDays: 7,
 };

@@ -101,7 +101,7 @@ async function refresh() {
   const settled = await Promise.allSettled(keys.map(k => jobs[k]()));
   const prev = cache?.state;
   const errors = {};
-  const state = { tz, today, weekStart: ws, cycle: config.cycle, links: config.goalLinks, demo: isFixture() };
+  const state = { tz, today, weekStart: ws, cycle: config.cycle, links: config.goalLinks, targets: config.targets, demo: isFixture() };
   settled.forEach((r, i) => {
     const k = keys[i];
     if (r.status === 'fulfilled') state[k] = r.value;

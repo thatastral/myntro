@@ -111,6 +111,12 @@ export function analyze(state, now = new Date()) {
   const wgDone = weeklyGoals.filter(g => g.status === 'Done').length;
   const weekPct = (() => { const v = week.filter(d => d.pct != null); return v.length ? v.reduce((a, d) => a + d.pct, 0) / v.length : 0; })();
 
+  // ---- solid-day streak: a day with at least half of your habits ticked
+  const solidDay = d => { const r = hrow(d); return !!r && list.length > 0 && list.filter(h => r.done[h.key]).length / list.length >= 0.5; };
+  let sStreak = 0;
+  for (let d = solidDay(today) ? today : addDays(today, -1); hrow(d) && solidDay(d); d = addDays(d, -1)) sStreak++;
+  const solid = { streak: sStreak, week: week.map(w => ({ label: w.label, name: w.name, today: w.isToday, future: w.future, done: !w.future && solidDay(w.date) })) };
+
   // ---- goals
   const goals = (state.goals ?? []).map(g => goalPace(state, g, hs));
 
@@ -145,7 +151,7 @@ export function analyze(state, now = new Date()) {
   fixes.sort((a, b) => b.sev - a.sev);
 
   return { hs, today: { tasks: todayTasks, tDone, hDone, pct: todayPct, attack, next, slots, habitCount: list.length, nowMin },
-    week, weekStats: { tasks: [wDone, wTasks.length], missed: wMissed, habits: [wHabitDone, wHabitTotal], goals: [wgDone, weeklyGoals.length], pct: weekPct },
+    solid, week, weekStats: { tasks: [wDone, wTasks.length], missed: wMissed, habits: [wHabitDone, wHabitTotal], goals: [wgDone, weeklyGoals.length], pct: weekPct },
     weeklyGoals, goals, cycle, career: { active, stageCounts, nextActions, contactedWeek }, fixes };
 }
 

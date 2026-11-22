@@ -1,9 +1,9 @@
 // App shell cache. API responses are NEVER cached here (they hold personal data and must be live);
 // the app keeps its own last-known copy in localStorage for instant paints and offline viewing.
-const CACHE = 'momentum-v8';
+const CACHE = 'momentum-v11';
 const ASSETS = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png',
-  'js/main.js', 'js/sync.js', 'js/insights.js', 'js/charts.js', 'js/icons.js', 'js/util.js', 'js/dates.js', 'js/ui.js', 'js/fitness.js',
+  'js/main.js', 'js/sync.js', 'js/insights.js', 'js/charts.js', 'js/icons.js', 'js/util.js', 'js/dates.js', 'js/ui.js', 'js/areas.js', 'js/fitness.js',
   'js/pages/home.js', 'js/pages/habits.js', 'js/pages/goals.js', 'js/pages/money.js', 'js/pages/career.js',
 ];
 self.addEventListener('install', e => {

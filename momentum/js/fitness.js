@@ -147,7 +147,7 @@ function vDash() {
   const todays = S.activities.filter(a => a.date.startsWith(t)).sort((a, b) => b.date.localeCompare(a.date));
   h += `<div class="card"><h2>Today <a class="btn primary" href="#/fitness/log">+ Log</a></h2>${todays.length ? todays.map(actRow).join('') : '<div class="empty">Nothing logged yet today.</div>'}</div>`;
   const wk = S.activities.filter(a => a.date.slice(0, 10) >= ws);
-  h += `<div class="card"><h2>This week</h2>${weekStrip()}${totalsHTML(totals(wk))}</div>`;
+  h += `<div class="card"><h2>Logged this week</h2>${totalsHTML(totals(wk))}</div>`;
   return h;
 }
 
@@ -328,8 +328,8 @@ export function renderFitness(host, sub = '', arg = '') {
   HOST = host; SUB = sub; ARG = arg;
   const view = { '': vDash, log: () => vLog(arg), weight: vWeight, history: vHistory }[sub] || vDash;
   host.innerHTML = `<div class="page-head"><div><h1>Fitness</h1><p class="sub">Timed sessions, weight and goals. Stored on this device.</p></div></div>
-    <div class="chips seg-scroll fit-nav">${SUBS.map(([k, l]) => `<a class="${k === sub ? 'on' : ''}" href="#/fitness${k ? '/' + k : ''}">${l}</a>`).join('')}</div>
-    <div class="fit-body">${view()}</div>`;
+    <div class="chips seg-scroll fit-nav a2">${SUBS.map(([k, l]) => `<a class="${k === sub ? 'on' : ''}" href="#/fitness${k ? '/' + k : ''}">${l}</a>`).join('')}</div>
+    <div class="fit-body a2">${view()}</div>`;
   syncLogForm();
   if (sub !== 'weight') editW = null;
 }
@@ -372,3 +372,6 @@ export function summary() {
   const ws = weekStart(), wk = S.activities.filter(a => a.date.slice(0, 10) >= ws), t = totals(wk), pr = progress();
   return { weekMin: t.min, weekKm: t.km, sessions: t.sessions, weight: pr ? pr.cur : curWeight(), pct: pr ? pr.pct : null };
 }
+
+export const activeDates = () => new Set(S.activities.map(a => a.date.slice(0, 10)));
+export function dailyMinutes() { const m = {}; for (const a of S.activities) { const k = a.date.slice(0, 10); m[k] = (m[k] || 0) + (a.duration || 0); } return m; }
